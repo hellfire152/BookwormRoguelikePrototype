@@ -1,0 +1,98 @@
+#container {
+    width: 1000px;
+    height: 700px;
+}
+
+#combat-area {
+    width: 50%;
+    height: 100%;
+    float: left;
+    background-color: #d8f2e9;
+}
+
+#information-area {
+    width: 50%;
+    height: 100%;
+    float: right;
+    background-color: #f2ebd8;
+}
+
+#relics {
+    width: 95%;
+    height: 47%;
+    margin: 10px;
+    background-color: #c0c9f0;
+    border: 2px solid black;
+}
+
+#log {
+    width: 95%;
+    height: 47%;
+    margin: 10px;
+    background-color: #c0eff0;
+    border: 2px solid black;
+}
+
+#event-area {
+    width: 95%;
+    height: 60%;
+    margin: 10px;
+    background-color: #f0ccc0;
+    border: 2px solid black;
+}
+
+#letter-board {
+    width: 95%;
+    height: 35%;
+    margin: 10px;
+    background-color: #d8eddf;
+    border: 2px solid black;
+}
+
+.letter {
+    width: 30px;
+    height: 30px;
+    margin: 3px;
+    border: 1px solid black;
+    border-radius: 8px;
+    background-color: #d9dedb;
+    text-transform: uppercase;
+    float:left;
+    font-family : "Geist Mono";
+    font-size : 1.5em;
+    text-align : center;
+    vertical-align: middle;
+    line-height:30px;
+}
+
+
+#letter-input {
+    width:85%;
+    height: 50px;
+    margin: auto;
+    background-color: white;
+    display: inline-flex;
+}
+
+#send-input {
+    width:70px;
+    height: 50px;
+    margin:auto;
+    background-color: orange;
+    display: inline-flex;
+}
+
+#send-input:disabled {
+    background-color: #d1bca3;
+}
+
+.player-stat {
+    font-size : 1.2em;
+    margin: 10px;
+}
+
+.event-option {
+    margin:auto;
+    width: 90%;
+    background-color: gray;
+}
