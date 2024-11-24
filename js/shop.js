@@ -142,7 +142,7 @@ function loadUpgradeShop() {
 
     let modifiersContainers = $("<div>");
     modifiersContainers.attr("id", "shop-modifiers-container");
-    
+
     // generate 3 random modifiers
     let modifiers = _.sampleSize(Object.keys(MODIFIERS), 3);
     for (const mod of modifiers) {
@@ -188,4 +188,49 @@ function loadUpgradeShop() {
     sceneStore.event.text = shopContainer;
     sceneStore.event.options = modifierLetterContainer;
     switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
+}
+
+class Shop {
+    static modifyLetterOnClick(e) {
+        let j = $(e.target);
+
+        // unselect everything else
+        let otherLetters = j.siblings();
+        otherLetters.attr("data-selected", "false");
+        otherLetters.css("border", "")
+
+        // toggle selected
+        if (j.attr("data-selected") == "true") {
+            j.attr("data-selected", "false");
+            j.css("border", "");
+            selectedLetter = null;
+        } else {
+            j.attr("data-selected", "true");
+            j.css("border", "5px solid orange");
+            selectedLetter = j.text();
+        }
+    }
+    static modifierOnClick(e) {
+        let j = $(e.currentTarget);
+
+        // deselect everything else
+        let otherModifiers = j.siblings();
+        otherModifiers.attr("data-selected", "false");
+        otherModifiers.css("border", "");
+
+        // toggle selected
+        if (j.attr("data-selected") == "true") {
+            j.attr("data-selected", "false");
+            j.css("border", "");
+            selectedModifier = null;
+        } else {
+            j.attr("data-selected", "true");
+            j.css("border", "5px solid orange");
+            selectedModifier = j.attr("_modifierid");
+        }
+    }
+    static modifySubmitOnClick(e) {
+        MODIFIERS[selectedModifier].onUse(selectedLetter);
+        nextEvent();
+    }
 }

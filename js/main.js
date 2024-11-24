@@ -350,37 +350,9 @@ function preload() {
     // letter modifiers
     selectedLetter = null;
     selectedModifier = null;
-    $('#letter-board').on("click", "#modifier-letter-container .letter", (e) => {
-        let j = $(e.target);
-        console.log(j);
-        if (j.attr("selected") == "true") {
-            j.attr("selected", "false");
-            j.css("");
-            selectedLetter = null;
-        } else {
-            j.attr("selected", "true");
-            j.css("border", "5px solid orange");
-            selectedLetter = j.text();
-        }
-    });
-    $("#event-area").on("click", ".modifier-container", (e) => {
-        let j = $(e.currentTarget);
-        console.log(j)
-        if (j.attr("selected") == "true") {
-            j.attr("selected", "false");
-            j.css("");
-            selectedModifier = null;
-        } else {
-            j.attr("selected", "true");
-            j.css("border", "5px solid orange");
-            selectedModifier = j.attr("_modifierid");
-        }
-    });
-    $("#letter-board").on("click", "#modifier-submit", (e) => {
-        console.log(e.target);
-        MODIFIERS[selectedModifier].onUse(selectedLetter);
-        nextEvent();
-    });
+    $('#letter-board').on("click", "#modifier-letter-container .letter", Shop.modifyLetterOnClick);
+    $("#event-area").on("click", ".modifier-container", Shop.modifierOnClick);
+    $("#letter-board").on("click", "#modifier-submit", Shop.modifySubmitOnClick);
 
     $('#game-start').click(startGame);
 }

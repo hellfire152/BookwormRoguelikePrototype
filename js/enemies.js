@@ -61,11 +61,16 @@ class Enemy {
             switch(r.type) {
                 case "money": {
                     player.giveMoney(r.value);
+                    log(`${this.name} has been defeated! Gained ${r.value} Money`)
                     break;
+                }
+                case "heal" : {
+                    player.healDamage(r.value);
+                    log(`${this.name} has been defeated! Healed for ${r.value} HP`)
                 }
             }
         }
-        log(`${this.name} has been defeated`)
+
     }
 
     dealDamage(damage) {
@@ -100,5 +105,11 @@ class Enemy {
         enemyContainer.find("#enemy-name").text(this.name);
         enemyContainer.find("#enemy-display").text(this.name);
         enemyContainer.find("#enemy-hp").text(`${this.currentHP}/${this.maxHP} HP`)
+    }
+}
+
+class EnemyFactory {
+    static generateEnemy(enemyType, level) {
+        
     }
 }

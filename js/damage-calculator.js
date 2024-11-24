@@ -75,9 +75,8 @@ function calculateDamage(letters) {
     //bonus multiplier for long words
     multipliers.push(LENGTH_DAMAGE_MULTIPLIERS[letters.length]); 
     for(const m of multipliers) {
-        damage *= parseFloat(multipliers);
+        damage *= parseFloat(m);
     }
-    
     damage = roundToHalf(damage);
     return damage;
 }
