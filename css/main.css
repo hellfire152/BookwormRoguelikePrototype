@@ -17,12 +17,24 @@
     background-color: #f2ebd8;
 }
 
+#owned-relics { 
+    width : 95%;
+}
+
+#owned-consumables {
+    width : 95%;
+    display : flex;
+}
+
 #relics {
     width: 95%;
     height: 47%;
     margin: 10px;
     background-color: #c0c9f0;
     border: 2px solid black;
+    display: flex;
+    flex-direction: column;
+    justify-content : space-between;
 }
 
 #log {
@@ -31,6 +43,9 @@
     margin: 10px;
     background-color: #c0eff0;
     border: 2px solid black;
+    display: flex;
+    flex-direction: column;
+    justify-content : space-between;
 }
 
 #event-area {
@@ -63,6 +78,7 @@
     text-align : center;
     vertical-align: middle;
     line-height:30px;
+    user-select: none;
 }
 
 
@@ -72,6 +88,7 @@
     margin: auto;
     background-color: white;
     display: inline-flex;
+    position: relative;
 }
 
 #send-input {
@@ -86,6 +103,19 @@
     background-color: #d1bca3;
 }
 
+#combat-input-container, #modifier-letter-container {
+    width : 100%;
+    height : 100%;
+    position : relative;
+}
+#shuffle, #modifer-submit {
+    width : 70px;
+    border-radius : 5px;
+    position : absolute;
+    bottom: 10px;
+    right : 10px;
+}
+
 .player-stat {
     font-size : 1.2em;
     margin: 10px;
@@ -95,4 +125,50 @@
     margin:auto;
     width: 90%;
     background-color: gray;
+}
+
+#game-log {
+    width : 95%;
+    height : 40%;
+    overflow : scroll;
+    position: relative;
+    bottom:10px;
+}
+
+.game-log-item {
+    width : 100%;
+    font-size : 12;
+    margin: 0em;
+}
+
+.item-container {
+    width : 50px;
+    height : 100px;
+    display : inline-block;
+    padding : 15px;
+}
+.item-sprite {
+    width : 40px;
+    height : 50px;
+}
+
+#shop-modifiers-container {
+    display : flex;
+}
+.modifier-sprite {
+    width : 50px;
+    height : 100px;
+}
+.modifier-container {
+    padding : 30px;
+}
+#shop-items-container {
+    display : block;
+}
+
+.player-consumable {
+    width : 50px;
+    height : 80px;
+    text-align : center;
+    padding : 7px;
 }

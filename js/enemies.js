@@ -1,15 +1,15 @@
 class Enemy {
     constructor(level) {
         this.name = "Test enemy";
-        let n = 10 * (1.05 ** level);
-        this.maxHP = ((n * 10) << 0) * 0.1;;
+        let n = 10 * (1.15 ** level);
+        this.maxHP = ((n * 10) << 0) * 0.1; //round to 1 decimal
         this.currentHP = this.maxHP;
         this.attacks = [{
             "name" : "Slash",
             "effects" : [
                 {
                     "type" : "damage",
-                    "value" : 10 * (1.05 ** level)
+                    "value" : 10 * (1.15 ** level)
                 }
             ]
         }, {
@@ -17,7 +17,7 @@ class Enemy {
             "effects" : [
                 {
                     "type" : "damage",
-                    "value" : 20 * (1.05 ** level)
+                    "value" : 20 * (1.15 ** level)
                 }
             ]
         }];
@@ -48,8 +48,8 @@ class Enemy {
         for (const e of attack.effects) {
             switch(e.type) {
                 case "damage" : {
-                    console.log(e);
                     player.dealDamage(e.value);
+                    log(`${this.name} dealt ${e.value} damage.`);
                     break;
                 }
             }
@@ -65,16 +65,20 @@ class Enemy {
                 }
             }
         }
+        log(`${this.name} has been defeated`)
     }
 
     dealDamage(damage) {
-        this.currentHP -=  damage;
+        this.currentHP -= damage;
         if (this.currentHP <= 0) {
-            return true; // enemy killed
+            this.defeatAndGiveRewards();
+            levelsCleared += 1;
+            nextEvent();
+        } else {
+            this.currentHP = ((this.currentHP * 10) << 0) * 0.1; // round to 1 decimal place
+            this._setHPDisplay();
+            this.selectAndPerformAttack();
         }
-        this.currentHP = ((this.currentHP * 10) << 0) * 0.1; // round to 1 decimal place
-        this._setHPDisplay();
-        return false;
     }
 
 

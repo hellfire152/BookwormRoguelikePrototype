@@ -3,6 +3,7 @@ const GAME_CONSTANTS = {
     GAME_STATES : {
         "COMBAT" : 1,
         "EVENT" : 2,
+        "DECIDING-EVENT" : 3
     },
 }
 
@@ -15,94 +16,16 @@ var sceneStore = {
         "text" : null,
         "options" : null,
     },
+    "item-shop" : {
+        "text" : null,
+        "options" : null,
+    },
+    "upgrade-shop" : {
+        "text" : null,
+        "options" : null
+    }
 }
 
-var LETTER_PROBABILITY_POINTS = {
-    "a" : 80,
-    "b" : 20,
-    "c" : 20,
-    "d" : 40,
-    "e" : 80,
-    "f" : 20,
-    "g" : 20,
-    "h" : 40,
-    "i" : 80,
-    "j" : 10,
-    "k" : 10,
-    "l" : 40,
-    "m" : 20,
-    "n" : 40,
-    "o" : 70,
-    "p" : 20,
-    "q" : 5,
-    "r" : 40,
-    "s" : 40,
-    "t" : 50,
-    "u" : 60,
-    "v" : 10,
-    "w" : 20,
-    "x" : 10,
-    "y" : 20,
-    "z" : 10
-}
-var LETTER_PROBABILTY_THRESHOLDS = {
-    "a" : 0,
-    "b" : 0,
-    "c" : 0,
-    "d" : 0,
-    "e" : 0,
-    "f" : 0,
-    "g" : 0,
-    "h" : 0,
-    "i" : 0,
-    "j" : 0,
-    "k" : 0,
-    "l" : 0,
-    "m" : 0,
-    "n" : 0,
-    "o" : 0,
-    "p" : 0,
-    "q" : 0,
-    "r" : 0,
-    "s" : 0,
-    "t" : 0,
-    "u" : 0,
-    "v" : 0,
-    "w" : 0,
-    "x" : 0,
-    "y" : 0,
-    "z" : 0
-}
-let LETTER_PROBABILITY_POINT_MAX = 0;
-
-let LETTER_DAMAGE_VALUES = {
-    "a" : 1,
-    "b" : 3,
-    "c" : 3,
-    "d" : 2,
-    "e" : 1,
-    "f" : 3,
-    "g" : 3,
-    "h" : 2,
-    "i" : 1,
-    "j" : 5,
-    "k" : 5,
-    "l" : 2,
-    "m" : 3,
-    "n" : 2,
-    "o" : 1,
-    "p" : 4,
-    "q" : 7,
-    "r" : 2,
-    "s" : 1,
-    "t" : 1,
-    "u" : 1,
-    "v" : 5,
-    "w" : 3,
-    "x" : 5,
-    "y" : 3,
-    "z" : 5
-}
 
 let wordlist = {}
 let player;
@@ -113,76 +36,8 @@ let currentEnemy;
 function startGame() {
     // so we need to start the game loop somewhere
     // let's start with intro (event) -> combat -> event -> combat and so on for now
-    setupEvent("intro");
-}
-
-class Player {
-    constructor() {
-        this.money = 0;
-        this.items = [];
-        this.flags = {};
-        this.maxHP = 100;
-        this.currentHP = this.maxHP;
-    }
-
-    attemptPurchase(item) {
-
-    }
-
-    giveMoney(amountGiven) {
-        this.money += parseInt(amountGiven);
-
-        //set value in UI
-        this._updateMoneyDisplay();
-    }
-
-    _updateMoneyDisplay() {
-        $("#player-money").text(`${this.money} Money`)
-    }
-
-    checkFlag(flag) {
-        return !!this.flags[flag]
-    }
-
-    setFlag(flag) {
-        this.flags[flag] = true;
-    }
-
-    dealDamage(damage) {
-        this.currentHP -= damage;
-        this._updateHPDisplay();
-        if (this.currentHP <= 0) {
-            alert(`Game Over! You lasted ${levelsCleared} rounds.`);
-        }
-        return true;
-    }
-
-    healDamage(healAmount) {
-        this.currentHP += healAmount;
-        if (this.currentHP > this.maxHP) {
-            this.currentHP = this.maxHP;
-        }
-        this._updateHPDisplay();
-    }
-
-    _updateHPDisplay() {
-        $("#player-hp").text(`${this.currentHP}/${this.maxHP} HP`)
-    }
-
-    setHP(hp) {
-    }
-
-    setMaxHP(hp) {
-
-    }
-}
-
-class Letter {
-    constructor(letter) {
-        this.letter = letter;
-        this.powerup = null;
-        this.locked = null;
-    }
+    setupEvent("_intro");
+    $("#game-start").remove();
 }
 
 function setupEvent(eventName) {
@@ -207,6 +62,7 @@ function setEventPlayerOptions(optionsArr) {
         optionChoice.addClass("event-option");
         optionChoice.text(o.text);
         optionChoice.attr("result", o.onSelect);
+        optionChoice.attr("args", o.args);
         eventOptionsContainer.append(optionChoice);
     }
 }
@@ -214,24 +70,20 @@ function setEventPlayerOptions(optionsArr) {
 function nextEvent() {
     switch(gameState) {
         case GAME_CONSTANTS.GAME_STATES.COMBAT:
-            //switch to random event
-            let allEvents = Object.keys(EVENT_DETAILS);
-            for (const e of allEvents) {
-                if (e.startsWith("_"))  { // don't include event continuations
-                    let i = allEvents.indexOf(e);
-                    allEvents.splice(i, 1);
-                }
-            }
-
-            //get a random event from remaining events
-            let randomEvent = allEvents[Math.floor(Math.random()*allEvents.length)];
-            setupEvent(randomEvent);
+            setupEvent("_decide-event");
+            break;
+        case GAME_CONSTANTS.GAME_STATES["DECIDING-EVENT"]:
+            
             break;
         case GAME_CONSTANTS.GAME_STATES.EVENT:
             //switch to combat
             setupCombat();
             break;
     }
+}
+
+function randomFromArray(arr) {
+    return arr[Math.floor(Math.random()*arr.length)];
 }
 
 function generateEventDetail() {
@@ -312,22 +164,37 @@ function generateInputSpace() {
     let letterboard = $("<div></div>");
     letterboard.attr('id', 'letters-available');
 
-    combatInputContainer.append(inputSpace, sendInput, letterboard);
+    let shuffleButton = $("<button>");
+    shuffleButton.attr("id", "shuffle");
+    shuffleButton.text("Shuffle");
+
+    combatInputContainer.append(inputSpace, sendInput, letterboard, shuffleButton);
     sceneStore.combat["player-input"] = combatInputContainer;
 }
 
-function generateLetters(noLettersToGenerate){
+function generateLetters(noLettersToGenerate, generateSpecial){
     if (typeof noLettersToGenerate == 'undefined') {
         noLettersToGenerate = GAME_CONSTANTS.STARTING_LETTER_COUNT;
     }
 
+    // see if a special tile should be generated
+    let specialTile = Letter.specialTileTypeFromLength(noLettersToGenerate);
+
+    let specialGenerated = !generateSpecial;
     for(let i = 0; i < noLettersToGenerate; i++) {
-        let letter = $("<div></div>");
-        letter.addClass('letter');
-        letter.text(randomLetterMatchingProbabilities());
+        let letter;
+        if(!specialGenerated && specialTile) {
+            letter = new Letter(randomLetterMatchingProbabilities(), specialTile);
+            specialGenerated = !specialGenerated;
+        }
+        else {
+            letter = new Letter(randomLetterMatchingProbabilities());
+        }
+        let element = letter.generateElement();
+
         $(sceneStore.combat["player-input"])
         .find("#letters-available")
-        .append(letter);
+        .append(element);
     }
 }
 
@@ -357,33 +224,26 @@ function evaluateInput() {
     }
 }
 
+
 function submitInput() {
     // submit button shouldn't even work if the word is invalid
     // so we ain't validating it again kekw
-    let word = getWordInInput();
+    let letters = getLettersInInput();
+    let damage = calculateDamage(letters);
 
-    let damage = 0;
-    [...word].forEach((c) => { //calculate total damage
-        damage += LETTER_DAMAGE_VALUES[c];
-    });
-    
+    log(`Player dealt ${damage} damage!`);
+
     // clear input and replace letters
     let letterElements = $('#letter-input').children();
     letterElements.each((index, element) => {
-        element.remove()
+        Letter.removeLetterFromElement(element);
     });
-    generateLetters(word.length);
+    $("#send-input").prop("disabled", true);
+    // replace letters lost
+    generateLetters(letters.length, true);
 
     //handle damage to enemies
-    let isDead = currentEnemy.dealDamage(damage);
-    if (isDead) {
-        currentEnemy.defeatAndGiveRewards();
-        levelsCleared += 1;
-        nextEvent();
-    } else {
-        //enemy attacks back
-        currentEnemy.selectAndPerformAttack();
-    }
+    currentEnemy.dealDamage(damage);
 }
 
 function getWordInInput() {
@@ -394,18 +254,43 @@ function getWordInInput() {
     return word;
 }
 
+function getLettersInInput() {
+    let letters = [];
+    $('#letter-input').children().each((index, element) => {
+        let l = Letter.getLetterObjectFromElement(element);
+        letters.push(l);
+    });
+    console.log(letters)
+    return letters;
+}
+
 function generatePlayerStatBoard() {
     let hpDisplay = $("<div></div>");
     hpDisplay.attr("id", "player-hp");
-    hpDisplay.text("100/100 HP");
+    hpDisplay.text(`${player.currentHP}/${player.maxHP} HP`);
     hpDisplay.addClass("player-stat");
 
     let moneyDisplay = $("<div></div>");
     moneyDisplay.attr("id", "player-money");
-    moneyDisplay.text("0 Money");
+    moneyDisplay.text(`${player.money} Money`);
     moneyDisplay.addClass("player-stat");
 
     $("#log").append(hpDisplay, moneyDisplay);
+}
+
+function generateLog() {
+    let logDisplay = $("<div></div>");
+    logDisplay.attr("id", "game-log");
+
+    $("#log").append(logDisplay);
+}
+
+function log(text) {
+    let logItem = $("<p></p>");
+    logItem.text(text);
+    logItem.addClass("game-log-item");
+
+    $("#game-log").prepend(logItem);
 }
 
 function preload() {
@@ -421,35 +306,27 @@ function preload() {
 
     // pre-calculate letter probability thresholds
     calculateLetterProbabilityThresholds();
-    
+
+    player = new Player();
+
     // pre-make the elements
     generateInputSpace();
     generateLetters();
     generatePlayerStatBoard();
     generateEventDetail();
     generateEnemyContainer();
-
-    player = new Player();
+    generateLog();
 
     // DELEGATED HANDLERS FOR THINGS TO WORK
     // for the event options to work
     $('#letter-board').on('click', '.event-option', (e) => {
         let t = $(e.target);
-        EVENT_FUNCTIONS[t.attr("result")]();
+        let args = t.attr("args")
+        EVENT_FUNCTIONS[t.attr("result")](t, args);
     });
     // for the letters to work
-    $('#letter-board').on("click", '#letters-available .letter', (e) => {
-        let t = $(e.target);
-        t.detach();
-        $('#letter-input').append(t);
-        evaluateInput();
-    })
-    $('#letter-board').on("click", "#letter-input .letter", (e) => {
-        let t = $(e.target);
-        t.detach();
-        $('#letters-available').append(t);
-        evaluateInput();
-    })
+    $('#letter-board').on("click", '#letters-available .letter', Letter.letterAvailableOnClick);
+    $('#letter-board').on("click", "#letter-input .letter", Letter.letterInInputOnClick);
     $('#letter-board').on("click", "#send-input", (e) => {
         let t = $(e.target);
         if (t.disabled) {
@@ -457,19 +334,57 @@ function preload() {
         } else {
             submitInput();
         }
+    });
+    // shuffle button
+    $('#letter-board').on("click", "#shuffle", (e) => {
+        let lettersAvil = $("#letters-available");
+        let shuffled = _.shuffle(lettersAvil.children().toArray());
+        lettersAvil.empty();
+        lettersAvil.append(shuffled);        
     })
+    // consumable items
+    $('#owned-consumables').on("click", ".player-consumable", (e) => {
+        let itemContainer = $(e.currentTarget);
+        player.useConsumable(itemContainer.attr("_itemid"));
+    })
+    // letter modifiers
+    selectedLetter = null;
+    selectedModifier = null;
+    $('#letter-board').on("click", "#modifier-letter-container .letter", (e) => {
+        let j = $(e.target);
+        console.log(j);
+        if (j.attr("selected") == "true") {
+            j.attr("selected", "false");
+            j.css("");
+            selectedLetter = null;
+        } else {
+            j.attr("selected", "true");
+            j.css("border", "5px solid orange");
+            selectedLetter = j.text();
+        }
+    });
+    $("#event-area").on("click", ".modifier-container", (e) => {
+        let j = $(e.currentTarget);
+        console.log(j)
+        if (j.attr("selected") == "true") {
+            j.attr("selected", "false");
+            j.css("");
+            selectedModifier = null;
+        } else {
+            j.attr("selected", "true");
+            j.css("border", "5px solid orange");
+            selectedModifier = j.attr("_modifierid");
+        }
+    });
+    $("#letter-board").on("click", "#modifier-submit", (e) => {
+        console.log(e.target);
+        MODIFIERS[selectedModifier].onUse(selectedLetter);
+        nextEvent();
+    });
 
     $('#game-start').click(startGame);
 }
 
-function calculateLetterProbabilityThresholds() {
-    let threshold = 0;
-    LETTER_PROBABILITY_POINT_MAX = 0; // reset max
-    for (l in LETTER_PROBABILITY_POINTS) {
-        LETTER_PROBABILITY_POINT_MAX += LETTER_PROBABILITY_POINTS[l];
-        threshold += LETTER_PROBABILITY_POINTS[l];
-        LETTER_PROBABILTY_THRESHOLDS[l] = threshold;
-    }
-}
+
 
 window.onload = () => {preload()};
