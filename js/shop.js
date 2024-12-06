@@ -4,7 +4,7 @@ const CONSUMABLE_ID = {
     SINGLE_TILE_REROLL : 2, // rerolls a single tile
     INSTANT_REFRESH : 3, // rerolls all tiles without skipping a turn
     NEW_KNOWLEDGE : 4, // adds a set number of extra tiles
-    OMNISCIENCE : 5, // plays the longest possible word for you
+    //OMNISCIENCE : 5, // plays the longest possible word for you
 }
 
 const CONSUMABLE_DETAILS = {
@@ -12,6 +12,8 @@ const CONSUMABLE_DETAILS = {
         name : "Healing potion",
         onUse : () => {
             player.healDamage(10);
+            log("Healed 10 HP!");
+            return true;
         },
         baseCost : 30,
         sprite : null,
@@ -24,6 +26,7 @@ const CONSUMABLE_DETAILS = {
                 log(`Dealt 20 damage to ${currentEnemy.name}!`);
                 return true;
             }
+            log("No enemy to deal damage to!");
             return false;
         },
         baseCost : 30,
@@ -32,7 +35,22 @@ const CONSUMABLE_DETAILS = {
     2 : {
         name : "Single Tile Reroll",
         onUse : () => {
-           console.log("Unimplemented"); 
+            if (gamestate != GAME_CONSTANTS.GAME_STATES.COMBAT) {
+                log("Can only be used in combat!");
+                return false;
+            }
+            // highlight all letters
+            let letters = $(".letter:not(.placeholder-letter)");
+            letters.addClass("temporary-highlight");
+            letters.one('click', (e) => {
+                let t = $(e.target);
+                let letter = Letter.getLetterObjectFromElement(t);
+                letter.rerollLetter(t);
+                letters.removeClass("temporary-highlight");
+                letters.off("click");
+                log("Rerolled a single tile");
+            });
+            return true;
         },
         baseCost : 20,
         sprite : null,
@@ -40,7 +58,27 @@ const CONSUMABLE_DETAILS = {
     3 : {
         name : "Instant Full Refresh",
         onUse : () => {
-            console.log("Unimplemented");
+            if (gameState == GAME_CONSTANTS.GAME_STATES.COMBAT) {
+                Letter.refreshAllLetters();
+                log("Rerolled all letters!");
+            } else {
+                log("Can only be used in combat!");
+                return false;
+            }
+            return true;
+        },
+        baseCost : 60,
+        sprite : null,
+    },
+    4 : {
+        name : "Extra Tiles",
+        onUse : () => {
+            if (gameState == GAME_CONSTANTS.GAME_STATES.COMBAT) {
+                generateLetters(3);
+                log("3 Extra Tiles were generated!");
+            } else {
+                log("Can only be used in combat!");
+            }
         },
         baseCost : 50,
         sprite : null,
@@ -60,9 +98,9 @@ function loadItemShop() {
  
     //generate 3 random relics and 3 random consumables
     let options = [];
-    let consumables = _.sampleSize(CONSUMABLE_ID, 3);
+    let consumables = _.sampleSize(CONSUMABLE_ID, 3).sort();
 
-    for (const c in consumables) {
+    for (const c of consumables) {
         let itemContainer = $("<div></div>");
         itemContainer.addClass("item-container");
         itemContainer.attr("_itemID", c);
@@ -106,8 +144,9 @@ const MODIFIERS = {
         name : "Damage Up",
         sprite : null,
         onUse : (letter) => {
-            LETTER_DAMAGE_VALUES[letter] += 1;
-            log(`Increased the base damage of "${letter}" by 1`);
+            damageIncrease = LETTER_UPGRADE_DAMAGE_INCREASE[letter]
+            LETTER_DAMAGE_VALUES[letter] += damageIncrease;
+            log(`Increased the base damage of "${letter}" by ${damageIncrease}`);
         }
     },
     PROBABILTY_UP : {

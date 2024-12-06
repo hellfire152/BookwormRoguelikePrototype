@@ -52,12 +52,12 @@ const EVENT_DETAILS = {
         "prompt" : "Select the next event",
         "options" : [
             {
-                "text" : "Item shop (unimplemented)",
-                "onSelect" : "load_item_shop"
+                "text" : "Item shop",
+                "onSelect" : "load-item-shop"
             },
             {
-                "text" : "Upgrade shop (unimplemented)",
-                "onSelect" : "load_upgrade_shop"
+                "text" : "Upgrade shop",
+                "onSelect" : "load-upgrade-shop"
             },
             {
                 "text" : "Explore the area",
@@ -93,10 +93,10 @@ const EVENT_FUNCTIONS = {
         player.healDamage(10);
         setupEvent("_test-heal");
     },
-    "load_item_shop" : () => {
+    "load-item-shop" : () => {
         loadItemShop();
     },
-    "load_upgrade_shop" : () => {
+    "load-upgrade-shop" : () => {
         loadUpgradeShop();
     },
     "purchase-item" : (target, args) => {

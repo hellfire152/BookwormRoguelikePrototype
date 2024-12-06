@@ -122,7 +122,9 @@ class Player {
 
         let cons = CONSUMABLE_DETAILS[itemID];
         let isConsumableUseSuccessful = cons.onUse();
-        this.consumables[itemID] -= 1;
-        this._updateConsumableDisplay();
+        if (isConsumableUseSuccessful) { // successful use
+            this.consumables[itemID] -= 1;
+            this._updateConsumableDisplay();
+        }
     }
 }

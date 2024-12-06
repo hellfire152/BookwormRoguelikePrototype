@@ -69,6 +69,7 @@ function calculateLetterProbabilityThresholds() {
 const SPECIAL_TILE_TYPES = {
     TYPE_1 : 1,
     TYPE_2 : 2,
+    UNSELECTABLE : 0,
 }
 
 class Letter {
@@ -106,15 +107,33 @@ class Letter {
     // on click handlers
     static letterAvailableOnClick(e) {
         let t = $(e.target);
-        t.detach();
+        // skip placeholder letters
+        if (t.attr("_pfor")) {
+            return;
+        }
+        // generate a new blank letter to replace it with
+        let placeholder = new Letter("", SPECIAL_TILE_TYPES.UNSELECTABLE);
+        placeholder.placeholder_for = t.attr("_letterref");
+
+        t.replaceWith(placeholder.generateElement());
+        
         $('#letter-input').append(t);
         evaluateInput();
     }
     static letterInInputOnClick(e) {
         let t = $(e.target);
         t.detach();
-        $('#letters-available').append(t);
+
+        $(`.placeholder-letter[_pfor=${t.attr("_letterref")}]`).replaceWith(t);
         evaluateInput();
+    }
+    static refreshAllLetters() {
+        let letters = $(".letter:not(.placeholder-letter)");
+        for(const letter of letters) {
+            let e = $(letter)
+            let l = Letter.getLetterObjectFromElement(e);
+            l.rerollLetter(e);
+        }
     }
 
     constructor(letter, specialTileType) {
@@ -138,9 +157,22 @@ class Letter {
             case SPECIAL_TILE_TYPES.TYPE_2:
                 element.css("background-color", "#9fc6ed");
                 break;
+            case SPECIAL_TILE_TYPES.UNSELECTABLE:
+                element.addClass("placeholder-letter");
+                element.attr("_pfor", this.placeholder_for)
+                break;
         }
 
-        Letter.storeLetter(this.ref, this);
+        if (this.specialTileType != SPECIAL_TILE_TYPES.UNSELECTABLE) {
+            Letter.storeLetter(this.ref, this);
+        }
         return element;
+    }
+
+    rerollLetter(elementToReplace) {
+        let newLetter = randomLetterMatchingProbabilities();
+        this.letter = newLetter;
+        Letter.removeLetter(this.ref);
+        elementToReplace.replaceWith(this.generateElement());
     }
 }

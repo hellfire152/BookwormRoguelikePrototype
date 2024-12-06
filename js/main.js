@@ -164,11 +164,19 @@ function generateInputSpace() {
     let letterboard = $("<div></div>");
     letterboard.attr('id', 'letters-available');
 
+    let bottomButtonsContainer = $("<div>");
+    bottomButtonsContainer.attr("id", "bottom-row-buttons-container");
+
     let shuffleButton = $("<button>");
     shuffleButton.attr("id", "shuffle");
     shuffleButton.text("Shuffle");
 
-    combatInputContainer.append(inputSpace, sendInput, letterboard, shuffleButton);
+    let refreshButton = $("<button>");
+    refreshButton.attr("id", "refresh");
+    refreshButton.text("Refresh (skips turn!)");
+
+    bottomButtonsContainer.append(refreshButton, shuffleButton);
+    combatInputContainer.append(inputSpace, sendInput, letterboard, bottomButtonsContainer);
     sceneStore.combat["player-input"] = combatInputContainer;
 }
 
@@ -239,6 +247,8 @@ function submitInput() {
         Letter.removeLetterFromElement(element);
     });
     $("#send-input").prop("disabled", true);
+    // remove placeholder letters
+    $(".placeholder-letter").remove();
     // replace letters lost
     generateLetters(letters.length, true);
 
@@ -341,7 +351,13 @@ function preload() {
         let shuffled = _.shuffle(lettersAvil.children().toArray());
         lettersAvil.empty();
         lettersAvil.append(shuffled);        
-    })
+    });
+    // refresh but skip turn button
+    $('#letter-board').on("click", "#refresh", (e) => {
+        Letter.refreshAllLetters(true);
+        // enemy takes turn
+        currentEnemy.selectAndPerformAttack();
+    });
     // consumable items
     $('#owned-consumables').on("click", ".player-consumable", (e) => {
         let itemContainer = $(e.currentTarget);

@@ -27,6 +27,35 @@ let LETTER_DAMAGE_VALUES = {
     "z" : 4
 }
 
+let LETTER_UPGRADE_DAMAGE_INCREASE = {
+    "a" : 0.5,
+    "b" : 1,
+    "c" : 1,
+    "d" : 1,
+    "e" : 0.5,
+    "f" : 1,
+    "g" : 1,
+    "h" : 1,
+    "i" : 0.5,
+    "j" : 1.5,
+    "k" : 1.5,
+    "l" : 1,
+    "m" : 1.5,
+    "n" : 1,
+    "o" : 0.5,
+    "p" : 1.5,
+    "q" : 2,
+    "r" : 1,
+    "s" : 0.5,
+    "t" : 0.5,
+    "u" : 0.5,
+    "v" : 2,
+    "w" : 1.5,
+    "x" : 1.5,
+    "y" : 1.5,
+    "z" : 2
+}
+
 const LENGTH_DAMAGE_MULTIPLIERS = { // probably replace with an actual formula later
     3 : 1,
     4 : 1,
