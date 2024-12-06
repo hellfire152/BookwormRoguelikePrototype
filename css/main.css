@@ -1,8 +1,11 @@
+body {
+    background-color: darkslateblue;
+}
 #container {
     width: 1000px;
     height: 700px;
+    margin: auto;
 }
-
 #combat-area {
     width: 50%;
     height: 100%;
@@ -30,7 +33,7 @@
     width: 95%;
     height: 47%;
     margin: 10px;
-    background-color: #c0c9f0;
+    background-color: #f1f1f1;
     border: 2px solid black;
     display: flex;
     flex-direction: column;
@@ -41,7 +44,7 @@
     width: 95%;
     height: 47%;
     margin: 10px;
-    background-color: #c0eff0;
+    background-color: #f1f1f1;
     border: 2px solid black;
     display: flex;
     flex-direction: column;
@@ -52,7 +55,7 @@
     width: 95%;
     height: 60%;
     margin: 10px;
-    background-color: #f0ccc0;
+    background-color: #f1f1f1;
     border: 2px solid black;
 }
 
@@ -60,7 +63,7 @@
     width: 95%;
     height: 35%;
     margin: 10px;
-    background-color: #d8eddf;
+    background-color: #f1f1f1;
     border: 2px solid black;
 }
 
@@ -157,10 +160,13 @@
     padding : 15px;
 }
 .item-sprite {
-    width : 40px;
-    height : 50px;
+    width : 60px;
+    height : 75px;
 }
-
+#shop-container {
+    text-align: center;
+    margin-top : 5%;
+}
 #shop-modifiers-container {
     display : flex;
 }
@@ -174,7 +180,9 @@
 #shop-items-container {
     display : block;
 }
-
+.item-container {
+    margin : 15px;
+}
 .player-consumable {
     width : 50px;
     height : 80px;
@@ -184,13 +192,17 @@
 
 #enemy-container {
     position:relative;
-    top:10%;
+    top:5%;
     width: 80%;
     height: 80%;
     margin: auto;
     text-align: center;
+    font-size : 15pt;
 }
 
+#enemy-display {
+    width : 50%;
+}
 .temporary-highlight {
     border: 1px solid yellow;
 }

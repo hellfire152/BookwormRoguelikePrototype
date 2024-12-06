@@ -103,14 +103,10 @@ function generateEventDetail() {
 }
 
 function setupCombat() {
-    currentEnemy = generateEnemy(levelsCleared);
+    currentEnemy = EnemyFactory.generateEnemy("E_001", levelsCleared);
     currentEnemy.initializeDisplay();
+     // this beings the combat. players start first.
     switchScene(GAME_CONSTANTS.GAME_STATES.COMBAT);
-    // this beings the combat. players start first.
-}
-
-function generateEnemy(level) {
-    return new Enemy(level);
 }
 
 function switchScene(sceneType) {
@@ -140,7 +136,7 @@ function generateEnemyContainer() {
     let enemyName = $("<div></div>");
     enemyName.attr("id", "enemy-name");
 
-    let enemyDisplay = $("<div></div>");
+    let enemyDisplay = $("<img>");
     enemyDisplay.attr("id", "enemy-display");
 
     let enemyHP = $("<div></div>");

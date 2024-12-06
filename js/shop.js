@@ -16,10 +16,10 @@ const CONSUMABLE_DETAILS = {
             return true;
         },
         baseCost : 30,
-        sprite : null,
+        sprite : "/sprites/consumables/Potion.png",
     },
     1 : {
-        name : "Molotov Cocktail",
+        name : "Throwing Knives",
         onUse : () => {
             if (currentEnemy) {
                 currentEnemy.dealDamage(20);
@@ -30,7 +30,7 @@ const CONSUMABLE_DETAILS = {
             return false;
         },
         baseCost : 30,
-        sprite : null,
+        sprite : "/sprites/consumables/Knife1.png",
     },
     2 : {
         name : "Single Tile Reroll",
@@ -53,7 +53,7 @@ const CONSUMABLE_DETAILS = {
             return true;
         },
         baseCost : 20,
-        sprite : null,
+        sprite : "/sprites/consumables/RerollTile.png",
     },
     3 : {
         name : "Instant Full Refresh",
@@ -68,7 +68,7 @@ const CONSUMABLE_DETAILS = {
             return true;
         },
         baseCost : 60,
-        sprite : null,
+        sprite : "/sprites/consumables/ClearTile.png",
     },
     4 : {
         name : "Extra Tiles",
@@ -76,8 +76,10 @@ const CONSUMABLE_DETAILS = {
             if (gameState == GAME_CONSTANTS.GAME_STATES.COMBAT) {
                 generateLetters(3);
                 log("3 Extra Tiles were generated!");
+                return true;
             } else {
                 log("Can only be used in combat!");
+                return false;
             }
         },
         baseCost : 50,

@@ -1,33 +1,15 @@
 class Enemy {
-    constructor(level) {
-        this.name = "Test enemy";
-        let n = 10 * (1.15 ** level);
+    constructor(data, level) {
+        this.name = data.name
+        let n = data.baseMaxHP * (1.15 ** level);
         this.maxHP = ((n * 10) << 0) * 0.1; //round to 1 decimal
         this.currentHP = this.maxHP;
-        this.attacks = [{
-            "name" : "Slash",
-            "effects" : [
-                {
-                    "type" : "damage",
-                    "value" : 10 * (1.15 ** level)
-                }
-            ]
-        }, {
-            "name" : "Heavy Slash",
-            "effects" : [
-                {
-                    "type" : "damage",
-                    "value" : 20 * (1.15 ** level)
-                }
-            ]
-        }];
-        this.state = 0; // a tracking number for any purpose
-        this.rewards = [
-            {
-                "type" : "money",
-                "value" : "10"
-            }
-        ]
+        this.attacks = data.attacks;
+        this.state = data.initialState; // a tracking number for any purpose
+        this.stateTransition = data.stateTransition;
+        this.rewards = data.rewards;
+        this.sprite = data.sprite;
+        this.level = level;
     }
 
     selectAndPerformAttack() { // goes through attacks in order by default
@@ -36,10 +18,7 @@ class Enemy {
         }
 
         this._performAttack(this.attacks[this.state]);
-
-        if (++this.state >= this.attacks.length) {
-            this.state = 0;
-        }
+        this.stateTransition();
     }
 
     _performAttack(attack) {
@@ -48,8 +27,9 @@ class Enemy {
         for (const e of attack.effects) {
             switch(e.type) {
                 case "damage" : {
-                    player.dealDamage(e.value);
-                    log(`${this.name} dealt ${e.value} damage.`);
+                    let damage = e.value(this.level);
+                    player.dealDamage(damage);
+                    log(`${this.name} dealt ${damage} damage.`);
                     break;
                 }
             }
@@ -103,13 +83,60 @@ class Enemy {
     initializeDisplay() {
         let enemyContainer = $(sceneStore.combat.enemy);
         enemyContainer.find("#enemy-name").text(this.name);
-        enemyContainer.find("#enemy-display").text(this.name);
+        enemyContainer.find("#enemy-display").attr("src", this.sprite);
         enemyContainer.find("#enemy-hp").text(`${this.currentHP}/${this.maxHP} HP`)
+    }
+}
+
+const ENEMIES = {
+    E_001 : {
+        name : "gobbo",
+        baseMaxHP : 10,
+        attacks : [
+            {
+                name : "Gobbo punch",
+                effects : [
+                    {
+                        type : "damage",
+                        value : (level) => {
+                            return 10 * (1.15 ** level)
+                        }
+                    }
+                ]
+            },
+            {
+                name : "Gobbo Slam",
+                effects : [
+                    {
+                        type : "damage",
+                        value : (level) => {
+                            20 * (1.15 ** level)
+                        }
+                    }
+                ]
+            }
+        ],
+        initialState : 0,
+        stateTransition : (prevState) => {
+            let s = prevState + 1;
+            if (s >= 2) {
+                s = 0
+            }
+            return s;
+        },
+        rewards : [
+            {
+                type : "money",
+                value : 10,
+                probability : 1
+            }
+        ],
+        sprite : "/sprites/enemies/Goblin.png"
     }
 }
 
 class EnemyFactory {
     static generateEnemy(enemyType, level) {
-        
+        return new Enemy(ENEMIES[enemyType], level)
     }
 }
