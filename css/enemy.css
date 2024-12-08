@@ -1,0 +1,35 @@
+#enemy-display {
+    width : 50%;
+}
+#enemy-status-container {
+    width: 80%;
+    margin: auto;
+    height : max-content;
+    text-align : center;
+}
+.enemy-effect-container {
+    position:relative;
+    width : 30px;
+    height : 30px;
+    margin:auto;
+}
+.enemy-effect-sprite {
+    width : 100%;
+    height : 100%;
+}
+.enemy-effect-text {
+    position : absolute;
+    font-size : 10px;
+    bottom : 2px;
+    right : 2px;
+}
+#enemy-container {
+    position:relative;
+    top:5%;
+    width: 80%;
+    height: 80%;
+    margin: auto;
+    text-align: center;
+    font-size : 15pt;
+}
+

@@ -20,26 +20,6 @@ body {
     background-color: #f2ebd8;
 }
 
-#owned-relics { 
-    width : 95%;
-}
-
-#owned-consumables {
-    width : 95%;
-    display : flex;
-}
-
-#relics {
-    width: 95%;
-    height: 47%;
-    margin: 10px;
-    background-color: #f1f1f1;
-    border: 2px solid black;
-    display: flex;
-    flex-direction: column;
-    justify-content : space-between;
-}
-
 #log {
     width: 95%;
     height: 47%;
@@ -128,29 +108,10 @@ body {
     margin-left : 5px;
 }
 
-.player-stat {
-    font-size : 1.2em;
-    margin: 10px;
-}
-
 .event-option {
     margin:auto;
     width: 90%;
     background-color: gray;
-}
-
-#game-log {
-    width : 95%;
-    height : 40%;
-    overflow : scroll;
-    position: relative;
-    bottom:10px;
-}
-
-.game-log-item {
-    width : 100%;
-    font-size : 12;
-    margin: 0em;
 }
 
 .item-container {
@@ -158,6 +119,7 @@ body {
     height : 100px;
     display : inline-block;
     padding : 15px;
+    margin : 15px;
 }
 .item-sprite {
     width : 60px;
@@ -180,29 +142,12 @@ body {
 #shop-items-container {
     display : block;
 }
-.item-container {
-    margin : 15px;
-}
-.player-consumable {
-    width : 50px;
-    height : 80px;
-    text-align : center;
-    padding : 7px;
-}
 
-#enemy-container {
-    position:relative;
-    top:5%;
-    width: 80%;
-    height: 80%;
-    margin: auto;
-    text-align: center;
-    font-size : 15pt;
-}
-
-#enemy-display {
-    width : 50%;
-}
 .temporary-highlight {
     border: 1px solid yellow;
 }
+
+.tippy-content { /* to render newlines in tooltips properly */
+    white-space : pre-line;
+}
+

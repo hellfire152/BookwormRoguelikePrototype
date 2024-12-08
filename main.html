@@ -3,10 +3,13 @@
         <title>Bookworm Adv Roguelike Prototype</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" integrity="sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k=" crossorigin="anonymous"></script>
-        <link rel="stylesheet" href="./css/main.css" />
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="./css/main.css" />
+        <link rel="stylesheet" href="./css/enemy.css" />
+        <link rel="stylesheet" href="./css/player-stats.css" />
+        <link rel="stylesheet" href="./css/player-items.css" />
     </head>
     <body>
         <div id="container">
@@ -23,6 +26,10 @@
            </div>
         </div>
         <button id="game-start">Start game</button>
+        <script src="https://unpkg.com/@popperjs/core@2"></script>
+        <script src="https://unpkg.com/tippy.js@6"></script>
+        <script src="./js/effects.js"></script>
+        <script src="./js/character.js"></script>
         <script src="./js/player.js"></script>
         <script src="./js/shop.js"></script>
         <script src="./js/letter.js"></script>
@@ -30,6 +37,7 @@
         <script src="./js/events.js"></script>
         <script src="./js/relics.js"></script>
         <script src="./js/damage-calculator.js"></script>
+        <script src="./js/director.js"></script>
         <script src="./js/main.js"></script>
     </body>
 </html>

@@ -35,7 +35,7 @@ const CONSUMABLE_DETAILS = {
     2 : {
         name : "Single Tile Reroll",
         onUse : () => {
-            if (gamestate != GAME_CONSTANTS.GAME_STATES.COMBAT) {
+            if (gameState != GAME_CONSTANTS.GAME_STATES.COMBAT) {
                 log("Can only be used in combat!");
                 return false;
             }
@@ -157,7 +157,7 @@ const MODIFIERS = {
         onUse : (letter) => {
             LETTER_PROBABILITY_POINTS[letter] += 20;
             log(`${letter} is now slighly more likely to appear`);
-            calculateLetterProbabilityThresholds();
+            Letter.calculateLetterProbabilityThresholds();
         }
     },
     PROBABILITY_DOWN : {
@@ -170,6 +170,7 @@ const MODIFIERS = {
                 LETTER_PROBABILITY_POINTS[letter] /= 2;
             }
             log(`${letter} is less likely to appear`);
+            Letter.calculateLetterProbabilityThresholds();
         }
     }
 }

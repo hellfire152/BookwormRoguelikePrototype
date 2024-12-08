@@ -32,6 +32,7 @@ let player;
 let gameState = null;
 let levelsCleared = 0;
 let currentEnemy;
+let relicHandler;
 
 function startGame() {
     // so we need to start the game loop somewhere
@@ -103,7 +104,7 @@ function generateEventDetail() {
 }
 
 function setupCombat() {
-    currentEnemy = EnemyFactory.generateEnemy("E_001", levelsCleared);
+    currentEnemy = EnemyFactory.generateEnemy(ENEMY_ID.GOBBO, levelsCleared);
     currentEnemy.initializeDisplay();
      // this beings the combat. players start first.
     switchScene(GAME_CONSTANTS.GAME_STATES.COMBAT);
@@ -138,11 +139,15 @@ function generateEnemyContainer() {
 
     let enemyDisplay = $("<img>");
     enemyDisplay.attr("id", "enemy-display");
+    enemyDisplay.addClass("hover-tooltip")
+
+    let statusDisplay = $("<div>");
+    statusDisplay.attr("id", "enemy-status-container");
 
     let enemyHP = $("<div></div>");
     enemyHP.attr("id", "enemy-hp");
 
-    enemyContainer.append(enemyName, enemyHP, enemyDisplay);
+    enemyContainer.append(enemyName, enemyHP, enemyDisplay, statusDisplay);
     sceneStore.combat.enemy = enemyContainer;
 }
 
@@ -188,29 +193,17 @@ function generateLetters(noLettersToGenerate, generateSpecial){
     for(let i = 0; i < noLettersToGenerate; i++) {
         let letter;
         if(!specialGenerated && specialTile) {
-            letter = new Letter(randomLetterMatchingProbabilities(), specialTile);
+            letter = new Letter(Letter.randomLetterMatchingProbabilities(), specialTile);
             specialGenerated = !specialGenerated;
         }
         else {
-            letter = new Letter(randomLetterMatchingProbabilities());
+            letter = new Letter(Letter.randomLetterMatchingProbabilities());
         }
         let element = letter.generateElement();
 
         $(sceneStore.combat["player-input"])
         .find("#letters-available")
         .append(element);
-    }
-}
-
-function randomLetterMatchingProbabilities() {
-    let max = LETTER_PROBABILITY_POINT_MAX;
-    let randomInt = Math.floor(Math.random() * max + 1);
-
-    let result = "a";
-    for (l in LETTER_PROBABILTY_THRESHOLDS) {
-        if (randomInt <= LETTER_PROBABILTY_THRESHOLDS[l]) {
-            return l;
-        }
     }
 }
 
@@ -233,9 +226,7 @@ function submitInput() {
     // submit button shouldn't even work if the word is invalid
     // so we ain't validating it again kekw
     let letters = getLettersInInput();
-    let damage = calculateDamage(letters);
-
-    log(`Player dealt ${damage} damage!`);
+    let attackResult = calculateAttackResult(letters);
 
     // clear input and replace letters
     let letterElements = $('#letter-input').children();
@@ -249,7 +240,36 @@ function submitInput() {
     generateLetters(letters.length, true);
 
     //handle damage to enemies
-    currentEnemy.dealDamage(damage);
+    let isEnemyDefeated = currentEnemy.dealDamage(attackResult.damage, true);
+    if (isEnemyDefeated) {
+        return nextEvent();
+    } 
+
+    // first apply effects
+    for (const e of attackResult.playerEffects) {
+        switch(e[0]) {
+            case Effect.EFFECT_TYPES.POISON : {
+                player.applyEffect(e[0], attackResult.damage * e[1]);
+            }
+        }
+        player.applyEffect(...e);
+    }
+    for (const e of attackResult.enemyEffects) {
+        switch(e[0]) {
+            case Effect.EFFECT_TYPES.POISON : {
+                currentEnemy.applyEffect(e[0], attackResult.damage * e[1]);
+            }
+        };
+    }
+
+    // then continue turn order
+    player.resolvePostTurnEffects();
+    if (!player.isAlive) return;
+    currentEnemy.resolvePreTurnEffects()
+    currentEnemy.isAlive && currentEnemy.selectAndPerformAttack()
+    currentEnemy.isAlive && currentEnemy.resolvePostTurnEffects();
+    if (!currentEnemy.isAlive) return nextEvent();
+    player.isAlive && player.resolvePreTurnEffects();
 }
 
 function getWordInInput() {
@@ -271,6 +291,9 @@ function getLettersInInput() {
 }
 
 function generatePlayerStatBoard() {
+    let statContainer = $("<div>");
+    statContainer.attr("id", "player-stat-container");
+
     let hpDisplay = $("<div></div>");
     hpDisplay.attr("id", "player-hp");
     hpDisplay.text(`${player.currentHP}/${player.maxHP} HP`);
@@ -281,7 +304,11 @@ function generatePlayerStatBoard() {
     moneyDisplay.text(`${player.money} Money`);
     moneyDisplay.addClass("player-stat");
 
-    $("#log").append(hpDisplay, moneyDisplay);
+    let statusContainer = $("<div>");
+    statusContainer.attr("id", "player-status-container");
+
+    statContainer.append(hpDisplay, moneyDisplay);
+    $("#log").append(statContainer, statusContainer);
 }
 
 function generateLog() {
@@ -311,9 +338,10 @@ function preload() {
       });
 
     // pre-calculate letter probability thresholds
-    calculateLetterProbabilityThresholds();
+    Letter.calculateLetterProbabilityThresholds();
 
     player = new Player();
+    relicHandler = new RelicHandler();
 
     // pre-make the elements
     generateInputSpace();
@@ -365,10 +393,18 @@ function preload() {
     $('#letter-board').on("click", "#modifier-letter-container .letter", Shop.modifyLetterOnClick);
     $("#event-area").on("click", ".modifier-container", Shop.modifierOnClick);
     $("#letter-board").on("click", "#modifier-submit", Shop.modifySubmitOnClick);
-
+    
+    // tooltips on hover
+    tippy.delegate('body', {
+        target : ".hover-tooltip",
+        content(reference) {
+            let content = reference.getAttribute("data-tooltip-content");
+            return content;
+        },
+        placement : "right",
+        flip : true,
+    });
     $('#game-start').click(startGame);
 }
-
-
 
 window.onload = () => {preload()};

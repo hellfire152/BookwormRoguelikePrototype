@@ -9,7 +9,7 @@ const EVENT_DETAILS = {
         ]
     },
     "_intro-conclusion" : {
-        "prompt" : "Take this with you. (+50 Money)",
+        "prompt" : "Take this with you. (+50 Money, test relic)",
         "options" : [
             {
                 "text" : "Acknowledge.2",
@@ -70,6 +70,7 @@ const EVENT_DETAILS = {
 const EVENT_FUNCTIONS = {
     "intro_1" : () => {
         player.giveMoney(50);
+        relicHandler.addRelic(RELIC_ID.HEAVY_METAL);
         setupEvent("_intro-conclusion");
     },
     "_next-event" : () => {

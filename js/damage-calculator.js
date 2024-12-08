@@ -85,17 +85,25 @@ function roundToHalf(value) {
     }
 }
 
-function calculateDamage(letters) {
+function calculateAttackResult(letters) {
     let damage = 0;
-    let multipliers = []
+    let multipliers = [];
+    let playerEffects = [];
+    let enemyEffects = [];
     for(const l of letters) {
         let baseDamage = LETTER_DAMAGE_VALUES[l.letter];
         switch(l.specialTileType) {
             case SPECIAL_TILE_TYPES.TYPE_1:
-                multipliers.push(1.2)
+                multipliers.push(1.2);
+                if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
+                    enemyEffects.push([Effect.EFFECT_TYPES.POISON, 0.5])
+                }
                 break;
             case SPECIAL_TILE_TYPES.TYPE_2:
-                multipliers.push(1.5)
+                multipliers.push(1.5);
+                if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
+                    enemyEffects.push([Effect.EFFECT_TYPES.POISON, 0.8]);
+                }
                 break;
         }
         damage += baseDamage;
@@ -107,5 +115,9 @@ function calculateDamage(letters) {
         damage *= parseFloat(m);
     }
     damage = roundToHalf(damage);
-    return damage;
+    return {
+        damage : damage,
+        playerEffects,
+        enemyEffects
+    };
 }

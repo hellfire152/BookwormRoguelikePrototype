@@ -56,16 +56,6 @@ var LETTER_PROBABILTY_THRESHOLDS = {
 }
 let LETTER_PROBABILITY_POINT_MAX = 0;
 
-function calculateLetterProbabilityThresholds() {
-    let threshold = 0;
-    LETTER_PROBABILITY_POINT_MAX = 0; // reset max
-    for (l in LETTER_PROBABILITY_POINTS) {
-        LETTER_PROBABILITY_POINT_MAX += LETTER_PROBABILITY_POINTS[l];
-        threshold += LETTER_PROBABILITY_POINTS[l];
-        LETTER_PROBABILTY_THRESHOLDS[l] = threshold;
-    }
-}
-
 const SPECIAL_TILE_TYPES = {
     TYPE_1 : 1,
     TYPE_2 : 2,
@@ -100,8 +90,8 @@ class Letter {
 
     static specialTileTypeFromLength(length) {
         if(length < 5) return;
-        if(length > 7) return SPECIAL_TILE_TYPES.TYPE_2;
-        return SPECIAL_TILE_TYPES.TYPE_1;
+        if(length < 7) return SPECIAL_TILE_TYPES.TYPE_1;
+        if(length < 9) return SPECIAL_TILE_TYPES.TYPE_2;
     }
 
     // on click handlers
@@ -129,12 +119,32 @@ class Letter {
     }
     static refreshAllLetters() {
         let letters = $(".letter:not(.placeholder-letter)");
-        for(const letter of letters) {
-            let e = $(letter)
-            let l = Letter.getLetterObjectFromElement(e);
-            l.rerollLetter(e);
+        letters.each((index, letter) => {
+            let l = Letter.getLetterObjectFromElement(letter);
+            l.rerollLetter($(letter));
+        });
+    }
+    static randomLetterMatchingProbabilities() {
+        let max = LETTER_PROBABILITY_POINT_MAX;
+        let randomInt = Math.floor(Math.random() * max + 1);
+    
+        let result = "a";
+        for (const l in LETTER_PROBABILTY_THRESHOLDS) {
+            if (randomInt <= LETTER_PROBABILTY_THRESHOLDS[l]) {
+                return l;
+            }
         }
     }
+    static calculateLetterProbabilityThresholds() {
+        let threshold = 0;
+        LETTER_PROBABILITY_POINT_MAX = 0; // reset max
+        for (const l in LETTER_PROBABILITY_POINTS) {
+            LETTER_PROBABILITY_POINT_MAX += LETTER_PROBABILITY_POINTS[l];
+            threshold += LETTER_PROBABILITY_POINTS[l];
+            LETTER_PROBABILTY_THRESHOLDS[l] = threshold;
+        }
+    }
+    
 
     constructor(letter, specialTileType) {
         this.letter = letter;
@@ -170,9 +180,10 @@ class Letter {
     }
 
     rerollLetter(elementToReplace) {
-        let newLetter = randomLetterMatchingProbabilities();
+        this.replaceLetter(elementToReplace, Letter.randomLetterMatchingProbabilities());
+    }
+    replaceLetter(elementToReplace, newLetter) {
         this.letter = newLetter;
-        Letter.removeLetter(this.ref);
         elementToReplace.replaceWith(this.generateElement());
     }
 }

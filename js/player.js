@@ -1,12 +1,11 @@
-class Player {
+class Player extends Character {
     constructor() {
+        super();
         this.money = 0;
         this.items = [];
         this.flags = {};
-        this.relics = new Set();
         this.maxHP = 100;
         this.currentHP = this.maxHP;
-
         this.consumables = {}
         for (const i in CONSUMABLE_ID) {
             this.consumables[CONSUMABLE_ID[i]] = 0;
@@ -54,6 +53,10 @@ class Player {
         }
     }
 
+    _updateEffectDisplay() {
+        super._updateEffectDisplay("player");
+    }
+
     giveMoney(amountGiven) {
         this.money += parseInt(amountGiven);
 
@@ -74,44 +77,15 @@ class Player {
     }
 
     dealDamage(damage) {
-        this.currentHP -= damage;
-        this._updateHPDisplay();
-        if (this.currentHP <= 0) {
+        let result = super.dealDamage(damage);
+        if (result) {
             alert(`Game Over! You lasted ${levelsCleared} rounds.`);
         }
-        return true;
-    }
-
-    healDamage(healAmount) {
-        this.currentHP += healAmount;
-        if (this.currentHP > this.maxHP) {
-            this.currentHP = this.maxHP;
-        }
-        this._updateHPDisplay();
+        return false;
     }
 
     _updateHPDisplay() {
         $("#player-hp").text(`${this.currentHP}/${this.maxHP} HP`)
-    }
-
-    setHP(hp) {
-    }
-
-    setMaxHP(hp) {
-
-    }
-
-    addRelic(relic) {
-        this.relics.add(relic);
-
-        //TODO: Add the relic to the relic list
-        return true;
-    }
-    removeRelic(relic) {
-        return this.relics.delete(relic);
-    }
-    checkRelic(relic) {
-        return this.relics.has(relic);
     }
 
     useConsumable(itemID) {
