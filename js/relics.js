@@ -21,12 +21,7 @@ class RelicHandler {
     }
 
     _updateRelicDisplay() {
-        // remove currently displayed relics
-        $("#owned-relics").empty();
-        // re-generate all 
-        for(const r of Object.values(this.ownedRelics)) {
-            $("#owned-relics").append(r.generateElement());
-        }
+        UI.Relic.updateDisplay();
     }
 
     addRelic(relicId) {

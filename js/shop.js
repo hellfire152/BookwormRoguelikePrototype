@@ -87,59 +87,6 @@ const CONSUMABLE_DETAILS = {
     }
 }
 
-function loadItemShop() {
-    let shopContainer = $("<div></div>");
-    shopContainer.attr("id", "shop-container");
-
-    let shopPrompt = $("<div>");
-    shopPrompt.attr("id", "shop-text");
-    shopPrompt.text("SHOP");
-
-    let shopItems = $("<div></div>");
-    shopItems.attr("id", "shop-items-container");
- 
-    //generate 3 random relics and 3 random consumables
-    let options = [];
-    let consumables = _.sampleSize(CONSUMABLE_ID, 3).sort();
-
-    for (const c of consumables) {
-        let itemContainer = $("<div></div>");
-        itemContainer.addClass("item-container");
-        itemContainer.attr("_itemID", c);
-
-        let itemName = $("<div></div>");
-        itemName.addClass("item-name");
-        itemName.text(CONSUMABLE_DETAILS[c].name);
-
-        let itemSprite = $("<img>");
-        itemSprite.attr("src", CONSUMABLE_DETAILS[c].sprite);
-        itemSprite.addClass("item-sprite");
-
-        let itemCost = $("<div>");
-        itemCost.addClass("item-cost");
-        itemCost.text(CONSUMABLE_DETAILS[c].baseCost);
-
-        itemContainer.append(itemName, itemSprite, itemCost);
-        shopItems.append(itemContainer);
-
-        options.push({
-            "text" : CONSUMABLE_DETAILS[c].name,
-            "onSelect" : "purchase-item",
-            "args" : `${c}|consumable`
-        });
-    }
-
-    shopContainer.append(shopPrompt, shopItems);
-    sceneStore.event.text = shopContainer;
-
-    options.push({
-        "text" : "Continue",
-        "onSelect" : "_next-event"
-    });
-    setEventPlayerOptions(options);
-    switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
-}
-
 // modifiers
 const MODIFIERS = {
     DAMAGE_UP : {
@@ -173,63 +120,6 @@ const MODIFIERS = {
             Letter.calculateLetterProbabilityThresholds();
         }
     }
-}
-function loadUpgradeShop() {
-    let shopContainer = $("<div>");
-    shopContainer.attr("id", "shop-container")
-
-    let shopPrompt = $("<div></div>");
-    shopPrompt.attr("id", "shop-prompt");
-    shopPrompt.text("Choose a blessing......");
-
-    let modifiersContainers = $("<div>");
-    modifiersContainers.attr("id", "shop-modifiers-container");
-
-    // generate 3 random modifiers
-    let modifiers = _.sampleSize(Object.keys(MODIFIERS), 3);
-    for (const mod of modifiers) {
-        let m = MODIFIERS[mod];
-        let modifierContainer = $("<div>");
-        modifierContainer.addClass("modifier-container");
-        modifierContainer.attr("_modifierid", mod)
-
-        let modifierName = $("<div>");
-        modifierName.addClass("modifier-name");
-        modifierName.text(m.name);
-
-        let modifierSprite = $("<img>");
-        modifierSprite.addClass("modifier-sprite");
-        modifierSprite.attr("src", m.sprite);
-
-        modifierContainer.append(modifierName, modifierSprite);
-        modifiersContainers.append(modifierContainer);
-    }
-
-    shopContainer.append(shopPrompt, modifiersContainers);
-
-    // generate 6 letters to apply the modifiers to
-    let letters = _.sampleSize(Letter.ALPHABET_SET, 6);
-    let upgradeLetterContainer = $("<div>");
-    upgradeLetterContainer.attr("id", "modifier-letter-container");
-
-    for (const l of letters) {  
-        let letter = new Letter(l);
-        upgradeLetterContainer.append(letter.generateElement());
-    }
-
-    // submit modifier
-    let submitModifierButton = $("<button>");
-    submitModifierButton.attr("id", "modifier-submit");
-    submitModifierButton.text("Submit");
-
-    let modifierLetterContainer = $("<div>");
-    modifierLetterContainer.attr("id", "modifier-letter-container");
-    
-    modifierLetterContainer.append(upgradeLetterContainer, submitModifierButton);
-    
-    sceneStore.event.text = shopContainer;
-    sceneStore.event.options = modifierLetterContainer;
-    switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
 }
 
 class Shop {
@@ -273,6 +163,6 @@ class Shop {
     }
     static modifySubmitOnClick(e) {
         MODIFIERS[selectedModifier].onUse(selectedLetter);
-        nextEvent();
+        director.signal("exit-shop");
     }
 }

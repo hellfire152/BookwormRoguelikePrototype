@@ -94,31 +94,8 @@ class Letter {
         if(length < 9) return SPECIAL_TILE_TYPES.TYPE_2;
     }
 
-    // on click handlers
-    static letterAvailableOnClick(e) {
-        let t = $(e.target);
-        // skip placeholder letters
-        if (t.attr("_pfor")) {
-            return;
-        }
-        // generate a new blank letter to replace it with
-        let placeholder = new Letter("", SPECIAL_TILE_TYPES.UNSELECTABLE);
-        placeholder.placeholder_for = t.attr("_letterref");
-
-        t.replaceWith(placeholder.generateElement());
-        
-        $('#letter-input').append(t);
-        evaluateInput();
-    }
-    static letterInInputOnClick(e) {
-        let t = $(e.target);
-        t.detach();
-
-        $(`.placeholder-letter[_pfor=${t.attr("_letterref")}]`).replaceWith(t);
-        evaluateInput();
-    }
     static refreshAllLetters() {
-        let letters = $(".letter:not(.placeholder-letter)");
+        let letters = UI.Letter.getLetters();
         letters.each((index, letter) => {
             let l = Letter.getLetterObjectFromElement(letter);
             l.rerollLetter($(letter));
@@ -127,13 +104,13 @@ class Letter {
     static randomLetterMatchingProbabilities() {
         let max = LETTER_PROBABILITY_POINT_MAX;
         let randomInt = Math.floor(Math.random() * max + 1);
-    
         let result = "a";
         for (const l in LETTER_PROBABILTY_THRESHOLDS) {
             if (randomInt <= LETTER_PROBABILTY_THRESHOLDS[l]) {
                 return l;
             }
         }
+        throw new Error(`${randomInt} unable to generate random letter!`);
     }
     static calculateLetterProbabilityThresholds() {
         let threshold = 0;
@@ -145,9 +122,32 @@ class Letter {
         }
     }
     
+    static generateLetters(noLettersToGenerate, generateSpecial) {
+        if (typeof noLettersToGenerate == 'undefined') {
+            noLettersToGenerate = GAME_CONSTANTS.STARTING_LETTER_COUNT;
+        }
 
-    constructor(letter, specialTileType) {
-        this.letter = letter;
+        // see if a special tile should be generated
+        let specialTile = Letter.specialTileTypeFromLength(noLettersToGenerate);
+
+        let specialGenerated = !generateSpecial;
+        for(let i = 0; i < noLettersToGenerate; i++) {
+            let letter;
+            if(!specialGenerated && specialTile) {
+                letter = new Letter(Letter.randomLetterMatchingProbabilities(), specialTile);
+                specialGenerated = !specialGenerated;
+            }
+            else {
+                letter = new Letter(Letter.randomLetterMatchingProbabilities());
+            }
+
+            let element = letter.generateElement();
+            UI.appendLetterElement(element);
+        }
+    }
+
+    constructor(l, specialTileType) {
+        this.letter = l;
         this.powerup = null;
         this.locked = null;
         this.specialTileType = specialTileType;

@@ -9,7 +9,15 @@ class Enemy extends Character {
         this.attacks = data.attacks;
         this.state = data.initialState; // a tracking number for any purpose
         this.stateTransition = data.stateTransition;
-        this.rewards = data.rewards;
+        this.rewards = data.rewards ? data.rewards : [ // set default reward if not present
+            {
+                type : "money",
+                value : (level) => {
+                    return 10 + Math.floor(Math.random() * 5);
+                },
+                probability : 1
+            },
+        ];
         this.sprite = data.sprite;
         this.level = level;
         this.tooltip = data.tooltip;
@@ -50,6 +58,7 @@ class Enemy extends Character {
                                 let l = Letter.getLetterObjectFromElement(t);
                                 l.replaceLetter(t, v.letter);
                             }
+                            log(`${v.number} letters got replaced to ${v.letter}`)
                             break;
                         }
                         case "destroy": {
@@ -58,16 +67,19 @@ class Enemy extends Character {
                                 let t = $(letter);
                                 Letter.removeLetterFromElement(t);
                             }
+                            log(`${v.number} letters were destroyed!`);
                             break;
                         }
                     }
-                    log(`${v.number} letters got replaced to ${v.letter}`)
+                    
                 }
             }
         }
     }
 
     defeatAndGiveRewards() {
+        log(`${this.name} has been defeated!`);
+
         currentEnemy.removeAllStatuses();
         let rewards = {
             "money" : 0,
@@ -92,12 +104,13 @@ class Enemy extends Character {
         }
         if (rewards.money > 0) {
             player.giveMoney(rewards.money);
-            log(`${this.name} has been defeated! Gained ${rewards.money} Money`)
+            log(`Gained ${rewards.money} Money`)
         }
         if (rewards.heal > 0) {
             player.healDamage(rewards.money);
             log(`${this.name} has been defeated! Healed for ${r.value} HP`)
         }
+        combatHandler.enemyDefeated();
     }
 
     dealDamage(damage, isDirect) {
@@ -106,27 +119,20 @@ class Enemy extends Character {
 
         if (result) {
             currentEnemy.defeatAndGiveRewards();
-            levelsCleared += 1;
         }
         return result;
     }
 
     _updateHPDisplay() {
-        let hp = $(sceneStore.combat.enemy).find("#enemy-hp");
-        hp.text(`${this.currentHP}/${this.maxHP} HP`)
+        UI.Enemy.updateHPDisplay(this)
     }
 
     _updateEffectDisplay() {
-        super._updateEffectDisplay("enemy");
+        UI.Enemy.updateStatusDisplay(this.getStatuses());
     }
 
     initializeDisplay() {
-        let enemyContainer = $(sceneStore.combat.enemy);
-        enemyContainer.find("#enemy-name").text(this.name);
-        let display = enemyContainer.find("#enemy-display");
-        display.attr("src", this.sprite);
-        display.attr("data-tooltip-content", this.tooltip);
-        enemyContainer.find("#enemy-hp").text(`${this.currentHP}/${this.maxHP} HP`)
+        UI.Enemy.initializeEnemyDisplay(this);
     }
 }
 
@@ -138,7 +144,7 @@ const ENEMY_ID = {
 const ENEMIES = {
     [ENEMY_ID.GOBBO] : {
         name : "gobbo",
-        baseMaxHP : 60,
+        baseMaxHP : 20,
         attacks : [
             {
                 name : "Gobbo punch",
@@ -183,7 +189,7 @@ const ENEMIES = {
     },
     [ENEMY_ID.GHOST] : {
         name : "ghooost",
-        baseMaxHP : 30,
+        baseMaxHP : 15,
         attacks : [
             {
                 name : "boo!",
@@ -224,7 +230,7 @@ const ENEMIES = {
     },
     [ENEMY_ID.SLIME] : {
         name : "Slime",
-        baseMaxHP : 25,
+        baseMaxHP : 10,
         attacks : [
             {
                 name : "Consume",
@@ -258,8 +264,10 @@ const ENEMIES = {
         ],
         initialState : 0,
         stateTransition : (ref) => {
-
-        }
+            return ref.state;
+        },
+        sprite : "/sprites/enemies/Slime.png",
+        tooltip : "Perpetually hungry"
     }
 }
 

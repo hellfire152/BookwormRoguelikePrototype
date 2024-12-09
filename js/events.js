@@ -71,10 +71,10 @@ const EVENT_FUNCTIONS = {
     "intro_1" : () => {
         player.giveMoney(50);
         relicHandler.addRelic(RELIC_ID.HEAVY_METAL);
-        setupEvent("_intro-conclusion");
+        director.setupEvent("_intro-conclusion");
     },
     "_next-event" : () => {
-        nextEvent();
+        director.signal("event-complete");
     },
     "_random-event" : () => {
         let allEvents = Object.keys(EVENT_DETAILS);
@@ -83,22 +83,22 @@ const EVENT_FUNCTIONS = {
         });
 
         //get a random event from remaining events
-        let randomEvent = randomFromArray(filteredEvents);
-        setupEvent(randomEvent);
+        let randomEvent = _.sample(filteredEvents);
+        director.setupEvent(randomEvent);
     },
     "test_money" : () => {
         player.giveMoney(50);
-        setupEvent("_test-money");
+        director.setupEvent("_test-money");
     },
     "test_heal" : () => {
         player.healDamage(10);
-        setupEvent("_test-heal");
+        director.setupEvent("_test-heal");
     },
     "load-item-shop" : () => {
-        loadItemShop();
+        UI.loadItemShop();
     },
     "load-upgrade-shop" : () => {
-        loadUpgradeShop();
+        UI.loadUpgradeShop();
     },
     "purchase-item" : (target, args) => {
         let [itemID, type] = _.split(args, "|");
