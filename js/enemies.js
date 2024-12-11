@@ -45,11 +45,11 @@ class Enemy extends Character {
                 }
                 case "heal" : {
                     this.healDamage(v);
-                    log(`${this.name} healed${v} health`);
+                    log(`${this.name} healed ${v} health`);
                     break;
                 }
                 case "letter-replacement" : {
-                    let letters = $('.letter:not(.placeholder-letter)').toArray();
+                    let letters = UI.Letter.getLetters().toArray();
                     switch (v.type) {
                         case "random": {
                             let randomLetters = _.sampleSize(letters, v.number);
@@ -80,37 +80,7 @@ class Enemy extends Character {
     defeatAndGiveRewards() {
         log(`${this.name} has been defeated!`);
 
-        currentEnemy.removeAllStatuses();
-        let rewards = {
-            "money" : 0,
-            "heal" : 0
-        }
-        for (const r of this.rewards) {
-            if (Math.random() >= r.probability) return;
-            let v = Character.getValue(r.value, this.level)
-            switch(r.type) {
-                case "money": {
-                    rewards.money += v;
-                    break;
-                }
-                case "heal" : {
-                    rewards.heal += v;
-                    break;
-                }
-                case "letter-replacement" : {
-
-                }
-            }
-        }
-        if (rewards.money > 0) {
-            player.giveMoney(rewards.money);
-            log(`Gained ${rewards.money} Money`)
-        }
-        if (rewards.heal > 0) {
-            player.healDamage(rewards.money);
-            log(`${this.name} has been defeated! Healed for ${r.value} HP`)
-        }
-        combatHandler.enemyDefeated();
+        combatHandler.enemyDefeated(this);
     }
 
     dealDamage(damage, isDirect) {
@@ -144,7 +114,7 @@ const ENEMY_ID = {
 const ENEMIES = {
     [ENEMY_ID.GOBBO] : {
         name : "gobbo",
-        baseMaxHP : 20,
+        baseMaxHP : 2,
         attacks : [
             {
                 name : "Gobbo punch",
@@ -240,7 +210,7 @@ const ENEMIES = {
                         value : (level) => {
                             return {
                                 type : "destroy",
-                                number : 3
+                                number : 1
                             }
                         }
                     },
@@ -258,9 +228,6 @@ const ENEMIES = {
                     }
                 ]
             },
-            {
-
-            }
         ],
         initialState : 0,
         stateTransition : (ref) => {

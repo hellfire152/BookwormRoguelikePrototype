@@ -71,7 +71,7 @@ const CONSUMABLE_DETAILS = {
         sprite : "/sprites/consumables/ClearTile.png",
     },
     4 : {
-        name : "Extra Tiles",
+        name : "Tile Delivery",
         onUse : () => {
             if (gameState == GAME_CONSTANTS.GAME_STATES.COMBAT) {
                 generateLetters(3);
@@ -83,7 +83,7 @@ const CONSUMABLE_DETAILS = {
             }
         },
         baseCost : 50,
-        sprite : null,
+        sprite : "/sprites/consumables/Donki.png",
     }
 }
 
@@ -91,7 +91,7 @@ const CONSUMABLE_DETAILS = {
 const MODIFIERS = {
     DAMAGE_UP : {
         name : "Damage Up",
-        sprite : null,
+        sprite : "/sprites/upgrades/dmgUP.png",
         onUse : (letter) => {
             damageIncrease = LETTER_UPGRADE_DAMAGE_INCREASE[letter]
             LETTER_DAMAGE_VALUES[letter] += damageIncrease;
@@ -100,7 +100,7 @@ const MODIFIERS = {
     },
     PROBABILTY_UP : {
         name : "Probability up",
-        sprite : null,
+        sprite : "/sprites/upgrades/TileRateUP.png",
         onUse : (letter) => {
             LETTER_PROBABILITY_POINTS[letter] += 20;
             log(`${letter} is now slighly more likely to appear`);
@@ -109,7 +109,7 @@ const MODIFIERS = {
     },
     PROBABILITY_DOWN : {
         name : "Probability down",
-        sprite : null,
+        sprite : "/sprites/upgrades/TileRateDown.png",
         onUse : (letter) => {
             if (LETTER_PROBABILITY_POINTS[letter] > 40) {
                 LETTER_PROBABILITY_POINTS[letter] -= 20;
@@ -119,50 +119,26 @@ const MODIFIERS = {
             log(`${letter} is less likely to appear`);
             Letter.calculateLetterProbabilityThresholds();
         }
-    }
+    },
+    /*REMOVE_LETTER : {
+        name : "Remove Letter",
+        sprite : "/sprites/upgrades/TileDiscard.png",
+        onUse : (letter) => {
+            LETTER_PROBABILITY_POINTS[letter] = 0
+            log(`${letter} will no longer appear`);
+            Letter.calculateLetterProbabilityThresholds();
+        }
+    }*/
 }
 
 class Shop {
-    static modifyLetterOnClick(e) {
-        let j = $(e.target);
-
-        // unselect everything else
-        let otherLetters = j.siblings();
-        otherLetters.attr("data-selected", "false");
-        otherLetters.css("border", "")
-
-        // toggle selected
-        if (j.attr("data-selected") == "true") {
-            j.attr("data-selected", "false");
-            j.css("border", "");
-            selectedLetter = null;
-        } else {
-            j.attr("data-selected", "true");
-            j.css("border", "5px solid orange");
-            selectedLetter = j.text();
-        }
-    }
-    static modifierOnClick(e) {
-        let j = $(e.currentTarget);
-
-        // deselect everything else
-        let otherModifiers = j.siblings();
-        otherModifiers.attr("data-selected", "false");
-        otherModifiers.css("border", "");
-
-        // toggle selected
-        if (j.attr("data-selected") == "true") {
-            j.attr("data-selected", "false");
-            j.css("border", "");
-            selectedModifier = null;
-        } else {
-            j.attr("data-selected", "true");
-            j.css("border", "5px solid orange");
-            selectedModifier = j.attr("_modifierid");
-        }
-    }
     static modifySubmitOnClick(e) {
+        let t = $(e.target);
         MODIFIERS[selectedModifier].onUse(selectedLetter);
-        director.signal("exit-shop");
+        if(t.attr("data-return-state")) {
+            ui.loadPreviousSceneState(t.attr("data-return-state"));
+        } else {
+            director.signal("exit-shop");
+        }
     }
 }

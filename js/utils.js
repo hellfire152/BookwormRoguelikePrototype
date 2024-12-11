@@ -29,12 +29,17 @@ class Utils {
     }
 
     static evaluateInput() {
-        let word = UI.getWordInInput();
+        let word = ui.getWordInInput();
     
         if (Utils.checkWordExists(word) && word.length >= 3) {
-            UI.setSubmitButtonEnabled(false);
+            ui.setSubmitButtonEnabled(false);
         } else {
-            UI.setSubmitButtonEnabled(true);
+            ui.setSubmitButtonEnabled(true);
         }
+    }
+    // some values can be functions or variables. this always returns a non function value
+    static getValue(v, args) {
+        if (_.isFunction(v)) return v(args);
+        return v;
     }
 }

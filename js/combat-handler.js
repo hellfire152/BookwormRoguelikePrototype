@@ -93,7 +93,6 @@ class CombatHandler {
         } while(continueTurn)
     }
     resolveTurn() {
-        console.log(COMBAT_PHASES[this.combatPhaseIndex])
         switch(COMBAT_PHASES[this.combatPhaseIndex]) {
             case "PLAYER_STANDBY" : {
                 this._playerSubmit();
@@ -132,9 +131,8 @@ class CombatHandler {
 
     // called on resolving player turn
     _playerSubmit() {
-        // submit button shouldn't even work if the word is invalid
-        // so we ain't validating it again kekw
         let letters = UI.Letter.getLettersInInput();
+        if(!letters) throw new Error("Invalid input?");
         let attackResult = this.calculateAttackResult(letters);
 
         // clear input and replace letters
@@ -174,9 +172,60 @@ class CombatHandler {
         return true;
     }
 
-    enemyDefeated() {
+    enemyDefeated(enemy) {
+        let rewards = {
+            "money" : 0,
+            "heal" : 0
+        }
+        for (const r of enemy.rewards) {
+            if (Math.random() >= r.probability) return;
+            let v = Utils.getValue(r.value, this.level);
+            switch(r.type) {
+                case "money": {
+                    rewards.money += v;
+                    break;
+                }
+                case "heal" : {
+                    rewards.heal += v;
+                    break;
+                }
+                case "letter-replacement" : {
+
+                }
+            }
+        }
+
+        // switch to the rewards scene
+        let options = [];
+        options.push({
+            text : "Upgrade a letter",
+            onSelect : "combat-reward-upgrade"
+        });
+        if (rewards.money > 0) {
+            options.push({
+                text : `Gain ${rewards.money} money`,
+                onSelect : "combat-reward-money",
+                args : rewards.money
+            });
+        }
+        if (rewards.heal > 0) {
+            options.push({
+                text : `Heal ${rewards.heal} HP`,
+                onSelect : "combat-reward-heal",
+                args : rewards.heal
+            });
+        }
+        options.push({
+            text : "Continue...",
+            onSelect : "_next-event"
+        });
+
+        ui.setupDynamicEvent({
+            prompt : `${enemy.name} has been defeated! Collect your rewards...`,
+            options
+        })
         this.combatPhaseIndex = null;
-        director.signal("enemy-defeated");
+        //director.signal("enemy-defeated", rewards);
     }
 
     playerDefeated() {

@@ -1,9 +1,4 @@
 class Character {
-    static getValue(v, args) {
-        if (_.isFunction(v)) return v(args);
-        return v;
-    }
-
     constructor() {
         this.effects = {};
         for (const eff in Effect.EFFECT_TYPES) {

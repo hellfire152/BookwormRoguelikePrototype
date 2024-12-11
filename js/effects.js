@@ -55,7 +55,7 @@ class PoisonEffect extends Effect {
             effectType : Effect.EFFECT_TYPES.POISON,
             value : Math.floor(value),
             duration : null, // unused since poison duration is based on value,
-            sprite : null
+            sprite : "/sprites/effects/poison.png"
         });
     }
 

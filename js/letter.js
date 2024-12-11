@@ -142,7 +142,7 @@ class Letter {
             }
 
             let element = letter.generateElement();
-            UI.appendLetterElement(element);
+            UI.Letter.appendLetterElement(element);
         }
     }
 

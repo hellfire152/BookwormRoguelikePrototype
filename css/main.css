@@ -102,7 +102,7 @@ body {
     bottom: 10px;
     padding : 5px;
 }
-#shuffle, #modifer-submit, #refresh {
+.bottom-row-button {
     border-radius : 5px;
     float : right;
     margin-left : 5px;
@@ -133,11 +133,12 @@ body {
     display : flex;
 }
 .modifier-sprite {
-    width : 50px;
+    width : 58x;
     height : 100px;
 }
 .modifier-container {
-    padding : 30px;
+    padding : 10px;
+    margin : 20px;
 }
 #shop-items-container {
     display : block;

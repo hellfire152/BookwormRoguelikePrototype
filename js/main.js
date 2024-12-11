@@ -6,6 +6,7 @@ let relicHandler;
 let player;
 let director;
 let combatHandler;
+let ui;
 
 function submitInput() {
     combatHandler.handleTurn();
@@ -23,13 +24,14 @@ function preload() {
     Utils.loadWordlist();
 
     // initialize global singletons
+    ui = new UI();
     player = new Player();
     relicHandler = new RelicHandler();
     director = new Director();
     combatHandler = new CombatHandler();
 
     // pre-make the elements
-    UI.preloadElements();
+    ui.preloadElements();
     Letter.calculateLetterProbabilityThresholds();
     Letter.generateLetters();
 
@@ -67,11 +69,11 @@ function preload() {
     // letter modifiers
     selectedLetter = null;
     selectedModifier = null;
-    $('#letter-board').on("click", "#modifier-letter-container .letter", Shop.modifyLetterOnClick);
-    $("#event-area").on("click", ".modifier-container", Shop.modifierOnClick);
+    $('#letter-board').on("click", "#modifier-letter-container .letter", UI.Shop.modifyLetterOnClick);
+    $("#event-area").on("click", ".modifier-container", UI.Shop.modifierOnClick);
     $("#letter-board").on("click", "#modifier-submit", Shop.modifySubmitOnClick);
     
-    UI.enableTooltips();
+    ui.enableTooltips();
     $('#game-start').click(() => {director.startGame()});
 }
 

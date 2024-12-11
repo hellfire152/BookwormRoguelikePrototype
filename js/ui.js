@@ -1,45 +1,57 @@
 class UI {
-    static sceneStore = {
-        "combat" : {
-            "enemy" : null,
-            "player-input" : null,
-        },
-        "event" : {
-            "text" : null,
-            "options" : null,
-        },
-        "item-shop" : {
-            "text" : null,
-            "options" : null,
-        },
-        "upgrade-shop" : {
-            "text" : null,
-            "options" : null
+    sceneStore;
+    _tempSceneStore;
+    
+    constructor(){
+        this.sceneStore = {
+            "combat" : {
+                "enemy" : null,
+                "player-input" : null,
+            },
+            "event" : {
+                "text" : null,
+                "options" : null,
+            },
+            "item-shop" : {
+                "text" : null,
+                "options" : null,
+            },
+            "upgrade-shop" : {
+                "text" : null,
+                "options" : null
+            },
         }
     }
 
-    static preloadElements() {
-        UI._generateInputSpace();
-        UI._generatePlayerStatBoard();
-        UI._generateEventDetail();
-        UI._generateEnemyContainer();
-        UI._generateLog();
+    preloadElements() {
+        this._generateInputSpace();
+        this._generatePlayerStatBoard();
+        this._generateEventDetail();
+        this._generateEnemyContainer();
+        this._generateLog();
     }
 
-    static setupEvent(eventName) {
+    // for events with static prompt and option text
+    setupEvent(eventName) {
         let eventDetails = EVENT_DETAILS[eventName];
-        UI.setEventPrompt(eventDetails.prompt);
-        UI.setEventPlayerOptions(eventDetails.options);
-    
-        UI.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
+        this.setupDynamicEvent(eventDetails);
     }
-    
-    static setEventPrompt(text) {
-        $(UI.sceneStore.event.text).text(text);
+    // use this if the event description and option text have to be
+    // dynamically generated i.e. battle rewards
+    setupDynamicEvent(eventDetail) { 
+        this.setEventPrompt(eventDetail.prompt);
+        this.setEventPlayerOptions(eventDetail.options);
+        this.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
     }
-    static setEventPlayerOptions(optionsArr) {
+    setEventPrompt(text) {
+        $(this.sceneStore.event.text).text(text);
+    }
+    setCustomEventPrompt(e) { // for more than just text
+        this.sceneStore.event.text = $(e);
+    }
+    setEventPlayerOptions(optionsArr) {
         // clear options
-        let eventOptionsContainer = $(UI.sceneStore.event.options);
+        let eventOptionsContainer = $(this.sceneStore.event.options);
         eventOptionsContainer.empty();
     
         // generate new options
@@ -53,7 +65,7 @@ class UI {
         }
     }
 
-    static _generateEventDetail() {
+    _generateEventDetail() {
         //top half display
         let eventContainer = $("<div></div>");
         eventContainer.attr("id", "event-detail-container");
@@ -62,143 +74,198 @@ class UI {
         eventDetail.attr("id", "event-detail-text");
     
         eventContainer.append(eventDetail);
-        UI.sceneStore.event.text = eventContainer;
+        this.sceneStore.event.text = eventContainer;
     
         let eventOptionsContainer = $("<div></div>");
         eventOptionsContainer.attr("id", "event-options-container");
-        UI.sceneStore.event.options = eventOptionsContainer;
+        this.sceneStore.event.options = eventOptionsContainer;
     }
 
-    static switchScene(sceneType) {
+    switchScene(sceneType) {
         // clear what's previously there
         $('#event-area').empty();
         $('#letter-board').empty();
-    
         switch(sceneType) {
             case GAME_CONSTANTS.GAME_STATES.COMBAT:
-                $("#event-area").append(UI.sceneStore.combat.enemy);
-                $("#letter-board").append(UI.sceneStore.combat["player-input"])
+                $("#event-area").append(this.sceneStore.combat.enemy);
+                $("#letter-board").append(this.sceneStore.combat["player-input"])
                 break;
             case GAME_CONSTANTS.GAME_STATES.EVENT:
-                $("#event-area").append(UI.sceneStore.event.text);
-                $("#letter-board").append(UI.sceneStore.event.options);
+                $("#event-area").append(this.sceneStore.event.text);
+                $("#letter-board").append(this.sceneStore.event.options);
                 break;
         }
     
     }
 
-    static loadItemShop() {
-        let shopContainer = $("<div></div>");
-        shopContainer.attr("id", "shop-container");
-    
-        let shopPrompt = $("<div>");
-        shopPrompt.attr("id", "shop-text");
-        shopPrompt.text("SHOP");
-    
-        let shopItems = $("<div></div>");
-        shopItems.attr("id", "shop-items-container");
-     
-        //generate 3 random relics and 3 random consumables
-        let options = [];
-        let consumables = _.sampleSize(CONSUMABLE_ID, 3).sort();
-    
-        for (const c of consumables) {
-            let itemContainer = $("<div></div>");
-            itemContainer.addClass("item-container");
-            itemContainer.attr("_itemID", c);
-    
-            let itemName = $("<div></div>");
-            itemName.addClass("item-name");
-            itemName.text(CONSUMABLE_DETAILS[c].name);
-    
-            let itemSprite = $("<img>");
-            itemSprite.attr("src", CONSUMABLE_DETAILS[c].sprite);
-            itemSprite.addClass("item-sprite");
-    
-            let itemCost = $("<div>");
-            itemCost.addClass("item-cost");
-            itemCost.text(CONSUMABLE_DETAILS[c].baseCost);
-    
-            itemContainer.append(itemName, itemSprite, itemCost);
-            shopItems.append(itemContainer);
-    
+    saveCurrentSceneState() {
+        this._tempSceneStore = _.cloneDeep(this.sceneStore);
+    }
+    loadPreviousSceneState(gameState) {
+        this.sceneStore = this._tempSceneStore;
+        this._tempSceneStore = null;
+        this.switchScene(parseInt(gameState));
+    }
+   
+    static Shop = class thisShop {
+        static loadItemShop() {
+            let shopContainer = $("<div></div>");
+            shopContainer.attr("id", "shop-container");
+        
+            let shopPrompt = $("<div>");
+            shopPrompt.attr("id", "shop-text");
+            shopPrompt.text("SHOP");
+        
+            let shopItems = $("<div></div>");
+            shopItems.attr("id", "shop-items-container");
+         
+            //generate 3 random relics and 3 random consumables
+            let options = [];
+            let consumables = _.sampleSize(CONSUMABLE_ID, 3).sort();
+        
+            for (const c of consumables) {
+                let itemContainer = $("<div></div>");
+                itemContainer.addClass("item-container");
+                itemContainer.attr("_itemID", c);
+        
+                let itemName = $("<div></div>");
+                itemName.addClass("item-name");
+                itemName.text(CONSUMABLE_DETAILS[c].name);
+        
+                let itemSprite = $("<img>");
+                itemSprite.attr("src", CONSUMABLE_DETAILS[c].sprite);
+                itemSprite.addClass("item-sprite");
+        
+                let itemCost = $("<div>");
+                itemCost.addClass("item-cost");
+                itemCost.text(CONSUMABLE_DETAILS[c].baseCost);
+        
+                itemContainer.append(itemName, itemSprite, itemCost);
+                shopItems.append(itemContainer);
+        
+                options.push({
+                    "text" : CONSUMABLE_DETAILS[c].name,
+                    "onSelect" : "purchase-item",
+                    "args" : `${c}|consumable`
+                });
+            }
+        
+            shopContainer.append(shopPrompt, shopItems);
+            this.sceneStore.event.text = shopContainer;
+        
             options.push({
-                "text" : CONSUMABLE_DETAILS[c].name,
-                "onSelect" : "purchase-item",
-                "args" : `${c}|consumable`
+                "text" : "Continue",
+                "onSelect" : "_next-event"
             });
+            this.setEventPlayerOptions(options);
+            this.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
         }
-    
-        shopContainer.append(shopPrompt, shopItems);
-        UI.sceneStore.event.text = shopContainer;
-    
-        options.push({
-            "text" : "Continue",
-            "onSelect" : "_next-event"
-        });
-        UI.setEventPlayerOptions(options);
-        UI.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
-    }
-
-    static loadUpgradeShop() {
-        let shopContainer = $("<div>");
-        shopContainer.attr("id", "shop-container")
-    
-        let shopPrompt = $("<div></div>");
-        shopPrompt.attr("id", "shop-prompt");
-        shopPrompt.text("Choose a blessing......");
-    
-        let modifiersContainers = $("<div>");
-        modifiersContainers.attr("id", "shop-modifiers-container");
-    
-        // generate 3 random modifiers
-        let modifiers = _.sampleSize(Object.keys(MODIFIERS), 3);
-        for (const mod of modifiers) {
-            let m = MODIFIERS[mod];
-            let modifierContainer = $("<div>");
-            modifierContainer.addClass("modifier-container");
-            modifierContainer.attr("_modifierid", mod)
-    
-            let modifierName = $("<div>");
-            modifierName.addClass("modifier-name");
-            modifierName.text(m.name);
-    
-            let modifierSprite = $("<img>");
-            modifierSprite.addClass("modifier-sprite");
-            modifierSprite.attr("src", m.sprite);
-    
-            modifierContainer.append(modifierName, modifierSprite);
-            modifiersContainers.append(modifierContainer);
-        }
-    
-        shopContainer.append(shopPrompt, modifiersContainers);
-    
-        // generate 6 letters to apply the modifiers to
-        let letters = _.sampleSize(Letter.ALPHABET_SET, 6);
-        let upgradeLetterContainer = $("<div>");
-        upgradeLetterContainer.attr("id", "modifier-letter-container");
-    
-        for (const l of letters) {  
-            let letter = new Letter(l);
-            upgradeLetterContainer.append(letter.generateElement());
-        }
-    
-        // submit modifier
-        let submitModifierButton = $("<button>");
-        submitModifierButton.attr("id", "modifier-submit");
-        submitModifierButton.text("Submit");
-    
-        let modifierLetterContainer = $("<div>");
-        modifierLetterContainer.attr("id", "modifier-letter-container");
+        static loadUpgradeShop(args) {
+            let shopContainer = $("<div>");
+            shopContainer.attr("id", "shop-container")
         
-        modifierLetterContainer.append(upgradeLetterContainer, submitModifierButton);
+            let shopPrompt = $("<div></div>");
+            shopPrompt.attr("id", "shop-prompt");
+            shopPrompt.text("Choose a blessing......");
         
-        UI.sceneStore.event.text = shopContainer;
-        UI.sceneStore.event.options = modifierLetterContainer;
-        UI.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
+            let modifiersContainers = $("<div>");
+            modifiersContainers.attr("id", "shop-modifiers-container");
+        
+            // generate 3 random modifiers
+            let modifiers = _.sampleSize(Object.keys(MODIFIERS), 3);
+            for (const mod of modifiers) {
+                let m = MODIFIERS[mod];
+                let modifierContainer = $("<div>");
+                modifierContainer.addClass("modifier-container");
+                modifierContainer.attr("_modifierid", mod)
+        
+                let modifierName = $("<div>");
+                modifierName.addClass("modifier-name");
+                modifierName.text(m.name);
+        
+                let modifierSprite = $("<img>");
+                modifierSprite.addClass("modifier-sprite");
+                modifierSprite.attr("src", m.sprite);
+        
+                modifierContainer.append(modifierName, modifierSprite);
+                modifiersContainers.append(modifierContainer);
+            }
+        
+            shopContainer.append(shopPrompt, modifiersContainers);
+        
+            // generate 6 letters to apply the modifiers to
+            let letters = _.sampleSize(Letter.ALPHABET_SET, 6);
+            let upgradeLetterContainer = $("<div>");
+            upgradeLetterContainer.attr("id", "modifier-letter-container");
+        
+            for (const l of letters) {  
+                let letter = new Letter(l);
+                upgradeLetterContainer.append(letter.generateElement());
+            }
+        
+            // submit modifier
+            let submitModifierButton = $("<button>");
+            submitModifierButton.attr("id", "modifier-submit");
+            if (args && args.returnToSavedState) {
+                submitModifierButton.attr("data-return-state", args.returnToSavedState);
+            }
+            submitModifierButton.text("Submit");
+            submitModifierButton.addClass("bottom-row-button")
+            let bottomRowContainer = $("<div>");
+            bottomRowContainer.attr("id", "bottom-row-buttons-container");
+            bottomRowContainer.append(submitModifierButton)
+        
+            let modifierLetterContainer = $("<div>");
+            modifierLetterContainer.attr("id", "modifier-letter-container");
+            
+            modifierLetterContainer.append(upgradeLetterContainer, bottomRowContainer);
+            
+            ui.sceneStore.event.text = shopContainer;
+            ui.sceneStore.event.options = modifierLetterContainer;
+            ui.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
+        }
+        static modifyLetterOnClick(e) {
+            let j = $(e.target);
+    
+            // unselect everything else
+            let otherLetters = j.siblings();
+            otherLetters.attr("data-selected", "false");
+            otherLetters.css("border", "")
+    
+            // toggle selected on target
+            if (j.attr("data-selected") == "true") {
+                j.attr("data-selected", "false");
+                j.css("border", "");
+                selectedLetter = null;
+            } else {
+                j.attr("data-selected", "true");
+                j.css("border", "5px solid orange");
+                selectedLetter = j.text();
+            }
+        }
+        static modifierOnClick(e) {
+            let j = $(e.currentTarget);
+    
+            // deselect everything else
+            let otherModifiers = j.siblings();
+            otherModifiers.attr("data-selected", "false");
+            otherModifiers.css("border", "");
+    
+            // toggle selected
+            if (j.attr("data-selected") == "true") {
+                j.attr("data-selected", "false");
+                j.css("border", "");
+                selectedModifier = null;
+            } else {
+                j.attr("data-selected", "true");
+                j.css("border", "3px solid orange");
+                selectedModifier = j.attr("_modifierid");
+            }
+        }
     }
+    
 
-    static _generateEnemyContainer() {
+    _generateEnemyContainer() {
         let enemyContainer = $("<div></div>");
         enemyContainer.attr("id", "enemy-container");
     
@@ -216,10 +283,10 @@ class UI {
         enemyHP.attr("id", "enemy-hp");
     
         enemyContainer.append(enemyName, enemyHP, enemyDisplay, statusDisplay);
-        UI.sceneStore.combat.enemy = enemyContainer;
+        this.sceneStore.combat.enemy = enemyContainer;
     }
     
-    static _generateInputSpace() {
+    _generateInputSpace() {
         let combatInputContainer = $("<div></div>");
         combatInputContainer.attr('id', 'combat-input-container');
     
@@ -239,17 +306,19 @@ class UI {
         let shuffleButton = $("<button>");
         shuffleButton.attr("id", "shuffle");
         shuffleButton.text("Shuffle");
-    
+        shuffleButton.addClass("bottom-row-button");
+
         let refreshButton = $("<button>");
         refreshButton.attr("id", "refresh");
         refreshButton.text("Refresh (skips turn!)");
+        refreshButton.addClass("bottom-row-button");
     
         bottomButtonsContainer.append(refreshButton, shuffleButton);
         combatInputContainer.append(inputSpace, sendInput, letterboard, bottomButtonsContainer);
-        UI.sceneStore.combat["player-input"] = combatInputContainer;
+        this.sceneStore.combat["player-input"] = combatInputContainer;
     }
 
-    static _generatePlayerStatBoard() {
+    _generatePlayerStatBoard() {
         let statContainer = $("<div>");
         statContainer.attr("id", "player-stat-container");
     
@@ -270,14 +339,14 @@ class UI {
         $("#log").append(statContainer, statusContainer);
     }
 
-    static _generateLog() {
+    _generateLog() {
         let logDisplay = $("<div></div>");
         logDisplay.attr("id", "game-log");
     
         $("#log").append(logDisplay);
     }
     
-    static getWordInInput() {
+    getWordInInput() {
         let word = '';
         $('#letter-input').children().each((index, element) => {
             word += $(element).text();
@@ -288,7 +357,7 @@ class UI {
     // handles enemy UI stuff
     static Enemy = class UIEnemy {
         static initializeEnemyDisplay(enemy) {
-            let enemyContainer = $(UI.sceneStore.combat.enemy);
+            let enemyContainer = $(ui.sceneStore.combat.enemy);
             enemyContainer.find("#enemy-name").text(enemy.name);
             let display = enemyContainer.find("#enemy-display");
             display.attr("src", enemy.sprite);
@@ -297,7 +366,7 @@ class UI {
         }
 
         static updateHPDisplay(enemy) {
-            let hp = $(UI.sceneStore.combat.enemy).find("#enemy-hp");
+            let hp = $(ui.sceneStore.combat.enemy).find("#enemy-hp");
             hp.text(`${enemy.currentHP}/${enemy.maxHP} HP`);
         }
 
@@ -320,6 +389,35 @@ class UI {
                 statusContainer.append(e.generateElement("player"));
             }
         }
+        static updateConsumableDisplay(player) {
+            $("#owned-consumables").empty();
+            for (const i in player.consumables) {
+                if (player.consumables[i] <= 0) continue;
+                let item = CONSUMABLE_DETAILS[i];
+    
+                let consumableContainer = $("<div>");
+                consumableContainer.addClass("player-consumable");
+                consumableContainer.attr("_itemid", i);
+    
+                let consumableSprite = $("<img>");
+                consumableSprite.addClass("item-sprite");
+                consumableSprite.attr("src", item.sprite);
+    
+                let itemAmount = $("<div>");
+                itemAmount.addClass("player-consumable-amount");
+                itemAmount.text(player.consumables[i]);
+    
+                consumableContainer.append(consumableSprite, itemAmount);
+                $("#owned-consumables").append(consumableContainer);
+            }
+        }
+        static updateHPDisplay(player) {
+            $("#player-hp").text(`${player.currentHP}/${player.maxHP} HP`)
+        }
+        static updateMoneyDisplay(player) {
+            $("#player-money").text(`${player.money} Money`)
+        }
+    
     }
 
     static Letter = class UILetter {
@@ -370,6 +468,12 @@ class UI {
             $('#letter-input').append(t);
             Utils.evaluateInput();
         }
+
+        static appendLetterElement(letterElement) {
+            $(ui.sceneStore.combat["player-input"])
+            .find("#letters-available")
+            .append(letterElement);
+        }
     }
     static Relic = class UIRelic {
         static updateDisplay() {
@@ -382,16 +486,11 @@ class UI {
         }
     }
 
-    static appendLetterElement(letterElement) {
-        $(UI.sceneStore.combat["player-input"])
-        .find("#letters-available")
-        .append(letterElement);
-    }
-    static removeStartButton() {
+    removeStartButton() {
         return $("#game-start").remove();
     }
     
-    static enableTooltips() {
+    enableTooltips() {
         tippy.delegate('body', {
             target : ".hover-tooltip",
             content(reference) {
@@ -403,7 +502,7 @@ class UI {
         });
     }
 
-    static setSubmitButtonEnabled(state) {
+    setSubmitButtonEnabled(state) {
         $("#send-input").prop("disabled", state);
     }
 }

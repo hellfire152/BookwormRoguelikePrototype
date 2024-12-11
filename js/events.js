@@ -56,10 +56,6 @@ const EVENT_DETAILS = {
                 "onSelect" : "load-item-shop"
             },
             {
-                "text" : "Upgrade shop",
-                "onSelect" : "load-upgrade-shop"
-            },
-            {
                 "text" : "Explore the area",
                 "onSelect" : "_random-event"
             }
@@ -95,14 +91,36 @@ const EVENT_FUNCTIONS = {
         director.setupEvent("_test-heal");
     },
     "load-item-shop" : () => {
-        UI.loadItemShop();
+        UI.Shop.loadItemShop();
     },
     "load-upgrade-shop" : () => {
-        UI.loadUpgradeShop();
+        UI.Shop.loadUpgradeShop();
     },
     "purchase-item" : (target, args) => {
         let [itemID, type] = _.split(args, "|");
         let isPurchaseSuccessful = player.attemptPurchase(itemID, type);
         if (isPurchaseSuccessful) target.remove();
+    },
+    "combat-reward-money" : (target, money) => {
+        target.remove();
+        player.giveMoney(money);
+        log(`Gained ${money} money`);
+    },
+    "combat-reward-heal" : (target, heal) => {
+        target.remove()
+        player.healDamage(heal);
+        log(`Healed for ${heal} HP`);
+    },
+    "combat-reward-upgrade" : (target) => {
+        // first remove the button that loads the upgrade shop
+        target.remove();
+        ui.saveCurrentSceneState();
+        UI.Shop.loadUpgradeShop({returnToSavedState : GAME_CONSTANTS.GAME_STATES.EVENT});
+    },
+    "combat-complete" : () => {
+        director.signal("combat-complete");
+    },
+    "load-previous-scene-state" : (gameState) => {
+        ui.loadPreviousSceneState(gameState);
     }
 }

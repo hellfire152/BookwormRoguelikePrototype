@@ -23,7 +23,7 @@ class Director {
     // when we start adding a lot more features in the long run
     signal(signalType, data) {
         switch(signalType) {
-            case "enemy-defeated" : {
+            case "combat-complete" : {
                 this.levelsCleared += 1;
                 this.nextEvent();
                 break;
@@ -48,14 +48,14 @@ class Director {
         // so we need to start the game loop somewhere
         // let's start with intro (event) -> combat -> event -> combat and so on for now
         this.setupEvent("_intro");
-        UI.removeStartButton();
+        ui.removeStartButton();
     }
 
     nextEvent() {
         switch(this.gameState) {
             case GAME_CONSTANTS.GAME_STATES.COMBAT:
                 this.gameState = GAME_CONSTANTS.GAME_STATES.EVENT;
-                UI.setupEvent("_decide-event");
+                ui.setupEvent("_decide-event");
                 break;
             case GAME_CONSTANTS.GAME_STATES["DECIDING-EVENT"]:
                 
@@ -73,17 +73,18 @@ class Director {
 
     setupCombat() {
         // spawn random enemy
-        currentEnemy = EnemyFactory.generateEnemy(_.sample(ENEMY_ID), this.levelsCleared);
+        //currentEnemy = EnemyFactory.generateEnemy(_.sample(ENEMY_ID), this.levelsCleared);
+        currentEnemy = EnemyFactory.generateEnemy(ENEMY_ID.GOBBO, this.levelsCleared);
         currentEnemy.initializeDisplay();
          // begin the combat. players start first.
         this.gameState = GAME_CONSTANTS.GAME_STATES.COMBAT;
-        UI.switchScene(this.gameState);
+        ui.switchScene(this.gameState);
         combatHandler.beginCombat();
     }
 
     // force setup an event. Usually used for subsequent pages in an event
     setupEvent(e) {
         this.gameState = GAME_CONSTANTS.GAME_STATES.EVENT;
-        UI.setupEvent(e);
+        ui.setupEvent(e);
     }
 }
