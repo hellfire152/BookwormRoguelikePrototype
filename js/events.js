@@ -66,7 +66,7 @@ const EVENT_DETAILS = {
 const EVENT_FUNCTIONS = {
     "intro_1" : () => {
         player.giveMoney(50);
-        relicHandler.addRelic(RELIC_ID.HEAVY_METAL);
+        //relicHandler.addRelic(RELIC_ID.HEAVY_METAL);
         director.setupEvent("_intro-conclusion");
     },
     "_next-event" : () => {

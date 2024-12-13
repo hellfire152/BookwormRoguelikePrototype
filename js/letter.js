@@ -122,13 +122,13 @@ class Letter {
         }
     }
     
-    static generateLetters(noLettersToGenerate, generateSpecial) {
+    static generateLetters(noLettersToGenerate, generateSpecial, length) {
         if (typeof noLettersToGenerate == 'undefined') {
             noLettersToGenerate = GAME_CONSTANTS.STARTING_LETTER_COUNT;
         }
 
         // see if a special tile should be generated
-        let specialTile = Letter.specialTileTypeFromLength(noLettersToGenerate);
+        let specialTile = Letter.specialTileTypeFromLength(length);
 
         let specialGenerated = !generateSpecial;
         for(let i = 0; i < noLettersToGenerate; i++) {

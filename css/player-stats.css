@@ -42,3 +42,26 @@
     right : 3px;
     font-size : 10px;
 }
+
+.max-hp {
+    background-color: gray;
+    width : 60%;
+    height : 20px;
+    border : 2px solid black;
+    border-radius: 5px;
+    position : relative;
+    margin : 3px;
+}
+
+.current-hp {
+    background-color: darkred;
+    height : 100%;
+}
+
+.hp-text {
+    position: absolute;
+    width: 100%;
+    text-align : center;
+    margin : auto;
+    color: white;
+}

@@ -31,6 +31,7 @@
     height : 40px;
     border : 2px solid black;
     margin: 7px;
+    display : inline-block;
 }
 
 .relic-sprite {

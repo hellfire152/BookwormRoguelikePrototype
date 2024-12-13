@@ -43,8 +43,6 @@ class Player extends Character {
         UI.Player.updateMoneyDisplay(this);
     }
 
-
-
     checkFlag(flag) {
         return !!this.flags[flag]
     }

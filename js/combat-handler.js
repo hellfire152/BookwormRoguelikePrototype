@@ -145,7 +145,7 @@ class CombatHandler {
         $(".placeholder-letter").remove();
         // replace letters lost
         Letter.generateLetters(GAME_CONSTANTS.STARTING_LETTER_COUNT - 
-            UI.Letter.getAvailableLetterElements().length, true);
+            UI.Letter.getAvailableLetterElements().length, true, attackResult.length);
 
         //handle damage to enemies
         let isEnemyDefeated = currentEnemy.dealDamage(attackResult.damage, true);
@@ -243,8 +243,13 @@ class CombatHandler {
         let multipliers = [];
         let playerEffects = [];
         let enemyEffects = [];
+        let length = 0;
+
         for(const l of letters) {
-            let baseDamage = LETTER_DAMAGE_VALUES[l.letter];
+            for(const l2 of l.letter) {
+                length++;
+                damage += LETTER_DAMAGE_VALUES[l2];
+            }
             switch(l.specialTileType) {
                 case SPECIAL_TILE_TYPES.TYPE_1:
                     multipliers.push(1.2);
@@ -259,11 +264,10 @@ class CombatHandler {
                     }
                     break;
             }
-            damage += baseDamage;
         }
-    
+        
         //bonus multiplier for long words
-        multipliers.push(LENGTH_DAMAGE_MULTIPLIERS[letters.length]); 
+        multipliers.push(LENGTH_DAMAGE_MULTIPLIERS[length]); 
         for(const m of multipliers) {
             damage *= parseFloat(m);
         }
@@ -271,7 +275,8 @@ class CombatHandler {
         return {
             damage : damage,
             playerEffects,
-            enemyEffects
+            enemyEffects,
+            length
         };
     }
 }

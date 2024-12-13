@@ -27,11 +27,13 @@ class RelicHandler {
     addRelic(relicId) {
         if(this.checkHasRelic(relicId)) return false;
         this.ownedRelics[relicId] = RelicFactory.generateRelic(relicId);
+        this.ownedRelics[relicId].onObtain();
         this._updateRelicDisplay();
         return true;
     }
 
     removeRelic(relicId) {
+        this.ownedRelics[relicId].onRemove();
         return this.ownedRelics.delete(relicId);
     }
 
@@ -74,6 +76,10 @@ const RELIC_ID = {
 
     // uncommon relics
     FAST_ACTING : "R_300",
+    LIVED_IN_THE_PAST : "R_301",
+    ADVERBLY : "R_302",
+    PERPETUAL_MOTION_MACHINE : "R_303",
+    EXTRACT_QI : "R_304"
 }
 
 class GenericRelic { // for relics that don't need any internal logic
@@ -82,6 +88,8 @@ class GenericRelic { // for relics that don't need any internal logic
         this.sprite = data.sprite;
         this.value = data.value;
         this.tooltipDescription = data.tooltipDescription;
+        this.onObtain = data.onObtain;
+        this.onRemove = data.onRemove;
     }
 
     triggerUpdate(data) {} // for child classes to implement other logic
@@ -114,6 +122,61 @@ class RelicFactory {
                     tooltipDescription : "Gems now deal a portion of the word's damage as additional poison damage.\n Purple -> 0.3x, Blue -> 0.5x"
                 });
             }
+            case RELIC_ID.LIVED_IN_THE_PAST : {
+                return new GenericRelic({
+                    name : "Lived in the Past",
+                    sprite : null,
+                    tooltipDescription : "\"ED\" tiles have a chance to spawn",
+                    onObtain : () => {
+                        LETTER_PROBABILITY_POINTS["ed"] = 10;
+                        Letter.calculateLetterProbabilityThresholds(); 
+                    }
+                });
+            }
+            case RELIC_ID.ADVERBLY : {
+                return new GenericRelic({
+                    name : "Adverbly",
+                    sprite : null,
+                    tooltipDescription : "\"LY\" tiles have a chance to spawn",
+                    onObtain : () => {
+                        LETTER_PROBABILITY_POINTS["ly"] = 10;
+                        Letter.calculateLetterProbabilityThresholds();
+                    }
+                })
+            }
+            case RELIC_ID.PERPETUAL_MOTION_MACHINE : {
+                return new GenericRelic({
+                    name : "Perpetual Motion Machine",
+                    sprite : null,
+                    tooltipDescription : "\"ING\" tiles have a chance to spawn",
+                    onObtain : () => {
+                        LETTER_PROBABILITY_POINTS["ing"] = 10;
+                        Letter.calculateLetterProbabilityThresholds();
+                    },
+                    onRemove : () => {
+                        delete LETTER_PROBABILITY_POINTS["ing"];
+                        Letter.calculateLetterProbabilityThresholds();
+                    }
+                });
+            }
+            case RELIC_ID.EXTRACT_QI : {
+                return new GenericRelic({
+                    name : "Extract Qi",
+                    sprite : null,
+                    tooltipDescription : "\"Q\" tiles are replaced with \"QU\" tiles instead",
+                    onObtain : () => {
+                        LETTER_PROBABILITY_POINTS["qu"] = LETTER_PROBABILITY_POINTS["q"];
+                        delete LETTER_PROBABILITY_POINTS["q"];
+                        Letter.calculateLetterProbabilityThresholds();
+                    },
+                    onRemove : () => {
+                        LETTER_PROBABILITY_POINTS["q"] = LETTER_PROBABILITY_POINTS["qu"];
+                        delete LETTER_PROBABILITY_POINTS["qu"];
+                        Letter.calculateLetterProbabilityThresholds();
+                    }
+                })
+            }
+
         }
     }
 }

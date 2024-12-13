@@ -151,14 +151,14 @@ class UI {
             }
         
             shopContainer.append(shopPrompt, shopItems);
-            this.sceneStore.event.text = shopContainer;
+            ui.sceneStore.event.text = shopContainer;
         
             options.push({
                 "text" : "Continue",
                 "onSelect" : "_next-event"
             });
-            this.setEventPlayerOptions(options);
-            this.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
+            ui.setEventPlayerOptions(options);
+            ui.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
         }
         static loadUpgradeShop(args) {
             let shopContainer = $("<div>");
@@ -279,10 +279,22 @@ class UI {
         let statusDisplay = $("<div>");
         statusDisplay.attr("id", "enemy-status-container");
     
-        let enemyHP = $("<div></div>");
-        enemyHP.attr("id", "enemy-hp");
-    
-        enemyContainer.append(enemyName, enemyHP, enemyDisplay, statusDisplay);
+        let enemyMaxHP = $("<div></div>");
+        enemyMaxHP.addClass("max-hp");
+        enemyMaxHP.attr("id", "enemy-max-hp")
+
+        let enemyHPText = $("<div>");
+        enemyHPText.attr("id", "enemy-hp-text");
+        enemyHPText.addClass("hp-text");
+        enemyHPText.text(`0/0 HP`);
+
+        let enemyCurrentHP = $("<div>");
+        enemyCurrentHP.attr("id", "enemy-current-hp");
+        enemyCurrentHP.addClass("current-hp");
+        enemyCurrentHP.css("width", `100%`);
+        enemyMaxHP.append(enemyHPText, enemyCurrentHP);
+
+        enemyContainer.append(enemyName, enemyMaxHP, enemyDisplay, statusDisplay);
         this.sceneStore.combat.enemy = enemyContainer;
     }
     
@@ -322,11 +334,21 @@ class UI {
         let statContainer = $("<div>");
         statContainer.attr("id", "player-stat-container");
     
-        let hpDisplay = $("<div></div>");
-        hpDisplay.attr("id", "player-hp");
-        hpDisplay.text(`${player.currentHP}/${player.maxHP} HP`);
-        hpDisplay.addClass("player-stat");
-    
+        let maxHpDisplay = $("<div></div>");
+        maxHpDisplay.attr("id", "player-max-hp");
+        maxHpDisplay.addClass("max-hp")
+
+        let hpText = $("<div>");
+        hpText.attr("id", "player-hp-text");
+        hpText.addClass("player-stat hp-text");
+        hpText.text(`100 / 100 HP`);
+
+        let currentHpDisplay = $("<div>");
+        currentHpDisplay.attr("id", "player-current-hp");
+        currentHpDisplay.addClass("current-hp")
+        currentHpDisplay.css(`width : 100%;`)
+        maxHpDisplay.append(hpText, currentHpDisplay);
+        
         let moneyDisplay = $("<div></div>");
         moneyDisplay.attr("id", "player-money");
         moneyDisplay.text(`${player.money} Money`);
@@ -335,7 +357,7 @@ class UI {
         let statusContainer = $("<div>");
         statusContainer.attr("id", "player-status-container");
     
-        statContainer.append(hpDisplay, moneyDisplay);
+        statContainer.append(maxHpDisplay, moneyDisplay);
         $("#log").append(statContainer, statusContainer);
     }
 
@@ -362,12 +384,15 @@ class UI {
             let display = enemyContainer.find("#enemy-display");
             display.attr("src", enemy.sprite);
             display.attr("data-tooltip-content", enemy.tooltip);
-            enemyContainer.find("#enemy-hp").text(`${enemy.currentHP}/${enemy.maxHP} HP`)
+            UI.Enemy.updateHPDisplay(enemy);
+            UI.Enemy.updateStatusDisplay(enemy.getStatuses())
         }
 
         static updateHPDisplay(enemy) {
-            let hp = $(ui.sceneStore.combat.enemy).find("#enemy-hp");
-            hp.text(`${enemy.currentHP}/${enemy.maxHP} HP`);
+            // not searching the id directly as it may not be rendered yet
+            let con = $(ui.sceneStore.combat.enemy);
+            con.find("#enemy-current-hp").css("width", `${enemy.hpPercent}%`)
+            con.find("#enemy-hp-text").text(`${enemy.currentHP}/${enemy.maxHP} HP`);
         }
 
         static updateStatusDisplay(statuses) {
@@ -412,7 +437,8 @@ class UI {
             }
         }
         static updateHPDisplay(player) {
-            $("#player-hp").text(`${player.currentHP}/${player.maxHP} HP`)
+            $("#player-current-hp").css("width", `${player.hpPercent}%`);
+            $("#player-hp-text").text(`${player.currentHP} / ${player.maxHP} HP`);
         }
         static updateMoneyDisplay(player) {
             $("#player-money").text(`${player.money} Money`)

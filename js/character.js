@@ -101,6 +101,9 @@ class Character {
         return this.currentHP > 0;
     }
 
+    get hpPercent() {
+        return Math.floor(this.currentHP / this.maxHP * 100);
+    }
     // common methods to implement in child classes
     _updateHPDisplay() {}
 }   
