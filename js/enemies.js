@@ -39,8 +39,8 @@ class Enemy extends Character {
             let v = e.value(this.level);
             switch(e.type) {
                 case "damage" : {
+                    if (this.isSilenced) v = 0;
                     player.dealDamage(v);
-                    log(`${this.name} dealt ${v} damage.`);
                     break;
                 }
                 case "heal" : {
@@ -85,9 +85,9 @@ class Enemy extends Character {
 
     dealDamage(damage, isDirect) {
         let result = super.dealDamage(damage);
-        isDirect && log(`Player dealt ${damage} damage to ${this.name}`);
+        isDirect && log(`Player dealt ${result.damage} damage to ${this.name}`);
 
-        if (result) {
+        if (!this.isAlive) {
             currentEnemy.defeatAndGiveRewards();
         }
         return result;

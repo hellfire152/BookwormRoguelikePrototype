@@ -2,9 +2,13 @@ class Effect {
     static EFFECT_TYPES = {
         POISON : 0,
         GENERATE_SHIELD : 1,
-        TAKE_MORE_DAMAGE : 2,
-        REDUCED_DAMAGE : 3,
-
+        WEAKNESS : 2,
+        INVULNERABILITY : 3,
+        STUN : 4,
+        CONFUSION : 5, // player only
+        SHIELD : 6,
+        SILENCE : 7,
+        VULNERABLE : 8
     }    
 
     constructor(effectOptions) {
@@ -16,7 +20,7 @@ class Effect {
     // behaviour if the status is already present, and it is reapplied
     // default is to take the max duration between the two
     reapply(value) {
-        this.duration = _.max(this.duration, value);
+        this.duration = _.max([this.duration, value]);
     }
     // trigger points for each effect
     resolvePreTurn(character) {
@@ -83,11 +87,88 @@ class PoisonEffect extends Effect {
     }
 }
 
+class StunEffect extends Effect {
+    constructor(value) {
+        super({
+            effectType : Effect.EFFECT_TYPES.STUN,
+            value : null,
+            duration : value,
+            sprite : "/sprites/effects/Stun.png"
+        });
+    }
+
+    resolvePostTurn() {} 
+    resolvePreTurn() {}
+    resolve() { // only count down during enemy turn, call this manually
+        return super.resolvePostTurn();
+    }
+}
+
+class ShieldEffect extends Effect {
+    constructor(value) {
+        super({
+            effectType : Effect.EFFECT_TYPES.SHIELD,
+            value : value,
+            duration : null,
+            sprite : "/sprites/effects/Shield.png"
+        });
+    }
+
+    resolvePostTurn() {}
+    resolvePreTurn() {
+        // shield always expires before their turn
+        // may have relics that change this behaviour to implement later
+        return {
+            removeEffect : true
+        };
+    }
+    generateElement(type) { // show value instead of duration
+        return super.generateElement(type, "value");
+    }
+}
 class EffectFactory {
     static generateEffect(effType, value) {
         switch(effType) {
             case Effect.EFFECT_TYPES.POISON : {
                 return new PoisonEffect(value);
+            }
+            case Effect.EFFECT_TYPES.WEAKNESS : {
+                return new Effect({
+                    effectType : Effect.EFFECT_TYPES.WEAKNESS,
+                    value : null,
+                    duration : value,
+                    sprite : "/sprites/effects/Weaken.png"
+                });
+            }
+            case Effect.EFFECT_TYPES.VULNERABLE : {
+                return new Effect({
+                    effectType : Effect.EFFECT_TYPES.VULNERABLE,
+                    value : null,
+                    duration : value,
+                    sprite : "/sprites/effects/Weakness.png"
+                });
+            }
+            case Effect.EFFECT_TYPES.STUN : {
+                return new StunEffect(value);
+            }
+            case Effect.EFFECT_TYPES.SHIELD : {
+                return new ShieldEffect(value);
+            }
+            case Effect.EFFECT_TYPES.SILENCE : {
+                return new Effect({
+                    effectType : Effect.EFFECT_TYPES.SILENCE,
+                    value : null,
+                    duration : value,
+                    sprite : "/sprites/effects/Silenced.png"
+                });
+            }
+            case Effect.EFFECT_TYPES.CONFUSION : {
+                return new Effect({
+                    effectType : Effect.EFFECT_TYPES.CONFUSION,
+                    value : null,
+                    duration : 5,
+                    sprite : "/sprites/effects/Confusion.png"
+                });
             }
         }
     }

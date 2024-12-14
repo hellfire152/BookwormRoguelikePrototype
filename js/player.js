@@ -53,7 +53,8 @@ class Player extends Character {
 
     dealDamage(damage) {
         let result = super.dealDamage(damage);
-        if (result) {
+        log(`Player was dealt ${result.damage} damage!`);
+        if (!this.isAlive) {
             alert(`Game Over! You lasted ${levelsCleared} rounds.`);
         }
         return false;

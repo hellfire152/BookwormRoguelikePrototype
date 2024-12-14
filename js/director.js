@@ -47,10 +47,11 @@ class Director {
     startGame() {
         // so we need to start the game loop somewhere
         // let's start with intro (event) -> combat -> event -> combat and so on for now
-        relicHandler.addRelic(RELIC_ID.LIVED_IN_THE_PAST);
-        relicHandler.addRelic(RELIC_ID.ADVERBLY);
-        relicHandler.addRelic(RELIC_ID.PERPETUAL_MOTION_MACHINE);
-        relicHandler.addRelic(RELIC_ID.EXTRACT_QI);
+        //relicHandler.addRelic(RELIC_ID.LIVED_IN_THE_PAST);
+        //relicHandler.addRelic(RELIC_ID.ADVERBLY);
+        //relicHandler.addRelic(RELIC_ID.PERPETUAL_MOTION_MACHINE);
+        //relicHandler.addRelic(RELIC_ID.EXTRACT_QI);
+        relicHandler.addRelic(RELIC_ID.EMPTY_HEADED);
         this.setupEvent("_intro");
         ui.removeStartButton();
     }

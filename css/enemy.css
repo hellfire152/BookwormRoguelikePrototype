@@ -9,9 +9,9 @@
 }
 .enemy-effect-container {
     position:relative;
-    width : 30px;
+    width : 32px;
     height : 30px;
-    margin:auto;
+    display : inline-block;
 }
 .enemy-effect-sprite {
     width : 100%;
@@ -19,9 +19,10 @@
 }
 .enemy-effect-text {
     position : absolute;
-    font-size : 10px;
-    bottom : 2px;
+    font-size : 15px;
+    bottom : -40%;
     right : 2px;
+    font-weight: bold;
 }
 #enemy-container {
     position:relative;

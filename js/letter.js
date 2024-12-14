@@ -57,9 +57,9 @@ var LETTER_PROBABILTY_THRESHOLDS = {
 let LETTER_PROBABILITY_POINT_MAX = 0;
 
 const SPECIAL_TILE_TYPES = {
-    TYPE_1 : 1,
-    TYPE_2 : 2,
-    UNSELECTABLE : 0,
+    TYPE_1 : 2,
+    TYPE_2 : 3,
+    UNSELECTABLE : 1,
 }
 
 class Letter {
@@ -86,12 +86,6 @@ class Letter {
         let ref = j.attr("_letterref");
         Letter.removeLetter(ref);
         j.remove();
-    }
-
-    static specialTileTypeFromLength(length) {
-        if(length < 5) return;
-        if(length < 7) return SPECIAL_TILE_TYPES.TYPE_1;
-        if(length < 9) return SPECIAL_TILE_TYPES.TYPE_2;
     }
 
     static refreshAllLetters() {
@@ -122,42 +116,57 @@ class Letter {
         }
     }
     
-    static generateLetters(noLettersToGenerate, generateSpecial, length) {
+    static generateLetters(noLettersToGenerate, specialTilesToGenerate) {
         if (typeof noLettersToGenerate == 'undefined') {
             noLettersToGenerate = GAME_CONSTANTS.STARTING_LETTER_COUNT;
         }
 
-        // see if a special tile should be generated
-        let specialTile = Letter.specialTileTypeFromLength(length);
+        const specialTileGenerator = (function* getNextSpecialTile(sttg) {
+            if(!sttg) return;
+            if (sttg[SPECIAL_TILE_TYPES.TYPE_2]) {
+                sttg[SPECIAL_TILE_TYPES.TYPE_2]--;
+                yield SPECIAL_TILE_TYPES.TYPE_2;
+            } else if (sttg[SPECIAL_TILE_TYPES.TYPE_1]) {
+                sttg[SPECIAL_TILE_TYPES.TYPE_1]--;
+                yield SPECIAL_TILE_TYPES.TYPE_1;
+            } else yield undefined;
+        })(specialTilesToGenerate);
 
-        let specialGenerated = !generateSpecial;
         for(let i = 0; i < noLettersToGenerate; i++) {
-            let letter;
-            if(!specialGenerated && specialTile) {
-                letter = new Letter(Letter.randomLetterMatchingProbabilities(), specialTile);
-                specialGenerated = !specialGenerated;
-            }
-            else {
-                letter = new Letter(Letter.randomLetterMatchingProbabilities());
-            }
+            let specialTile = specialTileGenerator.next().value;
+            let letter = new Letter(Letter.randomLetterMatchingProbabilities(), specialTile)
 
             let element = letter.generateElement();
             UI.Letter.appendLetterElement(element);
         }
     }
 
+    // some tiles can contain multiple letters. This function get the true submitted word length
+    // even if those tiles are used
+    static countTrueLength(letters) {
+        let length = 0;
+        for(const letter of letters) {
+            for(const l of letter.letter) {
+                length++;
+            }
+        }
+        return length;
+    }
     constructor(l, specialTileType) {
         this.letter = l;
         this.powerup = null;
         this.locked = null;
-        this.specialTileType = specialTileType;
+        this.specialTileType = (specialTileType)? specialTileType : null;
         this.ref = crypto.randomUUID();
+        this.tileEffects = {
+            
+        }
     }
 
     generateElement() { // jquery element to add to DOM
         let element = $("<div></div>");
         element.addClass('letter');
-        element.text(this.letter);
+        element.text((this.letter == "?") ? "" : this.letter);
         element.attr("_letterref", this.ref); 
         
         switch(this.specialTileType) {

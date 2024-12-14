@@ -1,5 +1,5 @@
-let wordlist = {}
-
+let wordlist = {};
+let wordwall = {};
 let levelsCleared = 0;
 let currentEnemy;
 let relicHandler;
@@ -59,7 +59,7 @@ function preload() {
     $('#letter-board').on("click", "#refresh", (e) => {
         Letter.refreshAllLetters(true);
         // enemy takes turn
-        currentEnemy.selectAndPerformAttack();
+        combatHandler.handleTurn(skipTurn = true);
     });
     // consumable items
     $('#owned-consumables').on("click", ".player-consumable", (e) => {

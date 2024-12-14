@@ -79,7 +79,8 @@ const RELIC_ID = {
     LIVED_IN_THE_PAST : "R_301",
     ADVERBLY : "R_302",
     PERPETUAL_MOTION_MACHINE : "R_303",
-    EXTRACT_QI : "R_304"
+    EXTRACT_QI : "R_304",
+    EMPTY_HEADED : "R_305"
 }
 
 class GenericRelic { // for relics that don't need any internal logic
@@ -92,7 +93,7 @@ class GenericRelic { // for relics that don't need any internal logic
         this.onRemove = data.onRemove;
     }
 
-    triggerUpdate(data) {} // for child classes to implement other logic
+    processData(data) {} // for child classes to implement other logic
 
     generateElement() {
         let relicContainer = $("<div>");
@@ -176,7 +177,21 @@ class RelicFactory {
                     }
                 })
             }
-
+            case RELIC_ID.EMPTY_HEADED : {
+                return new GenericRelic({
+                    name : "Empty Headed",
+                    sprite : null,
+                    tooltipDescription : "Blank tiles now have a low chance to spawn",
+                    onObtain : () => {
+                        LETTER_PROBABILITY_POINTS["?"] = 5;
+                        Letter.calculateLetterProbabilityThresholds();
+                    },
+                    onRemove : () => {
+                        delete LETTER_PROBABILITY_POINTS["?"];
+                        Letter.calculateLetterProbabilityThresholds();
+                    }
+                })
+            }
         }
     }
 }

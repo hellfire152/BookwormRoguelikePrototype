@@ -47,9 +47,10 @@ let LETTER_DAMAGE_VALUES = {
     "w" : 3,
     "x" : 3,
     "y" : 3,
-    "z" : 4
+    "z" : 4,
+    "?" : 0
 }
-
+let confusedDamageValues;
 let LETTER_UPGRADE_DAMAGE_INCREASE = {
     "a" : 0.5,
     "b" : 1,
@@ -86,17 +87,28 @@ class CombatHandler {
     }
 
     // this function calls resolveTurn. Purpose is to avoid using recurring function calls
-    handleTurn() {
+    handleTurn(skipTurn = false) {
         let continueTurn;
         do {
-            continueTurn = this.resolveTurn();
+            if (COMBAT_PHASES[this.combatPhaseIndex] == "PLAYER_STANDBY" 
+                && player.isStunned) {
+                skipTurn = true;
+            }
+            continueTurn = this.resolveTurn(skipTurn);
         } while(continueTurn)
     }
-    resolveTurn() {
+    resolveTurn(skipTurn = false) {
         switch(COMBAT_PHASES[this.combatPhaseIndex]) {
             case "PLAYER_STANDBY" : {
-                this._playerSubmit();
-                break;
+                if (skipTurn) {
+                    console.log("Turn skipped");
+                    // countdown stun if present
+                    player.customResolveEffect(Effect.EFFECT_TYPES.STUN);
+                    break;
+                } else {
+                    this._playerSubmit();
+                    break;
+                }
             }
             case "PLAYER_POST_TURN" : {
                 player.resolvePostTurnEffects();
@@ -107,6 +119,10 @@ class CombatHandler {
                 break;
             }
             case "ENEMY_ACTION" : {
+                if (currentEnemy.isStunned) {
+                    currentEnemy.customResolveEffect(Effect.EFFECT_TYPES.STUN);
+                    break;
+                };
                 currentEnemy.selectAndPerformAttack();
                 break;
             }
@@ -124,8 +140,10 @@ class CombatHandler {
             this.combatPhaseIndex = 0;
         }
 
-        let continueTurn =  player.isAlive && currentEnemy.isAlive 
-          && COMBAT_PHASES[this.combatPhaseIndex] != "PLAYER_STANDBY";
+        let continueTurn =  player.isAlive && currentEnemy.isAlive
+          && ((COMBAT_PHASES[this.combatPhaseIndex] == "PLAYER_STANDBY" 
+            && player.effects[Effect.EFFECT_TYPES.STUN]) 
+            || COMBAT_PHASES[this.combatPhaseIndex] != "PLAYER_STANDBY");
         return continueTurn;
     }
 
@@ -143,31 +161,24 @@ class CombatHandler {
         $("#send-input").prop("disabled", true);
         // remove placeholder letters
         $(".placeholder-letter").remove();
+        // check which special tiles need to be generated
+        let specialTilesToGenerate = this.specialTilesToGenerate(letters);
         // replace letters lost
         Letter.generateLetters(GAME_CONSTANTS.STARTING_LETTER_COUNT - 
-            UI.Letter.getAvailableLetterElements().length, true, attackResult.length);
+            UI.Letter.getAvailableLetterElements().length, specialTilesToGenerate);
 
         //handle damage to enemies
-        let isEnemyDefeated = currentEnemy.dealDamage(attackResult.damage, true);
-        if (isEnemyDefeated) {
+        currentEnemy.dealDamage(attackResult.damage, true);
+        if (!currentEnemy.isAlive) {
             return false;
         } 
 
         // first apply effects
         for (const e of attackResult.playerEffects) {
-            switch(e[0]) {
-                case Effect.EFFECT_TYPES.POISON : {
-                    player.applyEffect(e[0], attackResult.damage * e[1]);
-                }
-            }
-            player.applyEffect(...e);
+            player.applyEffect(e.effectType, e.value);
         }
         for (const e of attackResult.enemyEffects) {
-            switch(e[0]) {
-                case Effect.EFFECT_TYPES.POISON : {
-                    currentEnemy.applyEffect(e[0], attackResult.damage * e[1]);
-                }
-            };
+            currentEnemy.applyEffect(e.effectType, e.value);
         }
         return true;
     }
@@ -243,40 +254,88 @@ class CombatHandler {
         let multipliers = [];
         let playerEffects = [];
         let enemyEffects = [];
-        let length = 0;
+        let length = Letter.countTrueLength(letters);
 
+        let specialTiles = {};
+        let confusedDamage;
+        if (player.isConfused) {
+            // randomize damage values
+            confusedDamage = Utils.shuffleObject(LETTER_DAMAGE_VALUES);
+        }
+        for (const o of Object.values(SPECIAL_TILE_TYPES)) {
+            specialTiles[o] = 0;
+        }
         for(const l of letters) {
-            for(const l2 of l.letter) {
-                length++;
-                damage += LETTER_DAMAGE_VALUES[l2];
+            for (const l2 of l.letter) { // count raw damage
+                if (player.isConfused) {
+                    damage += confusedDamage[l2];
+                } else {
+                    damage += LETTER_DAMAGE_VALUES[l2]
+                }
             }
-            switch(l.specialTileType) {
-                case SPECIAL_TILE_TYPES.TYPE_1:
-                    multipliers.push(1.2);
-                    if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
-                        enemyEffects.push([Effect.EFFECT_TYPES.POISON, 0.3])
-                    }
-                    break;
-                case SPECIAL_TILE_TYPES.TYPE_2:
-                    multipliers.push(1.5);
-                    if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
-                        enemyEffects.push([Effect.EFFECT_TYPES.POISON, 0.3]);
-                    }
-                    break;
+            if (l.specialTileType) { // count no. of special tiles
+                specialTiles[l.specialTileType] += 1;
             }
         }
-        
-        //bonus multiplier for long words
+        for (const s in specialTiles) { // handle special tiles
+            for (let i = 0; i < specialTiles[s]; i++) {
+                switch(s) {
+                    case SPECIAL_TILE_TYPES.TYPE_1 : {
+                        multipliers.push(1.2);
+                        if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
+                            enemyEffects.push({
+                                effectType : Effect.EFFECT_TYPES.POISON,
+                                value : 0.3 * damage
+                            })
+                        }
+                        break;
+                    }
+                    case SPECIAL_TILE_TYPES.TYPE_2 : {
+                        multipliers.push(1.5);
+                        if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
+                            enemyEffects.push({
+                                effectType : Effect.EFFECT_TYPES.POISON,
+                                value : 0.5 * damage
+                            });
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        // bonus multiplier for long words
         multipliers.push(LENGTH_DAMAGE_MULTIPLIERS[length]); 
+        // handle effects
+        if (player.effects[Effect.EFFECT_TYPES.WEAKNESS]) multipliers.push(0.5);
         for(const m of multipliers) {
             damage *= parseFloat(m);
         }
         damage = Utils.roundToHalf(damage);
+
+        if (player.isSilenced) damage = 0;
+
         return {
             damage : damage,
             playerEffects,
             enemyEffects,
             length
         };
+    }
+
+    specialTilesToGenerate(letters) {
+        let output = {};
+        let length = Letter.countTrueLength(letters);
+        for (const s of Object.values(SPECIAL_TILE_TYPES)) {
+            output[s] = 0;
+        }
+
+        if (length >= 7) {
+            output[SPECIAL_TILE_TYPES.TYPE_2] += 1;
+        } else if (length >= 5) {
+            output[SPECIAL_TILE_TYPES.TYPE_1] += 1;
+        } else {
+
+        }
+        return output;
     }
 }

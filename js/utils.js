@@ -17,10 +17,14 @@ class Utils {
         fetch("words_alpha.txt")
         .then(response => response.text())
         .then((data) => {
-        let lines = data.split('\n');
-        for (let l = 0; l < lines.length; l++) {
-            wordlist[lines[l].trim()] = 1
-        }
+            let lines = data.split('\n');
+            for (let l = 0; l < lines.length; l++) {
+                let w = lines[l].trim();
+                if (w.length < 3) {
+                    continue;
+                }
+                wordlist[w] = 1;
+            }
         });
     }
     
@@ -28,18 +32,64 @@ class Utils {
         return !!wordlist[word]
     }
 
-    static evaluateInput() {
-        let word = ui.getWordInInput();
-    
-        if (Utils.checkWordExists(word) && word.length >= 3) {
-            ui.setSubmitButtonEnabled(false);
-        } else {
-            ui.setSubmitButtonEnabled(true);
+    static evaluateInput(word) { 
+        // minimum word length is three
+        if (word.length < 3) return ui.setSubmitButtonEnabled(false);
+        // no blank tiles, stright forward lookup
+        if(!word.includes("?")) {
+            if (Utils.checkWordExists(word)) {
+                return ui.setSubmitButtonEnabled(true);
+            } else {
+                return ui.setSubmitButtonEnabled(false);
+            }
         }
+
+        // has blank tiles, some wizardry is needed
+        // generates all possible candidates and checks them until we find a valid word
+        // in the future, might just have the player set the letter themselves
+        // e.g. on right click a menu pops up for that
+        // so we might not have to do this kinda stuff
+        let candidates = [];
+        let blankIndexes = [];
+        for (let i = 0; i < word.length; i++) {
+            if (word.charAt(i) == "?") {
+                blankIndexes.push(i);
+            }
+        }
+        let depth = 0;
+        let charArray = word.split("");
+        const candidateGenerator = (function* generateCandidates(d) {
+            for (const l of Letter.ALPHABET_SET) {
+                charArray[blankIndexes[d]] = l;
+                if (d == blankIndexes.length - 1) {
+                    yield charArray.join("");
+                } else {
+                    yield * generateCandidates(d+1);
+                }
+            }
+        })(depth);
+        for (let c = candidateGenerator.next().value; c; 
+          c = candidateGenerator.next().value) {
+            if (Object.hasOwn(wordlist, c)) {
+                return ui.setSubmitButtonEnabled(true);
+            }
+        }
+        return ui.setSubmitButtonEnabled(false);
     }
+
+
     // some values can be functions or variables. this always returns a non function value
     static getValue(v, args) {
         if (_.isFunction(v)) return v(args);
         return v;
+    }
+
+    static shuffleObject(obj) {
+        const keys = Object.keys(obj);
+        const values = _.shuffle(Object.values(obj));
+
+        return Object.fromEntries(
+            keys.map((key, index) => [key, values[index]])
+        );
     }
 }

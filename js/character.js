@@ -29,9 +29,7 @@ class Character {
         for (const effType in this.effects) {
             if (!this.effects[effType]) continue;
             let result = this.effects[effType].resolvePreTurn(this);
-            if(result && result.removeEffect) {
-                this.effects[effType] = null;
-            }
+            this.handleEffectResolution(effType, result);
         }
         this._updateEffectDisplay();
     }
@@ -40,11 +38,21 @@ class Character {
         for(const effType in this.effects) {
             if (!this.effects[effType]) continue;
             let result = this.effects[effType].resolvePostTurn(this);
-            if(result && result.removeEffect) {
-                this.effects[effType] = null;
-            }
+            this.handleEffectResolution(effType, result);
         }
         this._updateEffectDisplay();
+    }
+    // call a custom function of an effect
+    customResolveEffect(effectType, args) {
+        if (!this.effects[effectType]) return;
+        let result = this.effects[effectType].resolve(args);
+        this.handleEffectResolution(effectType, result);
+    }
+
+    handleEffectResolution(effType, result) {
+        if(result && result.removeEffect) {
+            this.effects[effType] = null;
+        }
     }
 
     applyEffect(effType, value) {
@@ -56,7 +64,7 @@ class Character {
         this._updateEffectDisplay();
     }
 
-    removeEffect() {
+    removeEffect(effType) {
         if (!this.effects[effType]) return false;
         this.effects[effType] = null;
         this._updateEffectDisplay();
@@ -64,10 +72,27 @@ class Character {
     }
 
     dealDamage(damage) {
-        this.currentHP -= damage;
+        let postModifierDamage = damage;
+        if (this.effects[Effect.EFFECT_TYPES.VULNERABLE]) {
+            postModifierDamage = damage * 1.5;
+        }
+        return this.dealDamageFixed(postModifierDamage);
+    }
+    dealDamageFixed(damage) { // for damage unaffected by effects (e.g.) poison
+        if (this.shield) {
+            if (this.shield >= damage) {
+                this.shield = this.shield - damage;
+            } else {
+                let overflow = damage - this.shield;
+                this.shield = 0;
+                this.currentHP -= overflow;
+            }
+        } else {
+            this.currentHP -= damage;
+        }
         this.currentHP = ((this.currentHP * 10) << 0) * 0.1; // round to 1 decimal place
         this._updateHPDisplay();
-        return !this.isAlive;
+        return {damage};
     }
 
     healDamage(healAmount) {
@@ -104,6 +129,38 @@ class Character {
     get hpPercent() {
         return Math.floor(this.currentHP / this.maxHP * 100);
     }
+
+    get isStunned() {
+        return !!this.effects[Effect.EFFECT_TYPES.STUN];
+    }
+
+    get shield() {
+        if (this.effects[Effect.EFFECT_TYPES.SHIELD]) {
+            return this.effects[Effect.EFFECT_TYPES.SHIELD].value;
+        }
+        return null;
+    }
+
+    set shield(value) {
+        let shieldEffect = this.effects[Effect.EFFECT_TYPES.SHIELD];
+        if (value <= 0) {
+            this.effects[Effect.EFFECT_TYPES.SHIELD] = null;
+        } else if (shieldEffect) {
+            shieldEffect.value = value;
+        } else {
+            this.applyEffect(Effect.EFFECT_TYPES.SHIELD, value);
+        }
+        this._updateEffectDisplay();
+    }
+
+    get isSilenced() {
+        return !!this.effects[Effect.EFFECT_TYPES.SILENCE];
+    }
+
+    get isConfused() {
+        return !!this.effects[Effect.EFFECT_TYPES.CONFUSION];
+    }
+    
     // common methods to implement in child classes
     _updateHPDisplay() {}
 }   

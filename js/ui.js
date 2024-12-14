@@ -263,7 +263,6 @@ class UI {
             }
         }
     }
-    
 
     _generateEnemyContainer() {
         let enemyContainer = $("<div></div>");
@@ -370,9 +369,10 @@ class UI {
     
     getWordInInput() {
         let word = '';
-        $('#letter-input').children().each((index, element) => {
-            word += $(element).text();
-        });
+        let letters = UI.Letter.getLettersInInput();
+        for (const l of letters) {
+            word += l.letter
+        }
         return word;
     }
 
@@ -456,7 +456,6 @@ class UI {
                 let l = Letter.getLetterObjectFromElement(element);
                 letters.push(l);
             });
-            console.log(letters)
             return letters;
         }
         static getLetterElementsInInput() {
@@ -477,7 +476,7 @@ class UI {
             t.detach();
     
             $(`.placeholder-letter[_pfor=${t.attr("_letterref")}]`).replaceWith(t);
-            Utils.evaluateInput();
+            Utils.evaluateInput(ui.getWordInInput());
         }
         static letterAvailableOnClick(e) {
             let t = $(e.target);
@@ -492,7 +491,7 @@ class UI {
             t.replaceWith(placeholder.generateElement());
             
             $('#letter-input').append(t);
-            Utils.evaluateInput();
+            Utils.evaluateInput(ui.getWordInInput());
         }
 
         static appendLetterElement(letterElement) {
@@ -529,6 +528,6 @@ class UI {
     }
 
     setSubmitButtonEnabled(state) {
-        $("#send-input").prop("disabled", state);
+        $("#send-input").prop("disabled", !state);
     }
 }
