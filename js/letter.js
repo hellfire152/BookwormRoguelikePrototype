@@ -57,9 +57,9 @@ var LETTER_PROBABILTY_THRESHOLDS = {
 let LETTER_PROBABILITY_POINT_MAX = 0;
 
 const SPECIAL_TILE_TYPES = {
-    TYPE_1 : 2,
-    TYPE_2 : 3,
-    UNSELECTABLE : 1,
+    TYPE_1 : "S|1",
+    TYPE_2 : "S|2",
+    UNSELECTABLE : "S|UNSELECTABLE",
 }
 
 class Letter {
@@ -89,6 +89,10 @@ class Letter {
     }
 
     static refreshAllLetters() {
+        // fill available letters before rerolling, 
+        // this is incase we refreshed with less than the maximum for whatever reason
+        Letter.generateLetters();
+
         let letters = UI.Letter.getLetters();
         letters.each((index, letter) => {
             let l = Letter.getLetterObjectFromElement(letter);
@@ -117,9 +121,13 @@ class Letter {
     }
     
     static generateLetters(noLettersToGenerate, specialTilesToGenerate) {
-        if (typeof noLettersToGenerate == 'undefined') {
-            noLettersToGenerate = GAME_CONSTANTS.STARTING_LETTER_COUNT;
+        if (!noLettersToGenerate) {
+            // fill to max if not defined
+            noLettersToGenerate = GAME_CONSTANTS.STARTING_LETTER_COUNT 
+              - UI.Letter.getLettersInSceneStore().length;
         }
+
+        if (noLettersToGenerate <= 0) return;
 
         const specialTileGenerator = (function* getNextSpecialTile(sttg) {
             if(!sttg) return;

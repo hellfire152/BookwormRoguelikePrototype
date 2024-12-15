@@ -80,7 +80,8 @@ const RELIC_ID = {
     ADVERBLY : "R_302",
     PERPETUAL_MOTION_MACHINE : "R_303",
     EXTRACT_QI : "R_304",
-    EMPTY_HEADED : "R_305"
+    EMPTY_HEADED : "R_305",
+    EXTRA_TILE : "R_306"
 }
 
 class GenericRelic { // for relics that don't need any internal logic
@@ -189,6 +190,20 @@ class RelicFactory {
                     onRemove : () => {
                         delete LETTER_PROBABILITY_POINTS["?"];
                         Letter.calculateLetterProbabilityThresholds();
+                    }
+                })
+            }
+            case RELIC_ID.EXTRA_TILE : {
+                return new GenericRelic({
+                    name : "Extra Tile",
+                    sprite : null,
+                    tooltipDescription : "+1 Max Tiles",
+                    onObtain : () => {
+                        GAME_CONSTANTS.STARTING_LETTER_COUNT += 1;
+                        Letter.generateLetters();
+                    },
+                    onRemove : () => {
+                        GAME_CONSTANTS.STARTING_LETTER_COUNT -= 1;
                     }
                 })
             }

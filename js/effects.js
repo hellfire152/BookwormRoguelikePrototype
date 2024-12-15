@@ -13,10 +13,12 @@ class Effect {
 
     constructor(effectOptions) {
         this.effectType = effectOptions.effectType;
+        // value and duration are two separate values in case I need both in the future
         this.value = effectOptions.value;
         this.duration = effectOptions.duration;
         this.sprite = effectOptions.sprite;
     }
+
     // behaviour if the status is already present, and it is reapplied
     // default is to take the max duration between the two
     reapply(value) {

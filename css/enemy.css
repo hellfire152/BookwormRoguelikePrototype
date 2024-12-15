@@ -20,9 +20,16 @@
 .enemy-effect-text {
     position : absolute;
     font-size : 15px;
-    bottom : -40%;
-    right : 2px;
+    bottom : 5%;
+    right : 5%;
     font-weight: bold;
+    color: rgb(0, 0, 0);
+    text-shadow:
+        2px 2px 0 #ffffff,
+      -1px -1px 0 #ffffff,  
+       1px -1px 0 #ffffff,
+       -1px 1px 0 #ffffff,
+        1px 1px 0 #ffffff;
 }
 #enemy-container {
     position:relative;
@@ -36,4 +43,7 @@
 
 #enemy-max-hp {
     margin:auto;
+}
+#enemy-hp-text {
+    font-size : 1em;
 }

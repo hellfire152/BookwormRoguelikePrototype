@@ -97,7 +97,7 @@ const EVENT_FUNCTIONS = {
         UI.Shop.loadUpgradeShop();
     },
     "purchase-item" : (target, args) => {
-        let [itemID, type] = _.split(args, "|");
+        let [itemID, type] = _.split(args, "@");
         let isPurchaseSuccessful = player.attemptPurchase(itemID, type);
         if (isPurchaseSuccessful) target.remove();
     },

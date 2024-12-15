@@ -1,4 +1,4 @@
-const GAME_CONSTANTS = {
+let GAME_CONSTANTS = {
     STARTING_LETTER_COUNT : 15,
     GAME_STATES : {
         "COMBAT" : 1,
@@ -52,6 +52,13 @@ class Director {
         //relicHandler.addRelic(RELIC_ID.PERPETUAL_MOTION_MACHINE);
         //relicHandler.addRelic(RELIC_ID.EXTRACT_QI);
         relicHandler.addRelic(RELIC_ID.EMPTY_HEADED);
+        //relicHandler.addRelic(RELIC_ID.EXTRA_TILE);
+        player.newAbility(ABILITY_ID.GIVE_VULNERABILITY);
+        player.newAbility(ABILITY_ID.GIVE_WEAKNESS);
+        player.newAbility(ABILITY_ID.REROLL_TILE);
+        player.newAbility(ABILITY_ID.EXTRA_TILE);
+        player.newAbility(ABILITY_ID.PREVIOUS_LETTER);
+        player.gainCharge(200);
         this.setupEvent("_intro");
         ui.removeStartButton();
     }
@@ -78,8 +85,8 @@ class Director {
 
     setupCombat() {
         // spawn random enemy
-        currentEnemy = EnemyFactory.generateEnemy(_.sample(ENEMY_ID), this.levelsCleared);
-        //currentEnemy = EnemyFactory.generateEnemy(ENEMY_ID.GOBBO, this.levelsCleared);
+        //currentEnemy = EnemyFactory.generateEnemy(_.sample(ENEMY_ID), this.levelsCleared);
+        currentEnemy = EnemyFactory.generateEnemy(ENEMY_ID.GOBBO, this.levelsCleared);
         currentEnemy.initializeDisplay();
          // begin the combat. players start first.
         this.gameState = GAME_CONSTANTS.GAME_STATES.COMBAT;
@@ -91,5 +98,11 @@ class Director {
     setupEvent(e) {
         this.gameState = GAME_CONSTANTS.GAME_STATES.EVENT;
         ui.setupEvent(e);
+    }
+
+    get isInCombat() {
+        return (this.gameState == GAME_CONSTANTS.GAME_STATES.COMBAT
+            && currentEnemy.isAlive
+        );
     }
 }

@@ -58,20 +58,25 @@ function preload() {
     // refresh but skip turn button
     $('#letter-board').on("click", "#refresh", (e) => {
         Letter.refreshAllLetters(true);
-        // enemy takes turn
         combatHandler.handleTurn(skipTurn = true);
     });
+    // charge abilities
+    $("#charge-abilities").on("click", ".ability-container", Ability.abilityOnClick);
     // consumable items
     $('#owned-consumables').on("click", ".player-consumable", (e) => {
         let itemContainer = $(e.currentTarget);
-        player.useConsumable(itemContainer.attr("_itemid"));
+        player.useConsumable(itemContainer.attr("data-c-index"));
     })
-    // letter modifiers
+    // shop upgrades / ability removal
+    // somehow declaring these variables here works???
     selectedLetter = null;
     selectedModifier = null;
+    selectedAbilityToRemove = null;
     $('#letter-board').on("click", "#modifier-letter-container .letter", UI.Shop.modifyLetterOnClick);
     $("#event-area").on("click", ".modifier-container", UI.Shop.modifierOnClick);
     $("#letter-board").on("click", "#modifier-submit", Shop.modifySubmitOnClick);
+    $("#event-area").on("click", ".remove-ability-ability-container", UI.Ability.removeAbilityAbilityOnClick);
+    $("#letter-board").on("click", "#remove-ability-submit", Ability.removeAbilitySubmitOnClick);
     
     ui.enableTooltips();
     $('#game-start').click(() => {director.startGame()});

@@ -19,8 +19,21 @@
            </div>
            <div id="information-area">
             <div id="relics">
-                <div id="owned-relics"></div>
-                <div id="owned-consumables"></div>
+                <div id="relics-container" class="item-display-container">
+                    <p>Owned Relics</p>
+                    <hr>
+                    <div id="owned-relics"></div>
+                </div>
+                <div id="consumables-container" class="item-display-container">
+                    <p>Owned Consumables</p>
+                    <hr>
+                    <div id="owned-consumables"></div>
+                </div>
+                <div id="charge-container" class="item-display-container">
+                    <p>Charge Abilities</p>
+                    <hr>
+                    <div id="charge-abilities"></div>
+                </div>
             </div>
             <div id="log"></div>
            </div>
@@ -30,7 +43,9 @@
         <script src="https://unpkg.com/tippy.js@6"></script>
         <script src="./js/utils.js"></script>
         <script src="./js/ui.js"></script>
+        <script src="./js/consumables.js"></script>
         <script src="./js/effects.js"></script>
+        <script src="./js/abilities.js"></script>
         <script src="./js/character.js"></script>
         <script src="./js/player.js"></script>
         <script src="./js/shop.js"></script>

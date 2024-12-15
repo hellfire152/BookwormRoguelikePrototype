@@ -12,6 +12,10 @@ class Utils {
         }
     }
 
+    static roundToOneDP(value) {
+       return ((value * 10) << 0) * 0.1;
+    }
+
     static loadWordlist() {
         // loads all words into a dictionary
         fetch("words_alpha.txt")
@@ -78,12 +82,13 @@ class Utils {
     }
 
 
-    // some values can be functions or variables. this always returns a non function value
+    // some values can be functions or an actual value. this always returns a non function value
     static getValue(v, args) {
         if (_.isFunction(v)) return v(args);
         return v;
     }
 
+    // takes an object and returns a new object with the values assigned to random keys
     static shuffleObject(obj) {
         const keys = Object.keys(obj);
         const values = _.shuffle(Object.values(obj));

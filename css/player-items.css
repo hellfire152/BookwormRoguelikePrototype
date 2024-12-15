@@ -1,5 +1,6 @@
 #owned-relics { 
-    width : 95%;
+    width : max-content;
+    padding : 3px;
 }
 
 #owned-consumables {
@@ -13,16 +14,26 @@
     margin: 10px;
     background-color: #f1f1f1;
     border: 2px solid black;
-    display: flex;
-    flex-direction: column;
-    justify-content : space-between;
+    position : relative;
 }
+
+
+#relics p {
+    margin : 0px;
+    font-weight: bold;;
+    text-align: center;
+}
+
 
 .player-consumable {
     width : 50px;
-    height : 80px;
+    height : max-content;
     text-align : center;
     padding : 7px;
+}
+
+.player-consumable-sprite {
+    width : 45px;
 }
 
 .relic-container {
@@ -30,7 +41,7 @@
     width : 40px;
     height : 40px;
     border : 2px solid black;
-    margin: 7px;
+    margin: 2px;
     display : inline-block;
 }
 
@@ -43,4 +54,60 @@
     position : absolute;
     font-size : 10px;
     font-weight: bold;
+}
+
+#relics hr {
+    margin : 0px;
+}
+
+.item-display-container {
+    text-align: center;
+}
+
+#charge-container {
+    position : absolute;
+    bottom : 0px;
+    left : 5px;
+}
+
+#consumables-container {
+    position : absolute;
+    bottom : 130px;
+    left : 5px;
+}
+
+#relics-container {
+    position : absolute;
+    top : 5px;
+    left : 5px;
+}
+
+#charge-abilities {
+    height : 50px;
+}
+
+.ability-container {
+    height : 100%;
+    margin : 5px;
+    position : relative;
+    width : max-content;
+    display : inline-block;
+}
+
+.ability-sprite {
+    width : 40px;
+}
+
+.ability-text {
+    position : absolute;
+    bottom : 8%;
+    right : 5%;
+    color: rgb(0, 0, 0);
+    font-weight : bold;
+    text-shadow:
+        2px 2px 0 #ffffff,
+      -1px -1px 0 #ffffff,  
+       1px -1px 0 #ffffff,
+       -1px 1px 0 #ffffff,
+        1px 1px 0 #ffffff;
 }

@@ -167,10 +167,14 @@ class CombatHandler {
         Letter.generateLetters(GAME_CONSTANTS.STARTING_LETTER_COUNT - 
             UI.Letter.getAvailableLetterElements().length, specialTilesToGenerate);
 
+        // charge gain
+        console.log(attackResult)
+        player.gainCharge(attackResult.chargeGain);
+
         //handle damage to enemies
         currentEnemy.dealDamage(attackResult.damage, true);
         if (!currentEnemy.isAlive) {
-            return false;
+            return false; // don't resovle effects if enemy dies early
         } 
 
         // first apply effects
@@ -251,6 +255,7 @@ class CombatHandler {
 
     calculateAttackResult(letters) {
         let damage = 0;
+        let chargeGain = 0;
         let multipliers = [];
         let playerEffects = [];
         let enemyEffects = [];
@@ -267,6 +272,7 @@ class CombatHandler {
         }
         for(const l of letters) {
             for (const l2 of l.letter) { // count raw damage
+                chargeGain++;
                 if (player.isConfused) {
                     damage += confusedDamage[l2];
                 } else {
@@ -277,11 +283,13 @@ class CombatHandler {
                 specialTiles[l.specialTileType] += 1;
             }
         }
+        console.log(specialTiles);
         for (const s in specialTiles) { // handle special tiles
             for (let i = 0; i < specialTiles[s]; i++) {
                 switch(s) {
                     case SPECIAL_TILE_TYPES.TYPE_1 : {
                         multipliers.push(1.2);
+                        chargeGain += 2;
                         if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
                             enemyEffects.push({
                                 effectType : Effect.EFFECT_TYPES.POISON,
@@ -292,6 +300,7 @@ class CombatHandler {
                     }
                     case SPECIAL_TILE_TYPES.TYPE_2 : {
                         multipliers.push(1.5);
+                        chargeGain += 4;
                         if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
                             enemyEffects.push({
                                 effectType : Effect.EFFECT_TYPES.POISON,
@@ -299,6 +308,9 @@ class CombatHandler {
                             });
                         }
                         break;
+                    }
+                    default : {
+                        console.log(typeof s)
                     }
                 }
             }
@@ -310,15 +322,17 @@ class CombatHandler {
         for(const m of multipliers) {
             damage *= parseFloat(m);
         }
-        damage = Utils.roundToHalf(damage);
+        damage = Utils.roundToOneDP(damage);
 
         if (player.isSilenced) damage = 0;
-
+        // handle charge gain
+        
         return {
             damage : damage,
             playerEffects,
             enemyEffects,
-            length
+            length,
+            chargeGain : chargeGain
         };
     }
 

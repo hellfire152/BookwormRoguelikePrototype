@@ -149,7 +149,9 @@ body {
     border: 1px solid yellow;
 }
 
+.temporary-highlight-ability {
+    border : 1px solid cyan;
+}
 .tippy-content { /* to render newlines in tooltips properly */
     white-space : pre-line;
 }
-
