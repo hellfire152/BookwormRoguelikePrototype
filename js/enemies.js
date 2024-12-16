@@ -36,44 +36,7 @@ class Enemy extends Character {
         // TODO: Say the action in the UI
         log(`${this.name} uses ${attack.name}!`);
         for (const e of attack.effects) {
-            let v = e.value(this.level);
-            switch(e.type) {
-                case "damage" : {
-                    if (this.isSilenced) v = 0;
-                    player.dealDamage(v);
-                    break;
-                }
-                case "heal" : {
-                    this.healDamage(v);
-                    log(`${this.name} healed ${v} health`);
-                    break;
-                }
-                case "letter-replacement" : {
-                    let letters = UI.Letter.getLetters().toArray();
-                    switch (v.type) {
-                        case "random": {
-                            let randomLetters = _.sampleSize(letters, v.number);
-                            for (const letter of randomLetters) {
-                                let t = $(letter);
-                                let l = Letter.getLetterObjectFromElement(t);
-                                l.replaceLetter(t, v.letter);
-                            }
-                            log(`${v.number} letters got replaced to ${v.letter}`)
-                            break;
-                        }
-                        case "destroy": {
-                            let randomLetters = _.sampleSize(letters, v.number);
-                            for (const letter of randomLetters) {
-                                let t = $(letter);
-                                Letter.removeLetterFromElement(t);
-                            }
-                            log(`${v.number} letters were destroyed!`);
-                            break;
-                        }
-                    }
-                    
-                }
-            }
+            e.apply(e);
         }
     }
 
@@ -119,23 +82,19 @@ const ENEMIES = {
             {
                 name : "Gobbo punch",
                 effects : [
-                    {
-                        type : "damage",
-                        value : (level) => {
-                            return 5 * (1.15 ** level)
-                        }
-                    }
+                    AttackEffect.damageEffect("player", (level) => {
+                        if (!level) level = 0;
+                        return 5 * (1.15 ** level)
+                    })
                 ]
             },
             {
                 name : "Gobbo Slam",
                 effects : [
-                    {
-                        type : "damage",
-                        value : (level) => {
-                            return 10 * (1.15 ** level)
-                        }
-                    }
+                    AttackEffect.damageEffect("player", (level) => {
+                        if (!level) level = 0;
+                        return 10 * (1.15 ** level)
+                    }),
                 ]
             }
         ],
@@ -146,15 +105,11 @@ const ENEMIES = {
             }
         },
         rewards : [
-            {
-                type : "money",
-                value : (level) => {
-                    return 10 + Math.floor(Math.random() * 5);
-                },
-                probability : 1
-            },
+            CombatReward.money((level) => {
+                return 10 + Math.floor(Math.random() * 5);
+            })
         ],
-        sprite : "/sprites/enemies/Goblin.png",
+        sprite : "./sprites/enemies/Goblin.png",
         tooltip : "Gobbo gobbin Good"
     },
     [ENEMY_ID.GHOST] : {
@@ -164,23 +119,16 @@ const ENEMIES = {
             {
                 name : "boo!",
                 effects : [
-                    {
-                        type : "letter-replacement",
-                        value : (level) => {
+                    AttackEffect.replacementEffect(AttackEffect.TYPES.RANDOM_REPLACEMENT,
+                        2, () => {
                             let r = Math.random() < 0.5;
-                            return {
-                                letter : (r) ? "o" : "u",
-                                number : 2,
-                                type : "random"
-                            }
+                            return (r) ? "o" : "u"
                         }
-                    },
-                    {
-                        type : "damage",
-                        value : (level) => {
-                            return 5 * (1.15 ** level);
-                        }
-                    }
+                    ),
+                    AttackEffect.damageEffect("player", (level) => {
+                        if (!level) level = 0;
+                        return 5 * (1.15 ** level)
+                    })
                 ]
             }
         ],
@@ -188,14 +136,8 @@ const ENEMIES = {
         stateTransition : () => {
             return 0;
         },
-        rewards : [
-            {
-                type : "money",
-                value : 8,
-                probability : 1
-            }
-        ],
-        sprite : "/sprites/enemies/Ghost.png",
+        rewards : [CombatReward.money(8)],
+        sprite : "./sprites/enemies/Ghost.png",
         tooltip : "Hobbies include making your pillow slightly too cold when you sleep."
     },
     [ENEMY_ID.SLIME] : {
@@ -205,27 +147,15 @@ const ENEMIES = {
             {
                 name : "Consume",
                 effects : [
-                    {
-                        type : "letter-replacement",
-                        value : (level) => {
-                            return {
-                                type : "destroy",
-                                number : 1
-                            }
-                        }
-                    },
-                    {
-                        type : "damage",
-                        value : (level) => {
-                            return 5 * (1.15 ** level)
-                        }
-                    },
-                    {
-                        type : "heal",
-                        value : (level) => {
-                            return 2 * (1.15 ** level)
-                        }
-                    }
+                    AttackEffect.destroyTileEffect(1),
+                    AttackEffect.damageEffect("player", (level) => {
+                        if (!level) level = 0;
+                        return 5 * (1.15 ** level)
+                    }),
+                    AttackEffect.healEffect("enemy", (level) => {
+                        if (!level) level = 0;
+                        return 2 * (1.15 ** level)
+                    })
                 ]
             },
         ],
@@ -233,7 +163,8 @@ const ENEMIES = {
         stateTransition : (ref) => {
             return ref.state;
         },
-        sprite : "/sprites/enemies/Slime.png",
+        rewards : [CombatReward.money(12), CombatReward.heal(3)],
+        sprite : "./sprites/enemies/Slime.png",
         tooltip : "Perpetually hungry"
     }
 }

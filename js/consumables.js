@@ -65,7 +65,7 @@ class ConsumableFactory {
                         return true;
                     },
                     baseCost : 30,
-                    sprite : "/sprites/consumables/Potion.png",
+                    sprite : "./sprites/consumables/Potion.png",
                     tooltip : "Heals for 10 HP"
                 });
             }
@@ -83,7 +83,7 @@ class ConsumableFactory {
                         return false;
                     },
                     baseCost : 30,
-                    sprite : "/sprites/consumables/Knife1.png",
+                    sprite : "./sprites/consumables/Knife1.png",
                 });
             }
             case CONSUMABLE_ID.SINGLE_TILE_REROLL : {
@@ -103,7 +103,7 @@ class ConsumableFactory {
                         return true;
                     },
                     baseCost : 20,
-                    sprite : "/sprites/consumables/RerollTile.png",
+                    sprite : "./sprites/consumables/RerollTile.png",
                 });
             }
             case CONSUMABLE_ID.INSTANT_REFRESH : {
@@ -121,7 +121,7 @@ class ConsumableFactory {
                         return true;
                     },
                     baseCost : 60,
-                    sprite : "/sprites/consumables/ClearTile.png",
+                    sprite : "./sprites/consumables/ClearTile.png",
                 });
             }
             case CONSUMABLE_ID.TILE_DELIVERY : {
@@ -139,7 +139,7 @@ class ConsumableFactory {
                         }
                     },
                     baseCost : 50,
-                    sprite : "/sprites/consumables/Donki.png",
+                    sprite : "./sprites/consumables/Donki.png",
                 });
             }
         }

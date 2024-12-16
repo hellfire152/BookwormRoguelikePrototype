@@ -8,7 +8,8 @@ class Effect {
         CONFUSION : 5, // player only
         SHIELD : 6,
         SILENCE : 7,
-        VULNERABLE : 8
+        VULNERABLE : 8,
+        DAMAGE_BOOST : "E|DAMAGE_BOOST"
     }    
 
     constructor(effectOptions) {
@@ -55,13 +56,37 @@ class Effect {
     }
 }
 
+class DamageBoostEffect extends Effect {
+    constructor(value) {
+        super({
+            effectType : Effect.EFFECT_TYPES.DAMAGE_BOOST,
+            value : value,
+            duration : null,
+            sprite : "./sprites/effects/Questionmorks.png"
+        });
+    }
+
+    // damage boost only lasts for one attack
+    // as the effect resolving logic will not trigger if the enemy is defeated,
+    // we have to remove this effect manually during damage calc
+    resolvePostTurn(character) {}
+    resolvePreTurn(character) {}
+
+    reapply(v) { // damage boost stacks
+        this.value += v - 1;
+    }
+    generateElement(type) { // show value instead of duration
+        return super.generateElement(type, "value");
+    }
+}
+
 class PoisonEffect extends Effect {
     constructor(value) {
         super({
             effectType : Effect.EFFECT_TYPES.POISON,
             value : Math.floor(value),
             duration : null, // unused since poison duration is based on value,
-            sprite : "/sprites/effects/poison.png"
+            sprite : "./sprites/effects/poison.png"
         });
     }
 
@@ -95,7 +120,7 @@ class StunEffect extends Effect {
             effectType : Effect.EFFECT_TYPES.STUN,
             value : null,
             duration : value,
-            sprite : "/sprites/effects/Stun.png"
+            sprite : "./sprites/effects/Stun.png"
         });
     }
 
@@ -112,7 +137,7 @@ class ShieldEffect extends Effect {
             effectType : Effect.EFFECT_TYPES.SHIELD,
             value : value,
             duration : null,
-            sprite : "/sprites/effects/Shield.png"
+            sprite : "./sprites/effects/Shield.png"
         });
     }
 
@@ -139,7 +164,7 @@ class EffectFactory {
                     effectType : Effect.EFFECT_TYPES.WEAKNESS,
                     value : null,
                     duration : value,
-                    sprite : "/sprites/effects/Weaken.png"
+                    sprite : "./sprites/effects/Weaken.png"
                 });
             }
             case Effect.EFFECT_TYPES.VULNERABLE : {
@@ -147,7 +172,7 @@ class EffectFactory {
                     effectType : Effect.EFFECT_TYPES.VULNERABLE,
                     value : null,
                     duration : value,
-                    sprite : "/sprites/effects/Weakness.png"
+                    sprite : "./sprites/effects/Weakness.png"
                 });
             }
             case Effect.EFFECT_TYPES.STUN : {
@@ -161,7 +186,7 @@ class EffectFactory {
                     effectType : Effect.EFFECT_TYPES.SILENCE,
                     value : null,
                     duration : value,
-                    sprite : "/sprites/effects/Silenced.png"
+                    sprite : "./sprites/effects/Silenced.png"
                 });
             }
             case Effect.EFFECT_TYPES.CONFUSION : {
@@ -169,8 +194,11 @@ class EffectFactory {
                     effectType : Effect.EFFECT_TYPES.CONFUSION,
                     value : null,
                     duration : 5,
-                    sprite : "/sprites/effects/Confusion.png"
+                    sprite : "./sprites/effects/Confusion.png"
                 });
+            }
+            case Effect.EFFECT_TYPES.DAMAGE_BOOST : {
+                return new DamageBoostEffect(value);
             }
         }
     }

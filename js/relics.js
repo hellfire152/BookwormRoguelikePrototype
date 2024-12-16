@@ -76,7 +76,7 @@ const RELIC_ID = {
 
     // uncommon relics
     FAST_ACTING : "R_300",
-    LIVED_IN_THE_PAST : "R_301",
+    ANTIQUE_CLOCK : "R_301",
     ADVERBLY : "R_302",
     PERPETUAL_MOTION_MACHINE : "R_303",
     EXTRACT_QI : "R_304",
@@ -124,7 +124,7 @@ class RelicFactory {
                     tooltipDescription : "Gems now deal a portion of the word's damage as additional poison damage.\n Purple -> 0.3x, Blue -> 0.5x"
                 });
             }
-            case RELIC_ID.LIVED_IN_THE_PAST : {
+            case RELIC_ID.ANTIQUE_CLOCK : {
                 return new GenericRelic({
                     name : "Lived in the Past",
                     sprite : null,

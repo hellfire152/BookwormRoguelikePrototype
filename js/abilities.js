@@ -4,7 +4,8 @@ const ABILITY_ID = {
     REROLL_TILE : "A|REROLL_TILE",
     EXTRA_TILE : "A|EXTRA_TILE",
     NEXT_LETTER : "A|NEXT_LETTER",
-    PREVIOUS_LETTER : "A|PREVIOUS_LETTER"
+    PREVIOUS_LETTER : "A|PREVIOUS_LETTER",
+    DAMAGE_BOOST : "A|DAMAGE_BOOST"
 }
 
 class AbilityFactory {
@@ -15,11 +16,11 @@ class AbilityFactory {
                     id : ABILITY_ID.GIVE_VULNERABILITY,
                     cost : 5,
                     name : "Give Vulnerability",
-                    sprite : "/sprites/effects/Questionmorks.png",
+                    sprite : "./sprites/effects/Questionmorks.png",
                     tooltip : "Makes enemies vulnerable for one turn (does not stack)"
                 });
                 a.use = () => {
-                    if (!director.isInCombat || !currentEnemy.isAlive) return false;
+                    if (!director.isInCombat) return false;
                     currentEnemy.applyEffect(Effect.EFFECT_TYPES.VULNERABLE, 1);
                     return true;
                 }
@@ -30,11 +31,11 @@ class AbilityFactory {
                     id : ABILITY_ID.GIVE_WEAKNESS,
                     cost : 5,
                     name : "Give Weakness", 
-                    sprite : "/sprites/effects/Questionmorks.png",
+                    sprite : "./sprites/effects/Questionmorks.png",
                     tooltip : "Gives enemies Weakness for one turn (does not stack)"
                 });
                 a.use = () => {
-                    if (!director.isInCombat || !currentEnemy.isAlive) return false;
+                    if (!director.isInCombat) return false;
                     currentEnemy.applyEffect(Effect.EFFECT_TYPES.WEAKNESS, 1)
                     return true;
                 }
@@ -45,9 +46,9 @@ class AbilityFactory {
                     id : ABILITY_ID.REROLL_TILE,
                     cost : 5,
                     name : "Reroll Tile",
-                    sprite : "/sprites/effects/Questionmorks.png",
+                    sprite : "./sprites/effects/Questionmorks.png",
                     tooltip : "Reroll a single tile"
-                })
+                });
                 a.use = () => {
                     if (!director.isInCombat) return false;
 
@@ -63,7 +64,7 @@ class AbilityFactory {
                     id : ABILITY_ID.EXTRA_TILE,
                     cost : 5,
                     name : "Generate Tile",
-                    sprite : "/sprites/effects/Questionmorks.png",
+                    sprite : "./sprites/effects/Questionmorks.png",
                     tooltip : "Generates an extra tile"
                 });
                 a.use = () => {
@@ -78,7 +79,7 @@ class AbilityFactory {
                     id : ABILITY_ID.NEXT_LETTER,
                     cost : 5,
                     name : "Next Letter",
-                    sprite : "/sprites/effects/Questionmorks.png",
+                    sprite : "./sprites/effects/Questionmorks.png",
                     tooltip : "Changes a tile to the next letter"
                 });
                 a.use = () => {
@@ -100,7 +101,7 @@ class AbilityFactory {
                     id : ABILITY_ID.PREVIOUS_LETTER,
                     cost : 5,
                     name : "Next Letter",
-                    sprite : "/sprites/effects/Questionmorks.png",
+                    sprite : "./sprites/effects/Questionmorks.png",
                     tooltip : "Changes a tile to the next letter"
                 });
                 a.use = () => {
@@ -113,6 +114,21 @@ class AbilityFactory {
                         }
                         letter.replaceLetter(t, Letter.ALPHABET_SET[newLetterIndex])
                     }, "temporary-highlight-ability");
+                    return true;
+                }
+                return a;
+            }
+            case ABILITY_ID.DAMAGE_BOOST : {
+                let a = new Ability({
+                    id : ABILITY_ID.DAMAGE_BOOST,
+                    cost : 10,
+                    name : "Damage Boost",
+                    sprite : "./sprites/effects/Questionmorks.png",
+                    tooltip : "Your next attack deals 1.5x more damage (stacks additively)"
+                });
+                a.use = () => {
+                    if (!director.isInCombat) return false;
+                    player.applyEffect(Effect.EFFECT_TYPES.DAMAGE_BOOST, 1.5);
                     return true;
                 }
                 return a;

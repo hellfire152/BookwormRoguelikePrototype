@@ -188,27 +188,7 @@ class CombatHandler {
     }
 
     enemyDefeated(enemy) {
-        let rewards = {
-            "money" : 0,
-            "heal" : 0
-        }
-        for (const r of enemy.rewards) {
-            if (Math.random() >= r.probability) return;
-            let v = Utils.getValue(r.value, this.level);
-            switch(r.type) {
-                case "money": {
-                    rewards.money += v;
-                    break;
-                }
-                case "heal" : {
-                    rewards.heal += v;
-                    break;
-                }
-                case "letter-replacement" : {
-
-                }
-            }
-        }
+        let rewards = CombatReward.collateRewards(enemy.rewards);
 
         // switch to the rewards scene
         let options = [];
@@ -228,6 +208,13 @@ class CombatHandler {
                 text : `Heal ${rewards.heal} HP`,
                 onSelect : "combat-reward-heal",
                 args : rewards.heal
+            });
+        }
+        if (rewards.charge > 0) {
+            options.push({
+                text : `Gain ${rewards.charge} Charge`,
+                onSelect : "combat-reward-charge",
+                args : rewards.charge
             });
         }
         options.push({
@@ -319,6 +306,12 @@ class CombatHandler {
         multipliers.push(LENGTH_DAMAGE_MULTIPLIERS[length]); 
         // handle effects
         if (player.effects[Effect.EFFECT_TYPES.WEAKNESS]) multipliers.push(0.5);
+        if (player.effects[Effect.EFFECT_TYPES.DAMAGE_BOOST]) {
+            multipliers.push(
+              player.effects[Effect.EFFECT_TYPES.DAMAGE_BOOST].value
+            );
+            player.removeEffect(Effect.EFFECT_TYPES.DAMAGE_BOOST);
+        };
         for(const m of multipliers) {
             damage *= parseFloat(m);
         }

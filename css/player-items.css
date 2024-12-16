@@ -6,6 +6,7 @@
 #owned-consumables {
     width : 95%;
     display : flex;
+    float:left;
 }
 
 #relics {
@@ -72,8 +73,9 @@
 
 #consumables-container {
     position : absolute;
-    bottom : 130px;
+    bottom : 80px;
     left : 5px;
+    height : 80px;
 }
 
 #relics-container {

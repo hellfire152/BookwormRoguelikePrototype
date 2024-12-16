@@ -57,7 +57,7 @@ class Director {
         player.newAbility(ABILITY_ID.GIVE_WEAKNESS);
         player.newAbility(ABILITY_ID.REROLL_TILE);
         player.newAbility(ABILITY_ID.EXTRA_TILE);
-        player.newAbility(ABILITY_ID.PREVIOUS_LETTER);
+        player.newAbility(ABILITY_ID.DAMAGE_BOOST);
         player.gainCharge(200);
         this.setupEvent("_intro");
         ui.removeStartButton();
