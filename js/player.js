@@ -1,7 +1,7 @@
 class Player extends Character {
     constructor() {
         super();
-        this.money = 0;
+        this._money = 0;
         this.items = [];
         this.flags = {};
         this.maxHP = 100;
@@ -25,7 +25,6 @@ class Player extends Character {
                 this.money -= consumable.baseCost;
                 this.consumables.push(consumable);
                 UI.Player.updateConsumableDisplay(this);
-                UI.Player.updateMoneyDisplay(this);
                 log(`Puchased ${consumable.name} for ${consumable.baseCost} Money!`);
                 return true;
             }
@@ -41,12 +40,20 @@ class Player extends Character {
     _updateChargeDisplay() {
         UI.Player.updateChargeDisplay(this);
     }
+    _updateMoneyDisplay() {
+        UI.Player.updateMoneyDisplay(this._money);
+    }
 
     giveMoney(amountGiven) {
         this.money += parseInt(amountGiven);
+    }
 
-        //set value in UI
-        UI.Player.updateMoneyDisplay(this);
+    get money() {
+        return this._money;
+    }
+    set money(money) {
+        this._money = money;
+        this._updateMoneyDisplay();
     }
 
     checkFlag(flag) {
@@ -133,5 +140,41 @@ class Player extends Character {
             this.consumables.splice(i, 1);
             UI.Player.updateConsumableDisplay(this);
         }
+    }
+
+    // selector function takes in the letters arr as input. Returns the letters that the effect will be applied on
+    applyTileEffect(tileEffectType, selectorFunction, stateVar) {
+        let letters = UI.Letter.getLetters().toArray();
+        let affectedLetters = selectorFunction(letters);
+
+        for (const l of affectedLetters) {
+            let e = Letter.getLetterObjectFromElement(l);
+            e.applyTileEffect(l, tileEffectType, stateVar);
+        }
+    }   
+
+    // adding in handling tile effects
+    resolvePostTurnEffects() {
+        super.resolvePostTurnEffects();
+
+        // resolve tile effects
+        for (const e of UI.Letter.getLetters().toArray()) {
+            let l = Letter.getLetterObjectFromElement(e);
+            l.resolveTileEffects(e, true);
+        }
+    }
+
+    resolvePreTurnEffects() {
+        super.resolvePreTurnEffects();
+
+        //resolve tile effects
+        for (const e of UI.Letter.getLetters().toArray()) {
+            let l = Letter.getLetterObjectFromElement(e);
+            l.resolveTileEffects(e, false);
+        }
+    }
+
+    handleTileEffectResolution() {
+
     }
 }

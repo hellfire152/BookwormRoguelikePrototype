@@ -107,10 +107,15 @@ const EVENT_FUNCTIONS = {
         log(`Gained ${money} money`);
     },
     "combat-reward-heal" : (target, heal) => {
-        target.remove()
+        target.remove();
         player.healDamage(heal);
         log(`Healed for ${heal} HP`);
     },
+    "combat-reward-charge" : (target, charge) => {
+        target.remove();
+        player.gainCharge(charge);
+        log(`Gained ${charge} Charge`);
+    }, 
     "combat-reward-upgrade" : (target) => {
         // first remove the button that loads the upgrade shop
         target.remove();

@@ -1,0 +1,80 @@
+.tile-effect-lock {
+    color : white;
+    background-color: #000000;
+    opacity: 0.8;
+    background-image:  linear-gradient(#d8d8d8 1.6px, transparent 1.6px), linear-gradient(90deg, #d8d8d8 1.6px, transparent 1.6px), linear-gradient(#d8d8d8 0.8px, transparent 0.8px), linear-gradient(90deg, #d8d8d8 0.8px, #000000 0.8px);
+    background-size: 40px 40px, 40px 40px, 8px 8px, 8px 8px;
+    background-position: -1.6px -1.6px, -1.6px -1.6px, -0.8px -0.8px, -0.8px -0.8px;
+}
+
+.tile-effect-radioactive {
+    background-color: #ffffff;
+    opacity: 0.8;
+    background-image: radial-gradient(circle at center center, #f2f9b7, #ffffff), repeating-radial-gradient(circle at center center, #f2f9b7, #f2f9b7, 8px, transparent 16px, transparent 8px);
+    background-blend-mode: multiply;
+}
+
+.tile-effect-money-lock {
+    color : white;
+    background-color: #000000;
+    opacity: 0.8;
+    background-image:  linear-gradient(#ffc652 1.6px, transparent 1.6px), linear-gradient(90deg, #ffc652 1.6px, transparent 1.6px), linear-gradient(#ffc652 0.8px, transparent 0.8px), linear-gradient(90deg, #ffc652 0.8px, #000000 0.8px);
+    background-size: 40px 40px, 40px 40px, 8px 8px, 8px 8px;
+    background-position: -1.6px -1.6px, -1.6px -1.6px, -0.8px -0.8px, -0.8px -0.8px;
+}
+
+.tile-effect-charge-lock {
+    color : white;
+    background-color: #000000;
+    opacity: 0.8;
+    background-image:  linear-gradient(#52c9ff 1.6px, transparent 1.6px), linear-gradient(90deg, #52c9ff 1.6px, transparent 1.6px), linear-gradient(#52c9ff 0.8px, transparent 0.8px), linear-gradient(90deg, #52c9ff 0.8px, #000000 0.8px);
+    background-size: 40px 40px, 40px 40px, 8px 8px, 8px 8px;
+    background-position: -1.6px -1.6px, -1.6px -1.6px, -0.8px -0.8px, -0.8px -0.8px;
+}
+
+.tile-effect-poisonous {
+    background-color: #ffffff;
+    opacity: 0.8;
+    background-image:  linear-gradient(135deg, #a6e9af 25%, transparent 25%), linear-gradient(225deg, #a6e9af 25%, transparent 25%), linear-gradient(45deg, #a6e9af 25%, transparent 25%), linear-gradient(315deg, #a6e9af 25%, #ffffff 25%);
+    background-position:  8px 0, 8px 0, 0 0, 0 0;
+    background-size: 16px 16px;
+    background-repeat: repeat;
+}
+
+.tile-effect-spiked {
+    background-color: #ffffff;
+    opacity: 0.8;
+    background-image: linear-gradient(-45deg, #ffffff, #ffffff 50%, #bcbcbc 50%, #bcbcbc);
+    background-size: 9px 9px;
+}
+
+.tile-effect-boosted {
+    background-color: #ffffff;
+    opacity: 0.8;
+    background-image: radial-gradient(#bcbcbc 1px, #ffffff 1px);
+    background-size: 20px 20px;
+}
+
+.tile-effect-cleansing {
+    background-color: #ffffff;
+    opacity: 0.8;
+    background: radial-gradient(circle, transparent 20%, #ffffff 20%, #ffffff 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, #ffffff 20%, #ffffff 80%, transparent 80%, transparent) 25px 25px, linear-gradient(#bcbcbc 2px, transparent 2px) 0 -1px, linear-gradient(90deg, #bcbcbc 2px, #ffffff 2px) -1px 0;
+    background-size: 50px 50px, 50px 50px, 25px 25px, 25px 25px;
+}
+
+.tile-effect-decay-1 {
+    background-color: #ffffff;
+    opacity: 0.8;
+    background-image:  repeating-radial-gradient( circle at 0 0, transparent 0, #ffffff 10px ), repeating-linear-gradient( #d0d0d055, #d0d0d0 );
+}
+
+.tile-effect-decay-2 {
+    background-color: #ffffff;
+    opacity: 0.8;
+    background-image:  repeating-radial-gradient( circle at 0 0, transparent 0, #ffffff 10px ), repeating-linear-gradient( #be999955, #be9999 );
+}
+
+.tile-effect-cursed {
+    color : black;
+    background: linear-gradient(0deg, rgba(51, 51, 51, 1), rgba(224, 224, 224, 1))
+}

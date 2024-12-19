@@ -5,7 +5,8 @@ const ABILITY_ID = {
     EXTRA_TILE : "A|EXTRA_TILE",
     NEXT_LETTER : "A|NEXT_LETTER",
     PREVIOUS_LETTER : "A|PREVIOUS_LETTER",
-    DAMAGE_BOOST : "A|DAMAGE_BOOST"
+    DAMAGE_BOOST : "A|DAMAGE_BOOST",
+    MAKE_TILE_POISONOUS : "A|MAKE_TILE_POISONOUS"
 }
 
 class AbilityFactory {
@@ -77,7 +78,7 @@ class AbilityFactory {
             case ABILITY_ID.NEXT_LETTER : {
                 let a = new Ability({
                     id : ABILITY_ID.NEXT_LETTER,
-                    cost : 5,
+                    cost : 2,
                     name : "Next Letter",
                     sprite : "./sprites/effects/Questionmorks.png",
                     tooltip : "Changes a tile to the next letter"
@@ -99,7 +100,7 @@ class AbilityFactory {
             case ABILITY_ID.PREVIOUS_LETTER : {
                 let a = new Ability({
                     id : ABILITY_ID.PREVIOUS_LETTER,
-                    cost : 5,
+                    cost : 2,
                     name : "Next Letter",
                     sprite : "./sprites/effects/Questionmorks.png",
                     tooltip : "Changes a tile to the next letter"
@@ -132,6 +133,26 @@ class AbilityFactory {
                     return true;
                 }
                 return a;
+            }
+            case ABILITY_ID.MAKE_TILE_POISONOUS : {
+                let a = new Ability({
+                    id : ABILITY_ID.MAKE_TILE_POISONOUS,
+                    cost : 5,
+                    name : "Poison Tile",
+                    sprite : "./sprites/effects/Questionmorks.png",
+                    tooltip : "Makes the selected tile poisonous"
+                });
+                a.use = () => {
+                    if (!director.isInCombat) return false;
+                    UI.Letter.temporaryTileHighlightWithCallback((t, letter) => {
+                        letter.applyTileEffect(t, TILE_EFFECTS.POISONOUS, {duration : 3})
+                    }, "temporary-highlight-ability")
+                    return true;
+                }
+                return a;
+            }
+            default : {
+                throw new Error("Ability does not exist!");
             }
         }
     }

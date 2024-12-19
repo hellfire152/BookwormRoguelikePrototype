@@ -94,14 +94,10 @@ class PoisonEffect extends Effect {
         character.dealDamage(this.value, false);
         log(`${character.name} took ${this.value} damage from Poison`);
         // effect is reduced by half every turn
-        if (this.value <= 1) {
+        if (--this.value < 1) {
             return {
                 removeEffect : true
             }
-        }
-        this.value = Math.floor(this.value / 2);
-        return {
-            removeEffect : false
         }
     }
 

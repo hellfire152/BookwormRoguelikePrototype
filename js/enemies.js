@@ -77,7 +77,7 @@ const ENEMY_ID = {
 const ENEMIES = {
     [ENEMY_ID.GOBBO] : {
         name : "gobbo",
-        baseMaxHP : 2,
+        baseMaxHP : 200,
         attacks : [
             {
                 name : "Gobbo punch",

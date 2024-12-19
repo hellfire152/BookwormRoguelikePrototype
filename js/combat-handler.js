@@ -84,6 +84,8 @@ let LETTER_UPGRADE_DAMAGE_INCREASE = {
 class CombatHandler {
     constructor() {
         this.combatPhaseIndex = null;
+        this._rerollsLeft = 5;
+        this.maxRerolls = 5;
     }
 
     // this function calls resolveTurn. Purpose is to avoid using recurring function calls
@@ -168,7 +170,6 @@ class CombatHandler {
             UI.Letter.getAvailableLetterElements().length, specialTilesToGenerate);
 
         // charge gain
-        console.log(attackResult)
         player.gainCharge(attackResult.chargeGain);
 
         //handle damage to enemies
@@ -177,12 +178,9 @@ class CombatHandler {
             return false; // don't resovle effects if enemy dies early
         } 
 
-        // first apply effects
-        for (const e of attackResult.playerEffects) {
-            player.applyEffect(e.effectType, e.value);
-        }
-        for (const e of attackResult.enemyEffects) {
-            currentEnemy.applyEffect(e.effectType, e.value);
+        // apply effects
+        for (const e of attackResult.effects) {
+            e.apply(e)
         }
         return true;
     }
@@ -247,9 +245,11 @@ class CombatHandler {
         let playerEffects = [];
         let enemyEffects = [];
         let length = Letter.countTrueLength(letters);
+        let effects = [];
 
         let specialTiles = {};
         let confusedDamage;
+        let cursedCount = 0;
         if (player.isConfused) {
             // randomize damage values
             confusedDamage = Utils.shuffleObject(LETTER_DAMAGE_VALUES);
@@ -258,19 +258,34 @@ class CombatHandler {
             specialTiles[o] = 0;
         }
         for(const l of letters) {
+            let tileDamage = 0;
             for (const l2 of l.letter) { // count raw damage
                 chargeGain++;
                 if (player.isConfused) {
-                    damage += confusedDamage[l2];
+                    tileDamage += confusedDamage[l2];
                 } else {
-                    damage += LETTER_DAMAGE_VALUES[l2]
+                    tileDamage += LETTER_DAMAGE_VALUES[l2]
                 }
             }
             if (l.specialTileType) { // count no. of special tiles
                 specialTiles[l.specialTileType] += 1;
             }
+
+            // tile effects
+            if (l.tileEffects[TILE_EFFECTS.SPIKED]) {
+                let damage = l.tileEffects[TILE_EFFECTS.SPIKED].damage;
+                player.dealDamage(damage);
+                log(`Took ${damage} damage from Spiked Tile!`)
+            }
+            if (l.tileEffects[TILE_EFFECTS.CURSED]) {
+                cursedCount++;
+            }
+            if (l.tileEffects[TILE_EFFECTS.POISONOUS]) {
+                effects.push(AttackEffect.applyStatusEffect("enemy", Effect.EFFECT_TYPES.POISON, tileDamage));
+            }
+
+            damage += tileDamage;
         }
-        console.log(specialTiles);
         for (const s in specialTiles) { // handle special tiles
             for (let i = 0; i < specialTiles[s]; i++) {
                 switch(s) {
@@ -278,10 +293,9 @@ class CombatHandler {
                         multipliers.push(1.2);
                         chargeGain += 2;
                         if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
-                            enemyEffects.push({
-                                effectType : Effect.EFFECT_TYPES.POISON,
-                                value : 0.3 * damage
-                            })
+                            effects.push(AttackEffect.applyStatusEffect("enemy", 
+                                Effect.EFFECT_TYPES.POISON, 0.5 * damage
+                            ))
                         }
                         break;
                     }
@@ -289,6 +303,9 @@ class CombatHandler {
                         multipliers.push(1.5);
                         chargeGain += 4;
                         if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
+                            effects.push(AttackEffect.applyStatusEffect("enemy", 
+                                Effect.EFFECT_TYPES.POISON, 0.5 * damage
+                            ))
                             enemyEffects.push({
                                 effectType : Effect.EFFECT_TYPES.POISON,
                                 value : 0.5 * damage
@@ -318,12 +335,17 @@ class CombatHandler {
         damage = Utils.roundToOneDP(damage);
 
         if (player.isSilenced) damage = 0;
-        // handle charge gain
+        console.log(damage);
+        if (cursedCount > 0) {
+            damage = damage * (0.5 ** cursedCount);
+        }
+        // Create all effect objects
+        //effects.push(AttackEffect.damageEffect("enemy", damage)); // main damage
+        
         
         return {
             damage : damage,
-            playerEffects,
-            enemyEffects,
+            effects,
             length,
             chargeGain : chargeGain
         };
@@ -344,5 +366,30 @@ class CombatHandler {
 
         }
         return output;
+    }
+
+    // Handling rerolls
+    rerollButtonOnClick(e) {
+        if (this.rerollsLeft <= 0)  {
+            log("No rerolls left!");
+            return;
+        }
+        this.rerollsLeft--;
+        UI.Letter.temporaryTileHighlightWithCallback((t, letter) => {
+            letter.rerollLetter(t);
+        }, "temporary-highlight-ability");
+    }
+
+    giveRerolls(value) {
+        this.rerollsLeft = this.rerollsLeft + value;
+    }
+
+    set rerollsLeft(value) {
+        if (value > this.maxRerolls) value = this.maxRerolls;
+        this._rerollsLeft = value;
+        ui.updateRerollCount(this._rerollsLeft);
+    }
+    get rerollsLeft() {
+        return this._rerollsLeft;
     }
 }

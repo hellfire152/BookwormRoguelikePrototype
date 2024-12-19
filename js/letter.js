@@ -148,6 +148,11 @@ class Letter {
             UI.Letter.appendLetterElement(element);
         }
     }
+    static handleTileEffectResolution(e, l, result) {
+        if(result && result.removeEffect) {
+            l.remove
+        }
+    }
 
     // some tiles can contain multiple letters. This function get the true submitted word length
     // even if those tiles are used
@@ -166,8 +171,9 @@ class Letter {
         this.locked = null;
         this.specialTileType = (specialTileType)? specialTileType : null;
         this.ref = crypto.randomUUID();
-        this.tileEffects = {
-            
+        this.tileEffects = {};
+        for (const te in TILE_EFFECTS) {
+            this.tileEffects[TILE_EFFECTS[te]] = null;
         }
     }
 
@@ -193,6 +199,10 @@ class Letter {
         if (this.specialTileType != SPECIAL_TILE_TYPES.UNSELECTABLE) {
             Letter.storeLetter(this.ref, this);
         }
+        for(const te of Object.values(this.tileEffects)) {
+            if (!te) continue;
+            element = te.modifyLetterElement(element);
+        }
         return element;
     }
 
@@ -201,6 +211,38 @@ class Letter {
     }
     replaceLetter(elementToReplace, newLetter) {
         this.letter = newLetter;
-        elementToReplace.replaceWith(this.generateElement());
+        this.rerender(elementToReplace);
+    }
+    rerender(elementToReplace) {
+        $(elementToReplace).replaceWith(this.generateElement());
+    }
+    applyTileEffect(letterElement, tileEffectType, stateVar) {
+        this.tileEffects[tileEffectType] = TileEffect.generateTileEffect(tileEffectType, stateVar);
+        this.rerender(letterElement);
+    }
+    removeTileEffect(letterElement, tileEffectType) {
+        this.tileEffects[tileEffectType] = null;
+        this.rerender(letterElement);
+    }
+    
+    resolveTileEffects(e, isPostTurn) {
+        for (const te in this.tileEffects) {
+            let t = this.tileEffects[te];
+            if (!t) continue;
+
+            let result = (isPostTurn) ? t.resolvePostTurnEffects(t)
+             : t.resolvePreTurnEffects(t);
+            if (result && result.removeEffect) {
+                this.tileEffects[te] = null;
+            }
+        }
+        this.rerender(e);
+;    }
+
+
+    get lockedState() {
+        if (this.tileEffects[TILE_EFFECTS.LOCK]) return TILE_EFFECTS.LOCK;
+        if (this.tileEffects[TILE_EFFECTS.MONEY_LOCK]) return TILE_EFFECTS.MONEY_LOCK;
+        if (this.tileEffects[TILE_EFFECTS.CHARGE_LOCK]) return TILE_EFFECTS.CHARGE_LOCK;
     }
 }

@@ -60,6 +60,9 @@ function preload() {
         Letter.refreshAllLetters(true);
         combatHandler.handleTurn(skipTurn = true);
     });
+    $('#letter-board').on("click", "#reroll", (e) => {
+        combatHandler.rerollButtonOnClick(e);
+    });
     // charge abilities
     $("#charge-abilities").on("click", ".ability-container", Ability.abilityOnClick);
     // consumable items

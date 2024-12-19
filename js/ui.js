@@ -167,7 +167,12 @@ class UI {
         refreshButton.text("Refresh (skips turn!)");
         refreshButton.addClass("bottom-row-button");
     
-        bottomButtonsContainer.append(refreshButton, shuffleButton);
+        let rerollButton = $("<button>");
+        rerollButton.attr("id", "reroll");
+        rerollButton.text("Reroll (5)");
+        rerollButton.addClass("bottom-row-button");
+
+        bottomButtonsContainer.append(refreshButton, shuffleButton, rerollButton);
         combatInputContainer.append(inputSpace, sendInput, letterboard, bottomButtonsContainer);
         this.sceneStore.combat["player-input"] = combatInputContainer;
     }
@@ -288,8 +293,8 @@ class UI {
             $("#player-current-charge").css("width", `${player.chargePercent}%`);
             $("#player-charge-text").text(`${player.currentCharge} / ${player.maxCharge} Charge`);
         }
-        static updateMoneyDisplay(player) {
-            $("#player-money").text(`${player.money} Money`)
+        static updateMoneyDisplay(money) {
+            $("#player-money").text(`${money} Money`)
         }
     
     }
@@ -331,6 +336,31 @@ class UI {
             // skip placeholder letters
             if (t.attr("_pfor")) {
                 return;
+            }
+            // skip locked tiles
+            let l = Letter.getLetterObjectFromElement(t);
+            if (l.lockedState) {
+                switch(l.lockedState) {
+                    case TILE_EFFECTS.LOCK : {
+                        return; // can't get out of this one
+                    }
+                    case TILE_EFFECTS.MONEY_LOCK : {
+                        let te = l.tileEffects[TILE_EFFECTS.MONEY_LOCK];
+                        if (player.money >= te.moneyCost) {
+                            player.money -= te.moneyCost;
+                            l.removeTileEffect(t, TILE_EFFECTS.MONEY_LOCK);
+                        }
+                        return;
+                    }
+                    case TILE_EFFECTS.CHARGE_LOCK : {
+                        let te = l.tileEffects[TILE_EFFECTS.CHARGE_LOCK];
+                        if (player.currentCharge >= te.chargeCost) {
+                            player.removeCharge(te.chargeCost);
+                            l.removeTileEffect(t, TILE_EFFECTS.CHARGE_LOCK);
+                        }
+                        return;
+                    }
+                }
             }
             // generate a new blank letter to replace it with
             let placeholder = new Letter("", SPECIAL_TILE_TYPES.UNSELECTABLE);
@@ -461,7 +491,6 @@ class UI {
             let options = [];
             let consumables = _.sampleSize(CONSUMABLE_ID, 3).sort();
         
-            console.log(consumables);
             for (const cid of consumables) {
                 let consumable = ConsumableFactory.generateConsumable(cid);
                 shopItems.append(consumable.generateElement(true));
@@ -586,6 +615,10 @@ class UI {
             }
         }
     }
+    updateRerollCount(rerollsLeft) {
+        $("#reroll").text(`Reroll (${rerollsLeft})`);
+    }
+
     removeStartButton() {
         return $("#game-start").remove();
     }

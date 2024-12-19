@@ -4,7 +4,8 @@ class AttackEffect {
         HEAL : "AE|HEAL",
         RANDOM_REPLACEMENT : "AE|RANDOM_REPLACEMENT",
         DESTROY_TILE : "AE|DESTROY_TILE",
-        APPLY_STATUS : "AE|APPLY_STATUS"
+        APPLY_STATUS : "AE|APPLY_STATUS",
+        APPLY_TILE_EFFECT : "AE|APPLY_TILE_EFFECT"
     }
     // could just create new AttackEffects directly, but these methods
     // should make the code a lot readable
@@ -76,7 +77,7 @@ class AttackEffect {
                 if (ref.target == "player") {
                     player.applyEffect(effectType, value);
                 } else if (ref.target == "enemy") {
-                    currentEnemy.applyEffet(effectType, value);
+                    currentEnemy.applyEffect(effectType, value);
                 }
             }
         });
@@ -95,6 +96,16 @@ class AttackEffect {
                 log(`${ref.value} letters were destroyed!`);
             }
         });
+    }
+
+    static applyTileEffect(tileEffectType, selectorFunction, data) {
+        return new AttackEffect({
+            type : AttackEffect.APPLY_TILE_EFFECT,
+            value : tileEffectType,
+            apply : (ref) => {
+                player.applyTileEffect(tileEffectType, selectorFunction, data);
+            }
+        })
     }
 
     constructor(data) {
