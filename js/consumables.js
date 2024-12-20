@@ -5,6 +5,7 @@ const CONSUMABLE_ID = {
     INSTANT_REFRESH : "C|INSTANT_REFRESH", // rerolls all tiles without skipping a turn
     TILE_DELIVERY : "C|TILE_DELIVERY", // adds a set number of extra tiles
     //OMNISCIENCE : 5, // plays the longest possible word for you
+    SCROLL : "C|SCROLL" // gives a set amount of charge
 }
 
 class Consumable {
@@ -141,6 +142,18 @@ class ConsumableFactory {
                     baseCost : 50,
                     sprite : "./sprites/consumables/Donki.png",
                 });
+            }
+            case CONSUMABLE_ID.SCROLL : {
+                return new Consumable({
+                    id : CONSUMABLE_ID.SCROLL,
+                    name : "Scroll",
+                    use : () => {
+                        player.gainCharge(15);
+                        return true;
+                    },
+                    baseCost : 20,
+                    sprite : "./sprites/effects/QuestionMorks.png"
+                })
             }
         }
     }

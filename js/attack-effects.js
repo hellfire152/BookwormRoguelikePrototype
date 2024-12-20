@@ -5,7 +5,8 @@ class AttackEffect {
         RANDOM_REPLACEMENT : "AE|RANDOM_REPLACEMENT",
         DESTROY_TILE : "AE|DESTROY_TILE",
         APPLY_STATUS : "AE|APPLY_STATUS",
-        APPLY_TILE_EFFECT : "AE|APPLY_TILE_EFFECT"
+        APPLY_TILE_EFFECT : "AE|APPLY_TILE_EFFECT",
+        CHARGE_DRAIN : "AE|CHARGE_DRAIN"
     }
     // could just create new AttackEffects directly, but these methods
     // should make the code a lot readable
@@ -108,6 +109,16 @@ class AttackEffect {
         })
     }
 
+    static chargeDrainEffect(value) {
+        return new AttackEffect({
+            type : AttackEffect.TYPES.CHARGE_DRAIN,
+            value : value,
+            apply : (ref) => {
+                player.removeCharge(value);
+            }
+        })
+    }
+    
     constructor(data) {
         this.type = data.type;
         this.value = data.value;

@@ -31,6 +31,13 @@ class Player extends Character {
         }
     }
 
+    giveConsumable(itemID) {
+        let consumable = ConsumableFactory.generateConsumable(itemID);
+        this.consumables.push(consumable);
+        UI.Player.updateConsumableDisplay(this);
+        log(`Added ${consumable.name} to inventory`);
+    }
+
     _updateHPDisplay() {
         UI.Player.updateHPDisplay(this);
     }
@@ -110,6 +117,11 @@ class Player extends Character {
         }
         let result = ability.use();
         if (result) this.removeCharge(ability.cost);
+
+        let syringeRelic = relicHandler.getRelic(RELIC_ID.SYRINGE);
+        if (syringeRelic && syringeRelic.isActive) {
+            syringeRelic.update(false);
+        }
     }
 
     newAbility(abilityId) {
@@ -172,9 +184,5 @@ class Player extends Character {
             let l = Letter.getLetterObjectFromElement(e);
             l.resolveTileEffects(e, false);
         }
-    }
-
-    handleTileEffectResolution() {
-
     }
 }

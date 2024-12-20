@@ -51,7 +51,6 @@ class Director {
         //relicHandler.addRelic(RELIC_ID.ADVERBLY);
         //relicHandler.addRelic(RELIC_ID.PERPETUAL_MOTION_MACHINE);
         //relicHandler.addRelic(RELIC_ID.QUILL);
-        relicHandler.addRelic(RELIC_ID.EMPTY_HEADED);
         //relicHandler.addRelic(RELIC_ID.EXTRA_TILE);
         player.newAbility(ABILITY_ID.GIVE_VULNERABILITY);
         player.newAbility(ABILITY_ID.MAKE_TILE_POISONOUS);
@@ -60,7 +59,12 @@ class Director {
         //player.newAbility(ABILITY_ID.DAMAGE_BOOST);
         player.newAbility(ABILITY_ID.NEXT_LETTER);
         player.newAbility(ABILITY_ID.PREVIOUS_LETTER);
-        player.gainCharge(200);
+        player.giveConsumable(CONSUMABLE_ID.SCROLL);
+        player.gainCharge(15);
+        relicHandler.addRelic(RELIC_ID.ANCIENT_TOME);
+        relicHandler.addRelic(RELIC_ID.SHANK);
+        relicHandler.addRelic(RELIC_ID.LENS);
+        relicHandler.addRelic(RELIC_ID.SYRINGE);
         this.setupEvent("_intro");
         ui.removeStartButton();
     }

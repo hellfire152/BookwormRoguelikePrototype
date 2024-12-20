@@ -403,6 +403,11 @@ class UI {
                 $("#owned-relics").append(r.generateElement());
             }
         }
+
+        static updateSingleRelic(relic) {
+            let relicContainer = $(`.relic-container[data-relic-id="${relic.id}"]`);
+            relicContainer.replaceWith(relic.generateElement());
+        }
     }
     static Ability = class UIAbility {
         static updateDisplay(player) {
@@ -475,7 +480,7 @@ class UI {
             }
         }
     }
-    static Shop = class thisShop {
+    static Shop = class UIShop {
         static loadItemShop() {
             let shopContainer = $("<div></div>");
             shopContainer.attr("id", "shop-container");
@@ -615,6 +620,41 @@ class UI {
             }
         }
     }
+
+    static Stats = class UIStats {
+        static loadProbabilityModal() {
+            let container = $("#stat-screen-letter");
+            container.empty();
+            let title = $("<h1 id='stat-screen-letter-title'>Letter Stats</h1>");
+            container.append(title);
+            container.append("<hr>")
+            for (const l in LETTER_PROBABILITY_POINTS) {
+                let probability = Utils.roundToOneDP((LETTER_PROBABILITY_POINTS[l] / LETTER_PROBABILITY_POINT_MAX) * 100);
+                let damage = LETTER_DAMAGE_VALUES[l];
+                let letterContainer = $("<div>");
+                letterContainer.addClass("stat-letter-container");
+
+                let letterLabel = $("<div>");
+                letterLabel.addClass("stat-letter-label");
+                letterLabel.text(l.toUpperCase());
+
+                let letterProbabilityContainer = $(
+                    `<div class="stat-letter-stat-container">
+                        <span class="stat-screen-stat-label">P</span><span class="stat-screen-stat-value">${probability}%</span>
+                    </div>`);
+                
+                let letterDamageContainer = $(
+                    `<div class="stat-letter-stat-container">
+                        <span class="stat-screen-stat-label">D</span><span class="stat-screen-stat-value">${damage}</span>
+                    </div>`
+                )
+
+                letterContainer.append(letterLabel, letterProbabilityContainer, letterDamageContainer);
+                container.append(letterContainer);
+            }
+        }
+    }
+
     updateRerollCount(rerollsLeft) {
         $("#reroll").text(`Reroll (${rerollsLeft})`);
     }

@@ -180,6 +180,9 @@ class Ability {
     use() {console.log("unimplemented")} // implement separately for each ability
     
     generateElement() {
+        // reset cost
+        if (this._cost) this.cost = this._cost;
+        
         let abilityContainer = $("<div>");
         abilityContainer.addClass("ability-container");
         abilityContainer.attr("data-ability-id", this.id);
@@ -192,6 +195,15 @@ class Ability {
         let abilityText = $("<div>");
         abilityText.text(this.cost);
         abilityText.addClass("ability-text");
+
+        // relics
+        if (relicHandler.checkHasRelic(RELIC_ID.SYRINGE)
+         && relicHandler.getRelic(RELIC_ID.SYRINGE).isActive) {
+            this._cost = this.cost;
+            this.cost /= 2;
+            abilityText.text(this.cost);
+            abilityText.addClass("ability-text-discount-highlight")
+        }
 
         abilityContainer.append(abilitySprite, abilityText);
         return abilityContainer;

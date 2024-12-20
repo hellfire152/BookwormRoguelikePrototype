@@ -81,6 +81,16 @@ function preload() {
     $("#event-area").on("click", ".remove-ability-ability-container", UI.Ability.removeAbilityAbilityOnClick);
     $("#letter-board").on("click", "#remove-ability-submit", Ability.removeAbilitySubmitOnClick);
     
+    // stat screen modals
+    $('a[data-modal]').click((e) => {
+        let j = $(e.currentTarget);
+        let modalType = j.attr("href");
+        if (modalType == "#stat-screen-letter") {
+            UI.Stats.loadProbabilityModal();
+        }
+        j.modal();
+        return false;
+    })
     ui.enableTooltips();
     $('#game-start').click(() => {director.startGame()});
 }

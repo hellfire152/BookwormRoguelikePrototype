@@ -1,0 +1,86 @@
+#stat-screen-letter-title {
+    text-align: center;
+    margin : 0px;
+    margin-bottom: -10px;
+}
+.stat-screen-letter {
+    display : flex;
+    margin: auto;
+}
+
+.stat-letter-container {
+    display : inline-block;
+    border : 2px solid gray;
+    border-radius: 7px;
+    width : 150px;
+    padding : 5px;
+    margin : 5px;
+    text-align: center;
+    position : relative;
+}
+
+.stat-letter-label {
+    font-weight: bold;
+    padding : 5px;
+    font-size: 1.2em;
+    text-align: center;
+    display : inline;
+}
+
+.stat-letter-stat-container {
+    display:inline;
+    padding : 5px;
+}
+
+.stat-screen-stat-label {
+    background-color: rgb(238, 238, 238);
+    border-radius: 5px;
+}
+
+.stat-screen-stat-value {
+    text-align: center;
+    margin: auto;
+    padding : 4px;
+}
+
+.modal {
+    width : max-content;
+}
+
+#stat-screen-open-buttons p {
+    background-color: #EA4C89;
+    border-radius: 8px;
+    border-style: none;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Geist Mono", "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    height: 40px;
+    line-height: 20px;
+    list-style: none;
+    margin: 0;
+    outline: none;
+    padding: 10px 16px;    
+    text-align: center;
+    text-decoration: none;
+    transition: color 100ms;
+    vertical-align: baseline;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;    
+
+    position: fixed;
+    bottom : 20px;
+    right : 20px;
+}
+#stat-screen-open-buttons p:hover,
+#stat-screen-open-buttons p:focus {
+  background-color: #F082AC;
+}
+#stat-screen-open-buttons p a {
+    text-decoration: none;
+    color : white;
+}

@@ -170,6 +170,7 @@ class CombatHandler {
             UI.Letter.getAvailableLetterElements().length, specialTilesToGenerate);
 
         // charge gain
+        if (relicHandler.checkHasRelic(RELIC_ID.GAUNTLET)) attackResult.chargeGain /= 2;
         player.gainCharge(attackResult.chargeGain);
 
         //handle damage to enemies
@@ -235,6 +236,11 @@ class CombatHandler {
     // called by director to start combat
     beginCombat(enemy) {
         this.combatPhaseIndex = COMBAT_PHASES.length - 1; // PLAYER_PRE_TURN
+        
+        // start of combat effects
+        let syringeRelic = relicHandler.getRelic(RELIC_ID.SYRINGE);
+        if (syringeRelic) syringeRelic.update(true); // enable syringe
+
         this.handleTurn();
     }
 
@@ -242,14 +248,14 @@ class CombatHandler {
         let damage = 0;
         let chargeGain = 0;
         let multipliers = [];
-        let playerEffects = [];
-        let enemyEffects = [];
         let length = Letter.countTrueLength(letters);
         let effects = [];
 
         let specialTiles = {};
         let confusedDamage;
         let cursedCount = 0;
+        let extraChargeGainOnGem = (relicHandler.checkHasRelic(RELIC_ID.LENS)) ? 2 : 0;
+
         if (player.isConfused) {
             // randomize damage values
             confusedDamage = Utils.shuffleObject(LETTER_DAMAGE_VALUES);
@@ -267,7 +273,7 @@ class CombatHandler {
                     tileDamage += LETTER_DAMAGE_VALUES[l2]
                 }
             }
-            if (l.specialTileType) { // count no. of special tiles
+            if (l.specialTileType) { // count no. of special tiles of each type
                 specialTiles[l.specialTileType] += 1;
             }
 
@@ -288,6 +294,7 @@ class CombatHandler {
         }
         for (const s in specialTiles) { // handle special tiles
             for (let i = 0; i < specialTiles[s]; i++) {
+                chargeGain += extraChargeGainOnGem;
                 switch(s) {
                     case SPECIAL_TILE_TYPES.TYPE_1 : {
                         multipliers.push(1.2);
@@ -306,10 +313,6 @@ class CombatHandler {
                             effects.push(AttackEffect.applyStatusEffect("enemy", 
                                 Effect.EFFECT_TYPES.POISON, 0.5 * damage
                             ))
-                            enemyEffects.push({
-                                effectType : Effect.EFFECT_TYPES.POISON,
-                                value : 0.5 * damage
-                            });
                         }
                         break;
                     }
@@ -335,13 +338,17 @@ class CombatHandler {
         damage = Utils.roundToOneDP(damage);
 
         if (player.isSilenced) damage = 0;
-        console.log(damage);
         if (cursedCount > 0) {
             damage = damage * (0.5 ** cursedCount);
         }
-        // Create all effect objects
-        //effects.push(AttackEffect.damageEffect("enemy", damage)); // main damage
         
+        // misc relics stuff
+        if (relicHandler.checkHasRelic(RELIC_ID.SHANK) && length < 5) {
+            chargeGain += 5 - length;
+        }
+        if (relicHandler.checkHasRelic(RELIC_ID.ANCIENT_TOME)) {
+            chargeGain *= 2;
+        }
         
         return {
             damage : damage,

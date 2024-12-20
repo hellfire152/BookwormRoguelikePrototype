@@ -13,7 +13,7 @@ class Utils {
     }
 
     static roundToOneDP(value) {
-       return ((value * 10) << 0) * 0.1;
+       return Number(Math.round(value + 'e1') + 'e-1');
     }
 
     static loadWordlist() {

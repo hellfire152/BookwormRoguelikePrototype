@@ -28,6 +28,7 @@ class RelicHandler {
         if(this.checkHasRelic(relicId)) return false;
         this.ownedRelics[relicId] = RelicFactory.generateRelic(relicId);
         this.ownedRelics[relicId].onObtain();
+        log(`Added relic ${this.ownedRelics[relicId].name} to inventory`);
         this._updateRelicDisplay();
         return true;
     }
@@ -45,10 +46,10 @@ class RelicHandler {
         return Object.hasOwn(this.ownedRelics, relicId);
     }
 
-    triggerRelicIfOwned(relicId) {
-        if(Object.hasOwn(this.ownedRelics, relicId)) {
-            this.ownedRelics[relicId].triggerUpdate();
-        }
+    getRelic(relicId) {
+        if (this.checkHasRelic(relicId)) {
+            return this.ownedRelics[relicId]
+        } else return null;
     }
 }
 
@@ -73,6 +74,7 @@ const RELIC_ID = {
     PRETENTIOUS : "R_017",
     MONEY_IS_POWER : "R_018",
     HEAVY_METAL : "R_019",
+    SYRINGE : "R|SYRINGE",
 
     // uncommon relics
     FAST_ACTING : "R_300",
@@ -80,27 +82,45 @@ const RELIC_ID = {
     ADVERBLY : "R_302",
     PERPETUAL_MOTION_MACHINE : "R_303",
     EXTRACT_QI : "R_304",
-    EMPTY_HEADED : "R_305",
-    EXTRA_TILE : "R_306"
+    SPECTACLES : "R|SPECTACLES",
+    BASKET : "R_306",
+    LENS : "R|LENS",
+    SHANK : "R|SHANK",
+    SYRINGE : "R|SYRINGE",
+
+    // rare relics
+    GAUNTLET : "R|GAUNTLET",
+    ANCIENT_TOME : "R|ANCIENT_TOME"
 }
 
 class GenericRelic { // for relics that don't need any internal logic
     constructor(data) {
+        this.id = data.id;
         this.name = data.name;
         this.sprite = data.sprite;
         this.value = data.value;
         this.tooltipDescription = data.tooltipDescription;
-        this.onObtain = data.onObtain;
-        this.onRemove = data.onRemove;
+        this.onObtain = data.onObtain || this.onObtain;
+        this.onRemove = data.onRemove || this.onRemove;
+        this._modifyDisplay = data.modifyDisplay || this._modifyDisplay;
+        this._update = data.update || this._update;
     }
 
-    processData(data) {} // for child classes to implement other logic
+    update(data) {
+        this._update(this, data);
+        UI.Relic.updateSingleRelic(this);
+    }
+    modifyDisplay(element) {return this._modifyDisplay(this, element)}
+    onObtain() {}
+    onRemove() {}
+    _modifyDisplay(ref, element) {return element;}
+    _update(ref, data) {}
 
     generateElement() {
         let relicContainer = $("<div>");
         relicContainer.addClass("relic-container hover-tooltip");
         relicContainer.attr("data-tooltip-content", this.tooltipDescription);
-
+        relicContainer.attr("data-relic-id", this.id)
         let relicSprite = $("<div>");
         relicSprite.addClass("relic-sprite");
         relicSprite.attr("src", this.sprite);
@@ -110,6 +130,7 @@ class GenericRelic { // for relics that don't need any internal logic
         relicText.text(this.value);
 
         relicContainer.append(relicSprite, relicText);
+        relicContainer = this.modifyDisplay(relicContainer);
         return relicContainer;
     }
 }
@@ -119,6 +140,7 @@ class RelicFactory {
         switch(relicId) {
             case RELIC_ID.HEAVY_METAL : {
                 return new GenericRelic({
+                    id : relicId,
                     name : "Heavy Metal",
                     sprite : null,
                     tooltipDescription : "Gems now deal a portion of the word's damage as additional poison damage.\n Purple -> 0.3x, Blue -> 0.5x"
@@ -126,6 +148,7 @@ class RelicFactory {
             }
             case RELIC_ID.ANTIQUE_CLOCK : {
                 return new GenericRelic({
+                    id : relicId,
                     name : "Lived in the Past",
                     sprite : null,
                     tooltipDescription : "\"ED\" tiles have a chance to spawn",
@@ -137,6 +160,7 @@ class RelicFactory {
             }
             case RELIC_ID.ADVERBLY : {
                 return new GenericRelic({
+                    id : relicId,
                     name : "Adverbly",
                     sprite : null,
                     tooltipDescription : "\"LY\" tiles have a chance to spawn",
@@ -148,6 +172,7 @@ class RelicFactory {
             }
             case RELIC_ID.PERPETUAL_MOTION_MACHINE : {
                 return new GenericRelic({
+                    id : relicId,
                     name : "Perpetual Motion Machine",
                     sprite : null,
                     tooltipDescription : "\"ING\" tiles have a chance to spawn",
@@ -163,6 +188,7 @@ class RelicFactory {
             }
             case RELIC_ID.EXTRACT_QI : {
                 return new GenericRelic({
+                    id : relicId,
                     name : "Extract Qi",
                     sprite : null,
                     tooltipDescription : "\"Q\" tiles are replaced with \"QU\" tiles instead",
@@ -178,8 +204,9 @@ class RelicFactory {
                     }
                 })
             }
-            case RELIC_ID.EMPTY_HEADED : {
+            case RELIC_ID.SPECTACLES : {
                 return new GenericRelic({
+                    id : relicId,
                     name : "Empty Headed",
                     sprite : null,
                     tooltipDescription : "Blank tiles now have a low chance to spawn",
@@ -193,8 +220,9 @@ class RelicFactory {
                     }
                 })
             }
-            case RELIC_ID.EXTRA_TILE : {
+            case RELIC_ID.BASKET : {
                 return new GenericRelic({
+                    id : relicId,
                     name : "Extra Tile",
                     sprite : null,
                     tooltipDescription : "+1 Max Tiles",
@@ -206,6 +234,71 @@ class RelicFactory {
                         GAME_CONSTANTS.STARTING_LETTER_COUNT -= 1;
                     }
                 })
+            }
+            case RELIC_ID.GAUNTLET : {
+                return new GenericRelic({
+                    id : relicId,
+                    name : "Gauntlet",
+                    sprite : null,
+                    tooltipDescription : "Max tiles +3, but you gain half the amount of charge",
+                    onObtain : () => {
+                        GAME_CONSTANTS.STARTING_LETTER_COUNT += 3;
+                        Letter.generateLetters();
+                    },
+                    onRemove : () => {
+                        GAME_CONSTANTS.STARTING_LETTER_COUNT -= 3;
+                    }
+                })
+            }
+            case RELIC_ID.SHANK : {
+                return new GenericRelic({
+                    id : relicId,
+                    name : "Shank",
+                    sprite : null,
+                    tooltipDescription : "Words < 5 in length give charge as if they were 5 characters long",
+                });
+            }
+            case RELIC_ID.LENS : {
+                return new GenericRelic({
+                    id : relicId,
+                    name : "Lens",
+                    sprite : null,
+                    tooltipDescription : "Gems give more charge when played"
+                });
+            }
+            case RELIC_ID.ANCIENT_TOME : {
+                return new GenericRelic({
+                    id : relicId,
+                    name : "Ancient Tome",
+                    sprite : null,
+                    tooltipDescription : "Charge Gain x2, but Max Tiles - 2",
+                    onObtain : () => {
+                        GAME_CONSTANTS.STARTING_LETTER_COUNT -= 2;
+                    },
+                    onRemove : () => {
+                        GAME_CONSTANTS.STARTING_LETTER_COUNT += 2;
+                    }
+                })
+            }
+            case RELIC_ID.SYRINGE : {
+                let r = new GenericRelic({
+                    id : relicId,
+                    name : "Syringe",
+                    sprite : null,
+                    tooltipDescription : "The first charge ability per combat costs half",
+                    update : (ref, isActive) => {
+                        ref.isActive = isActive;
+                        UI.Ability.updateDisplay(player);
+                    },
+                    modifyDisplay : (ref, element) => {
+                        if (ref.isActive) {
+                            element.addClass("relic-active-highlight");
+                        }
+                        return element;
+                    }
+                });
+                r.isActive = true;
+                return r;
             }
         }
     }
