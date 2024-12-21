@@ -18,17 +18,10 @@ class Utils {
 
     static loadWordlist() {
         // loads all words into a dictionary
-        fetch("words_alpha.txt")
-        .then(response => response.text())
-        .then((data) => {
-            let lines = data.split('\n');
-            for (let l = 0; l < lines.length; l++) {
-                let w = lines[l].trim();
-                if (w.length < 3) {
-                    continue;
-                }
-                wordlist[w] = 1;
-            }
+        fetch("./word-output.json")
+        .then(response => {return response.json()})
+        .then((json) => {
+            wordlist = json;
         });
     }
     

@@ -81,7 +81,7 @@ function preload() {
     $("#event-area").on("click", ".remove-ability-ability-container", UI.Ability.removeAbilityAbilityOnClick);
     $("#letter-board").on("click", "#remove-ability-submit", Ability.removeAbilitySubmitOnClick);
     
-    // stat screen modals
+    // info screen modal using jquery-modal
     $('a[data-modal]').click((e) => {
         let j = $(e.currentTarget);
         let modalType = j.attr("href");

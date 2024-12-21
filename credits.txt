@@ -1,0 +1,1 @@
+Wordlist: Extracted from enwikitionary. Folks at https://kaikki.org has automated preprocessing work that greatly reduced the time needed

@@ -1,9 +1,6 @@
 <html>
     <head>
         <title>Bookworm Adv Roguelike Prototype</title>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" integrity="sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,6 +21,10 @@
            <div id="combat-area">
             <div id="event-area"></div>
             <div id="letter-board"></div>
+           </div>
+           <div id="companion-area">
+            <p>Companions</p>
+            <div id="companions-container"></div>
            </div>
            <div id="information-area">
             <div id="relics">
@@ -48,9 +49,12 @@
         </div>
         <div id="stat-screen-letter" class="modal"></div>
         <div id="stat-screen-open-buttons">
-            <p><a href="#stat-screen-letter" rel="modal:open" data-modal>Letter Stats</a></p>
+            <p><a href="#stat-screen-letter" rel="modal:open" data-modal>Letter Info</a></p>
         </div>
         <button id="game-start">Start game</button>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" integrity="sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
         <script src="https://unpkg.com/@popperjs/core@2"></script>
         <script src="https://unpkg.com/tippy.js@6"></script>
         <script src="./js/constants.js"></script>
