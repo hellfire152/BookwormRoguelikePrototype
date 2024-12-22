@@ -1,6 +1,14 @@
 import json
+import re
 from datetime import datetime
 
+def checkValidWord(word):
+    alphaRegex = re.compile(r"^[a-z]+$")
+
+    if alphaRegex.match(word) and len(word) >= 3:
+        return True
+    return False
+    
 def main():
     output_wordlist = {}
     with open("kaikki.org-dictionary-English.jsonl", encoding='utf-8') as f:
@@ -10,31 +18,26 @@ def main():
             count = count + 1
             l = line.strip()
             word_data = json.loads(l)
+            word = word_data["word"].lower()
 
-            # skip length < 3
-            if len(word_data["word"]) < 3:
-                continue
-            # skip multiword entries
-            if " " in word_data["word"].split():
-                continue
-            # skip hypenated
-            if "-" in word_data["word"].split("-") > 1:
+            # filter out a buncha garbage
+            if not checkValidWord(word):
                 continue
             
             word_count = word_count + 1
-            if word_data["word"] not in output_wordlist:
-                output_wordlist[word_data["word"]] = {
+            if word not in output_wordlist:
+                output_wordlist[word] = {
                     "types" : set(),
                     "tags" : set(),
                     "forms" : set(),
                     "topics" : set()
                 }
 
-            data = output_wordlist[word_data["word"]]
+            data = output_wordlist[word]
             data["types"].add(word_data["pos"])
             if "forms" in word_data:
                 for form in word_data["forms"]:
-                    if " " in form["form"] : continue # skip multi-word forms
+                    if not checkValidWord(form["form"]) : continue # skip multi-word forms
                     data["forms"].add(form["form"])
                     if form["form"] not in output_wordlist:
                         output_wordlist[form["form"]] = {
@@ -86,5 +89,4 @@ if __name__ == "__main__":
     start_time = datetime.now()
     main()
     end_time = datetime.now()
-    print()
     print(f"Program execution finished in : {end_time - start_time}")

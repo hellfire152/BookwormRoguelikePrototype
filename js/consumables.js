@@ -85,6 +85,7 @@ class ConsumableFactory {
                     },
                     baseCost : 30,
                     sprite : "./sprites/consumables/Knife1.png",
+                    tooltip : "Deals 20 Damage to the current enemy"
                 });
             }
             case CONSUMABLE_ID.SINGLE_TILE_REROLL : {
@@ -105,6 +106,7 @@ class ConsumableFactory {
                     },
                     baseCost : 20,
                     sprite : "./sprites/consumables/RerollTile.png",
+                    tooltip : "Rerolls a single tile"
                 });
             }
             case CONSUMABLE_ID.INSTANT_REFRESH : {
@@ -123,6 +125,7 @@ class ConsumableFactory {
                     },
                     baseCost : 60,
                     sprite : "./sprites/consumables/ClearTile.png",
+                    tooltip : "Rerolls all letters"
                 });
             }
             case CONSUMABLE_ID.TILE_DELIVERY : {
@@ -141,6 +144,7 @@ class ConsumableFactory {
                     },
                     baseCost : 50,
                     sprite : "./sprites/consumables/Donki.png",
+                    tooltip : "Give you 3 extra temporary tiles"
                 });
             }
             case CONSUMABLE_ID.SCROLL : {
@@ -152,7 +156,8 @@ class ConsumableFactory {
                         return true;
                     },
                     baseCost : 20,
-                    sprite : "./sprites/effects/QuestionMorks.png"
+                    sprite : "./sprites/effects/QuestionMorks.png",
+                    tooltip : "Gives 15 Charge"
                 })
             }
         }

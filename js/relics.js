@@ -42,6 +42,10 @@ class RelicHandler {
         return this.ownedRelics;
     }
 
+    get ownedRelicsArr() {
+        return Object.values(this.ownedRelics);
+    }
+
     checkHasRelic(relicId) {
         return Object.hasOwn(this.ownedRelics, relicId);
     }
@@ -74,14 +78,13 @@ const RELIC_ID = {
     PRETENTIOUS : "R_017",
     MONEY_IS_POWER : "R_018",
     HEAVY_METAL : "R_019",
-    SYRINGE : "R|SYRINGE",
 
     // uncommon relics
     FAST_ACTING : "R_300",
     ANTIQUE_CLOCK : "R_301",
-    ADVERBLY : "R_302",
+    LILY : "R_302",
     PERPETUAL_MOTION_MACHINE : "R_303",
-    EXTRACT_QI : "R_304",
+    QUILL : "R_304",
     SPECTACLES : "R|SPECTACLES",
     BASKET : "R_306",
     LENS : "R|LENS",
@@ -116,12 +119,16 @@ class GenericRelic { // for relics that don't need any internal logic
     _modifyDisplay(ref, element) {return element;}
     _update(ref, data) {}
 
+    // following methods should really only be defined in child classes
+    handleWord(word) {} // this is called on all owned relics after word is submitted
+    checkWordBonus(word) {} // checks if word will trigger relic bonus
+
     generateElement() {
         let relicContainer = $("<div>");
         relicContainer.addClass("relic-container hover-tooltip");
         relicContainer.attr("data-tooltip-content", this.tooltipDescription);
         relicContainer.attr("data-relic-id", this.id)
-        let relicSprite = $("<div>");
+        let relicSprite = $("<img>");
         relicSprite.addClass("relic-sprite");
         relicSprite.attr("src", this.sprite);
         
@@ -135,6 +142,40 @@ class GenericRelic { // for relics that don't need any internal logic
     }
 }
 
+class PenNibRelic extends GenericRelic {
+    constructor() {
+        super({
+            id : RELIC_ID.PEN_NIB,
+            name : "Pen nib",
+            sprite : "./sprites/relics/PenNib.png",
+            update : (ref) => {
+                this.value++;
+            },
+            modifyDisplay : (ref, element) => {
+                if (this.value == this.ACTIVE_THRESHOLD) {
+                    element.addClass("relic-active-highlight");
+                }
+                return element;
+            }
+        });
+        this.tooltipDescription = `Every ${this.ACTIVE_THRESHOLD} attacks, double the damage.`
+        this.value = 1;
+    }
+
+    ACTIVE_THRESHOLD = 6
+
+    handleWord(word) {
+        this.update(); // add counter by one every time a word is played
+    }
+    get isActive() {
+        return this.value > this.ACTIVE_THRESHOLD;
+    }
+    reset() {
+        this.value = 1;
+        UI.Relic.updateSingleRelic(this);
+    }
+}
+
 class RelicFactory {
     static generateRelic(relicId) {
         switch(relicId) {
@@ -142,7 +183,7 @@ class RelicFactory {
                 return new GenericRelic({
                     id : relicId,
                     name : "Heavy Metal",
-                    sprite : null,
+                    sprite : "./sprites/relics/Poison.png",
                     tooltipDescription : "Gems now deal a portion of the word's damage as additional poison damage.\n Purple -> 0.3x, Blue -> 0.5x"
                 });
             }
@@ -150,7 +191,7 @@ class RelicFactory {
                 return new GenericRelic({
                     id : relicId,
                     name : "Lived in the Past",
-                    sprite : null,
+                    sprite : "./sprites/relics/AntiqueClock.png",
                     tooltipDescription : "\"ED\" tiles have a chance to spawn",
                     onObtain : () => {
                         LETTER_PROBABILITY_POINTS["ed"] = 10;
@@ -158,11 +199,11 @@ class RelicFactory {
                     }
                 });
             }
-            case RELIC_ID.ADVERBLY : {
+            case RELIC_ID.LILY : {
                 return new GenericRelic({
                     id : relicId,
-                    name : "Adverbly",
-                    sprite : null,
+                    name : "Lily",
+                    sprite : "./sprites/relics/Lily.png",
                     tooltipDescription : "\"LY\" tiles have a chance to spawn",
                     onObtain : () => {
                         LETTER_PROBABILITY_POINTS["ly"] = 10;
@@ -174,7 +215,7 @@ class RelicFactory {
                 return new GenericRelic({
                     id : relicId,
                     name : "Perpetual Motion Machine",
-                    sprite : null,
+                    sprite : "./sprites/relics/PerpetualMotionMachine.png",
                     tooltipDescription : "\"ING\" tiles have a chance to spawn",
                     onObtain : () => {
                         LETTER_PROBABILITY_POINTS["ing"] = 10;
@@ -186,11 +227,11 @@ class RelicFactory {
                     }
                 });
             }
-            case RELIC_ID.EXTRACT_QI : {
+            case RELIC_ID.QUILL : {
                 return new GenericRelic({
                     id : relicId,
-                    name : "Extract Qi",
-                    sprite : null,
+                    name : "Quill",
+                    sprite : "./sprites/relics/Lily.png",
                     tooltipDescription : "\"Q\" tiles are replaced with \"QU\" tiles instead",
                     onObtain : () => {
                         LETTER_PROBABILITY_POINTS["qu"] = LETTER_PROBABILITY_POINTS["q"];
@@ -208,7 +249,7 @@ class RelicFactory {
                 return new GenericRelic({
                     id : relicId,
                     name : "Empty Headed",
-                    sprite : null,
+                    sprite : "./sprites/relics/Specs.png",
                     tooltipDescription : "Blank tiles now have a low chance to spawn",
                     onObtain : () => {
                         LETTER_PROBABILITY_POINTS["?"] = 5;
@@ -224,7 +265,7 @@ class RelicFactory {
                 return new GenericRelic({
                     id : relicId,
                     name : "Extra Tile",
-                    sprite : null,
+                    sprite : "./sprites/relics/Basket.png",
                     tooltipDescription : "+1 Max Tiles",
                     onObtain : () => {
                         GAME_CONSTANTS.STARTING_LETTER_COUNT += 1;
@@ -239,7 +280,7 @@ class RelicFactory {
                 return new GenericRelic({
                     id : relicId,
                     name : "Gauntlet",
-                    sprite : null,
+                    sprite : "./sprites/relics/Gauntlet.png",
                     tooltipDescription : "Max tiles +3, but you gain half the amount of charge",
                     onObtain : () => {
                         GAME_CONSTANTS.STARTING_LETTER_COUNT += 3;
@@ -254,7 +295,7 @@ class RelicFactory {
                 return new GenericRelic({
                     id : relicId,
                     name : "Shank",
-                    sprite : null,
+                    sprite : "./sprites/relics/Shank.png",
                     tooltipDescription : "Words < 5 in length give charge as if they were 5 characters long",
                 });
             }
@@ -262,7 +303,7 @@ class RelicFactory {
                 return new GenericRelic({
                     id : relicId,
                     name : "Lens",
-                    sprite : null,
+                    sprite : "./sprites/relics/Lens.png",
                     tooltipDescription : "Gems give more charge when played"
                 });
             }
@@ -284,7 +325,7 @@ class RelicFactory {
                 let r = new GenericRelic({
                     id : relicId,
                     name : "Syringe",
-                    sprite : null,
+                    sprite : "./sprites/relics/srynge.png",
                     tooltipDescription : "The first charge ability per combat costs half",
                     update : (ref, isActive) => {
                         ref.isActive = isActive;
@@ -299,6 +340,12 @@ class RelicFactory {
                 });
                 r.isActive = true;
                 return r;
+            }
+            case RELIC_ID.PEN_NIB : {
+                return new PenNibRelic();
+            }
+            default : {
+                throw new Error("No relic found! Did you forget to add it to the Factory class?")
             }
         }
     }

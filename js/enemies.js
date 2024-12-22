@@ -4,7 +4,7 @@ class Enemy extends Character {
         super(); 
         this.name = data.name
         let n = data.baseMaxHP * (1.15 ** level);
-        this.maxHP = ((n * 10) << 0) * 0.1; //round to 1 decimal
+        this.maxHP = Utils.roundToOneDP(n);
         this.currentHP = this.maxHP;
         this.attacks = data.attacks;
         this.state = data.initialState; // a tracking number for any purpose

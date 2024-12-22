@@ -90,7 +90,7 @@ class Character {
         } else {
             this.currentHP -= damage;
         }
-        this.currentHP = ((this.currentHP * 10) << 0) * 0.1; // round to 1 decimal place
+        this.currentHP = Utils.roundToOneDP(this.currentHP);
         this._updateHPDisplay();
         return {damage};
     }

@@ -15,14 +15,15 @@ class AttackEffect {
             type : "damage",
             value : value,
             target : target,
-            apply : (ref) => {
+            apply : (ref, source) => {
                 let v = Utils.getValue(ref.value);
+                let s = source || "Player";
                 if (ref.target == "player") {
                     player.dealDamage(v);
                     log(`${currentEnemy.name} dealt ${v} damage`);
                 } else if (ref.target == "enemy") {
                     currentEnemy.dealDamage(v);
-                    log(`${currentEnemy.name} received ${v} damage`);
+                    log(`${s} dealt ${v} damage to ${currentEnemy.name}`);
                 }
             }
         });

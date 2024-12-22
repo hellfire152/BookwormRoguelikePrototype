@@ -83,7 +83,7 @@ let LETTER_UPGRADE_DAMAGE_INCREASE = {
 // handles combat related things and turn order
 class CombatHandler {
     constructor() {
-        this.combatPhaseIndex = null;
+        this.combatPhaseIndex = null
         this._rerollsLeft = 5;
         this.maxRerolls = 5;
     }
@@ -172,9 +172,25 @@ class CombatHandler {
         // charge gain
         if (relicHandler.checkHasRelic(RELIC_ID.GAUNTLET)) attackResult.chargeGain /= 2;
         player.gainCharge(attackResult.chargeGain);
+        
+        // relic effects
+        for (const r of relicHandler.ownedRelicsArr) {
+            r.handleWord(attackResult.word);
+        }
+        let pennib = relicHandler.getRelic(RELIC_ID.PEN_NIB);
+        if (pennib && pennib.isActive) {
+            attackResult.damage *= 2;
+            pennib.reset();
+        }
 
-        //handle damage to enemies
+        // handle damage to enemies
         currentEnemy.dealDamage(attackResult.damage, true);
+
+        // Companion advancement
+        for (const c of companionHandler.companionArr) {
+            c.resolveSubmitWord(attackResult.word);
+        } 
+
         if (!currentEnemy.isAlive) {
             return false; // don't resovle effects if enemy dies early
         } 
@@ -230,7 +246,7 @@ class CombatHandler {
     }
 
     playerDefeated() {
-
+        
     }
 
     // called by director to start combat
@@ -245,6 +261,7 @@ class CombatHandler {
     }
 
     calculateAttackResult(letters) {
+        let word = ""
         let damage = 0;
         let chargeGain = 0;
         let multipliers = [];
@@ -266,6 +283,7 @@ class CombatHandler {
         for(const l of letters) {
             let tileDamage = 0;
             for (const l2 of l.letter) { // count raw damage
+                word += l2;
                 chargeGain++;
                 if (player.isConfused) {
                     tileDamage += confusedDamage[l2];
@@ -351,6 +369,7 @@ class CombatHandler {
         }
         
         return {
+            word,
             damage : damage,
             effects,
             length,

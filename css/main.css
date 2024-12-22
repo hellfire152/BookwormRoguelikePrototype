@@ -1,23 +1,32 @@
 body {
     background-color: darkslateblue;
-    font-family : "Geist Mono"
+    font-family : "Geist Mono";
+    width: 100%;
 }
 #container {
-    width: 1000px;
+    width: 1150px;
     height: 700px;
     margin: auto;
 }
 #combat-area {
-    width: 50%;
+    width: 40%;
     height: 100%;
     float: left;
     background-color: #d8f2e9;
 }
-
+#companion-area {
+    float:left;
+    text-align: center;
+    width: 14%;
+    height : 100%;
+    margin-left: 10px;
+    background-color: #d8e3f2
+}
 #information-area {
-    width: 50%;
+    width: 35%;
     height: 100%;
-    float: right;
+    float: left;
+    margin-left:10px;
     background-color: #f2ebd8;
 }
 
@@ -49,20 +58,21 @@ body {
 }
 
 .letter {
-    min-width: 30px;
+    min-width: 28px;
+    max-width : max-content;
     padding : 1px;
-    height: 30px;
+    height: 28px;
     margin: 3px;
     border: 1px solid black;
     border-radius: 8px;
     background-color: #d9dedb;
     text-transform: uppercase;
-    float:left;
+    display : inline-block;
     font-family : "Geist Mono";
-    font-size : 1.5em;
+    font-size : 1.3em;
     text-align : center;
     vertical-align: middle;
-    line-height:30px;
+    line-height:28px;
     user-select: none;
 }
 
@@ -73,19 +83,26 @@ body {
 
 #letter-input {
     width:85%;
-    height: 50px;
-    margin: auto;
+    min-height: 50px;
     background-color: white;
     display: inline-flex;
     position: relative;
+    overflow:auto;
 }
 
 #send-input {
-    width:70px;
+    width:60px;
     height: 50px;
     margin:auto;
     background-color: orange;
-    display: inline-flex;
+    display: inline;
+    float:right;
+    user-drag: none;
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 
 #send-input:disabled {
@@ -155,4 +172,21 @@ body {
 }
 .tippy-content { /* to render newlines in tooltips properly */
     white-space : pre-line;
+}
+
+#companion-area p {
+    font-weight: bold;
+}
+#companion-area hr {
+    margin : auto;
+    width : 80%;
+    text-align: center;
+    margin-top : -10px;
+}
+#companions-container {
+    border : 2px solid black;
+    width : 90%;
+    margin : auto;
+    height: 90%;
+    background-color: rgb(238, 238, 238);
 }

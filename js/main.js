@@ -22,11 +22,12 @@ function log(text) {
 
 function preload() {
     Utils.loadWordlist();
-
+    
     // initialize global singletons
     ui = new UI();
     player = new Player();
     relicHandler = new RelicHandler();
+    companionHandler = new CompanionHandler();
     director = new Director();
     combatHandler = new CombatHandler();
 

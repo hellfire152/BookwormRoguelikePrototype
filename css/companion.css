@@ -1,0 +1,45 @@
+.companion-container {
+    margin-top : 20px;
+}
+
+.companion-counter-max {
+    width : 90%;
+    height : 20px;
+    text-align: center;
+    margin :auto;
+    background-color: rgb(218, 218, 218);
+    border : 2px solid darkgray;
+    border-radius : 5px;
+    position : relative;
+}
+
+.companion-counter-current {
+    position : absolute;
+    left: 0;
+    height : 100%;
+    background-color: rgb(218, 89, 89);
+    border-radius : 5px;
+}
+
+.companion-counter-text {
+    position: absolute;
+    width: 100%;
+    text-align : center;
+    margin : auto;
+    color: white;
+    text-shadow:
+        2px 2px 0 #000,
+      -1px -1px 0 #000,  
+       1px -1px 0 #000,
+       -1px 1px 0 #000,
+        1px 1px 0 #000;
+    z-index : 2;
+}
+
+.companion-sprite {
+    width : 100%;
+}
+
+.companion-name {
+    width : 100%;
+}

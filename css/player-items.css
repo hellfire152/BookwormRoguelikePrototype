@@ -1,6 +1,7 @@
 #owned-relics { 
     width : max-content;
     padding : 3px;
+    overflow:auto;
 }
 
 #owned-consumables {
@@ -53,8 +54,17 @@
 
 .relic-text {
     position : absolute;
-    font-size : 10px;
+    font-size : 15px;
     font-weight: bold;
+    bottom : 0px;
+    right : 5px;
+    color: white;
+    text-shadow:
+        2px 2px 0 #000,
+      -1px -1px 0 #000,  
+       1px -1px 0 #000,
+       -1px 1px 0 #000,
+        1px 1px 0 #000;
 }
 
 #relics hr {
@@ -90,6 +100,8 @@
 
 #charge-abilities {
     height : 50px;
+    overflow-y : hidden;
+    overflow-x :auto;
 }
 
 .ability-container {

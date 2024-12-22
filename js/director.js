@@ -65,6 +65,8 @@ class Director {
         relicHandler.addRelic(RELIC_ID.SHANK);
         relicHandler.addRelic(RELIC_ID.LENS);
         relicHandler.addRelic(RELIC_ID.SYRINGE);
+        relicHandler.addRelic(RELIC_ID.PEN_NIB);
+        companionHandler.addCompanion(COMPANION_ID.CAT);
         this.setupEvent("_intro");
         ui.removeStartButton();
     }

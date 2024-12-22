@@ -239,7 +239,29 @@ class Letter {
         this.rerender(e);
 ;    }
 
-
+    lockedOnClick(t) {
+        switch(this.lockedState) {
+            case TILE_EFFECTS.LOCK : {
+                return; // can't get out of this one
+            }
+            case TILE_EFFECTS.MONEY_LOCK : {
+                let te = this.tileEffects[TILE_EFFECTS.MONEY_LOCK];
+                if (player.money >= te.moneyCost) {
+                    player.money -= te.moneyCost;
+                    this.removeTileEffect(t, TILE_EFFECTS.MONEY_LOCK);
+                }
+                return;
+            }
+            case TILE_EFFECTS.CHARGE_LOCK : {
+                let te = this.tileEffects[TILE_EFFECTS.CHARGE_LOCK];
+                if (player.currentCharge >= te.chargeCost) {
+                    player.removeCharge(te.chargeCost);
+                    this.removeTileEffect(t, TILE_EFFECTS.CHARGE_LOCK);
+                }
+                return;
+            }
+        } 
+    }
     get lockedState() {
         if (this.tileEffects[TILE_EFFECTS.LOCK]) return TILE_EFFECTS.LOCK;
         if (this.tileEffects[TILE_EFFECTS.MONEY_LOCK]) return TILE_EFFECTS.MONEY_LOCK;

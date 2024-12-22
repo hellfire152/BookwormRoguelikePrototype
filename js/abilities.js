@@ -17,7 +17,7 @@ class AbilityFactory {
                     id : ABILITY_ID.GIVE_VULNERABILITY,
                     cost : 5,
                     name : "Give Vulnerability",
-                    sprite : "./sprites/effects/Questionmorks.png",
+                    sprite : "./sprites/abilities/Vulnerability.png",
                     tooltip : "Makes enemies vulnerable for one turn (does not stack)"
                 });
                 a.use = () => {
@@ -32,7 +32,7 @@ class AbilityFactory {
                     id : ABILITY_ID.GIVE_WEAKNESS,
                     cost : 5,
                     name : "Give Weakness", 
-                    sprite : "./sprites/effects/Questionmorks.png",
+                    sprite : "./sprites/abilities/Weakness.png",
                     tooltip : "Gives enemies Weakness for one turn (does not stack)"
                 });
                 a.use = () => {
@@ -47,7 +47,7 @@ class AbilityFactory {
                     id : ABILITY_ID.REROLL_TILE,
                     cost : 5,
                     name : "Reroll Tile",
-                    sprite : "./sprites/effects/Questionmorks.png",
+                    sprite : "./sprites/abilities/Reroll.png",
                     tooltip : "Reroll a single tile"
                 });
                 a.use = () => {
@@ -65,7 +65,7 @@ class AbilityFactory {
                     id : ABILITY_ID.EXTRA_TILE,
                     cost : 5,
                     name : "Generate Tile",
-                    sprite : "./sprites/effects/Questionmorks.png",
+                    sprite : "./sprites/abilities/ExtraTile.png",
                     tooltip : "Generates an extra tile"
                 });
                 a.use = () => {
@@ -80,7 +80,7 @@ class AbilityFactory {
                     id : ABILITY_ID.NEXT_LETTER,
                     cost : 2,
                     name : "Next Letter",
-                    sprite : "./sprites/effects/Questionmorks.png",
+                    sprite : "./sprites/abilities/NextLetter.png",
                     tooltip : "Changes a tile to the next letter"
                 });
                 a.use = () => {
@@ -102,7 +102,7 @@ class AbilityFactory {
                     id : ABILITY_ID.PREVIOUS_LETTER,
                     cost : 2,
                     name : "Next Letter",
-                    sprite : "./sprites/effects/Questionmorks.png",
+                    sprite : "./sprites/abilities/PrevLetter.png",
                     tooltip : "Changes a tile to the next letter"
                 });
                 a.use = () => {
@@ -124,7 +124,7 @@ class AbilityFactory {
                     id : ABILITY_ID.DAMAGE_BOOST,
                     cost : 10,
                     name : "Damage Boost",
-                    sprite : "./sprites/effects/Questionmorks.png",
+                    sprite : "./sprites/abilities/dmgUP.png",
                     tooltip : "Your next attack deals 1.5x more damage (stacks additively)"
                 });
                 a.use = () => {
@@ -139,7 +139,7 @@ class AbilityFactory {
                     id : ABILITY_ID.MAKE_TILE_POISONOUS,
                     cost : 5,
                     name : "Poison Tile",
-                    sprite : "./sprites/effects/Questionmorks.png",
+                    sprite : "./sprites/abilities/Poison.png",
                     tooltip : "Makes the selected tile poisonous"
                 });
                 a.use = () => {
@@ -150,6 +150,26 @@ class AbilityFactory {
                     return true;
                 }
                 return a;
+            }
+            case ABILITY_ID.OMNISCIENCE : {
+                let a = new Ability({
+                    id : ABILITY_ID.OMNISCIENCE,
+                    cost : 100,
+                    name : "Search",
+                    sprite : "./sprites/abilities/Search.png",
+                    tooltip : "Finds the longest word and enters it."
+                });
+                a.use = () => {
+                    if (!director.isInCombat) return false;
+
+                    UI.Letter.unselectAllLetters();
+                    let letterObjects = UI.Letter.getAvailableLetterObjects();
+                    let result = Utils.findLongestWord(letterObjects);
+
+                    // now figure out how to actually play the word
+                    let ordered = _.orderBy(letterObjects, [(l) => {return l.letter.length}], 'desc');
+                    
+                }
             }
             default : {
                 throw new Error("Ability does not exist!");

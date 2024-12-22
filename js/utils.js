@@ -16,13 +16,14 @@ class Utils {
        return Number(Math.round(value + 'e1') + 'e-1');
     }
 
-    static loadWordlist() {
+    static async loadWordlist() {
         // loads all words into a dictionary
-        fetch("./word-output.json")
+        await fetch("./word-output.json")
         .then(response => {return response.json()})
         .then((json) => {
             wordlist = json;
         });
+        Utils.generateWordCountList();
     }
     
     static checkWordExists(word) {
@@ -90,4 +91,59 @@ class Utils {
             keys.map((key, index) => [key, values[index]])
         );
     }
+    
+    static countLetters(word) {
+        let result = {}
+        for (const l of word) {
+            if (!Object.hasOwn(result, l)) {
+                result[l] = 0
+            }
+            result[l] += 1;
+        }
+        return result;
+    }
+
+    static checkLetters(inputLetterCount, referenceLetterCount) {
+        let missingCharacters = 0;
+        for (const c in referenceLetterCount) {
+            if (!Object.hasOwn(inputLetterCount, c)) {
+                missingCharacters += referenceLetterCount[c];
+                continue;
+            } else if (referenceLetterCount[c] > inputLetterCount[c]) {
+                missingCharacters += referenceLetterCount[c] - inputLetterCount[c]
+            }
+        }
+        let wildcards = (inputLetterCount["*"]) ? inputLetterCount["*"] : 0;
+        if (wildcards >= missingCharacters) {
+            return true;
+        } else return false;
+    }
+
+    static async generateWordCountList() {
+        wordLetterCount = {};
+        for (const w in wordlist) {
+            let length = w.length;
+            if (!Object.hasOwn(wordLetterCount, length)) {
+                wordLetterCount[length] = {};
+            }
+            wordLetterCount[length][w] = Utils.countLetters(w);
+        }
+    }
+
+    static findLongestWord(letters) {
+        let wordLengths = Object.keys(wordLetterCount).map((i) => {return parseInt(i)});
+        wordLengths = _.reverse(wordLengths);
+        let inputLetterCount = Utils.countLetters(letters);
+        for (const wl of wordLengths) {
+            if (wl > letters.length) continue;
+            for (const word in wordLetterCount[wl]) {
+                if (Utils.checkLetters(inputLetterCount, wordLetterCount[wl][word])) {
+                    return word;
+                }
+            }
+        }
+    }
+
 }
+
+var wordLetterCount = null;

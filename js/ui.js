@@ -150,6 +150,7 @@ class UI {
         let sendInput = $("<button></button>");
         sendInput.attr('id', 'send-input');
         sendInput.prop("disabled", true)
+        sendInput.text("Submit");
     
         let letterboard = $("<div></div>");
         letterboard.attr('id', 'letters-available');
@@ -337,31 +338,10 @@ class UI {
             if (t.attr("_pfor")) {
                 return;
             }
-            // skip locked tiles
+            // handling locked tiles
             let l = Letter.getLetterObjectFromElement(t);
-            if (l.lockedState) {
-                switch(l.lockedState) {
-                    case TILE_EFFECTS.LOCK : {
-                        return; // can't get out of this one
-                    }
-                    case TILE_EFFECTS.MONEY_LOCK : {
-                        let te = l.tileEffects[TILE_EFFECTS.MONEY_LOCK];
-                        if (player.money >= te.moneyCost) {
-                            player.money -= te.moneyCost;
-                            l.removeTileEffect(t, TILE_EFFECTS.MONEY_LOCK);
-                        }
-                        return;
-                    }
-                    case TILE_EFFECTS.CHARGE_LOCK : {
-                        let te = l.tileEffects[TILE_EFFECTS.CHARGE_LOCK];
-                        if (player.currentCharge >= te.chargeCost) {
-                            player.removeCharge(te.chargeCost);
-                            l.removeTileEffect(t, TILE_EFFECTS.CHARGE_LOCK);
-                        }
-                        return;
-                    }
-                }
-            }
+            if (l.lockedState) l.lockedOnClick(t);
+
             // generate a new blank letter to replace it with
             let placeholder = new Letter("", SPECIAL_TILE_TYPES.UNSELECTABLE);
             placeholder.placeholder_for = t.attr("_letterref");
@@ -369,7 +349,14 @@ class UI {
             t.replaceWith(placeholder.generateElement());
             
             $('#letter-input').append(t);
-            Utils.evaluateInput(ui.getWordInInput());
+            let word = ui.getWordInInput();
+
+            // relic bonus indicators
+            for (const r of relicHandler.ownedRelicsArr) {
+                r.checkWordBonus(word);
+            }
+
+            Utils.evaluateInput(word);
         }
 
         static appendLetterElement(letterElement) {
@@ -392,6 +379,9 @@ class UI {
                 letters.removeClass(highlightClass);
                 letters.off("click");
             });
+        }
+        static unselectAllLetters() {
+            UI.Letter.getLetterElementsInInput().trigger("click");
         }
     }
     static Relic = class UIRelic {
@@ -652,6 +642,22 @@ class UI {
                 letterContainer.append(letterLabel, letterProbabilityContainer, letterDamageContainer);
                 container.append(letterContainer);
             }
+        }
+    }
+
+    static Companion = class UICompanion {
+        static updateDisplay(companions) {
+            $("#companions-container").empty();
+
+            for (const c of Object.values(companions)) {
+                console.log(c.generateElement())
+                $("#companions-container").append(c.generateElement());
+            }
+        }
+
+        static updateSingleCompanion(companion) {
+            let companionContainer = $(`.companion-container[data-companion-id="${companion.id}"]`);
+            companionContainer.replaceWith(companion.generateElement());
         }
     }
 
