@@ -156,7 +156,7 @@ class ConsumableFactory {
                         return true;
                     },
                     baseCost : 20,
-                    sprite : "./sprites/effects/QuestionMorks.png",
+                    sprite : "./sprites/Questionmorks.png",
                     tooltip : "Gives 15 Charge"
                 })
             }
@@ -164,46 +164,3 @@ class ConsumableFactory {
     }
 }
 
-// modifiers
-const MODIFIERS = {
-    DAMAGE_UP : {
-        name : "Damage Up",
-        sprite : "/sprites/upgrades/dmgUP.png",
-        onUse : (letter) => {
-            damageIncrease = LETTER_UPGRADE_DAMAGE_INCREASE[letter]
-            LETTER_DAMAGE_VALUES[letter] += damageIncrease;
-            log(`Increased the base damage of "${letter}" by ${damageIncrease}`);
-        }
-    },
-    PROBABILTY_UP : {
-        name : "Probability up",
-        sprite : "/sprites/upgrades/TileRateUP.png",
-        onUse : (letter) => {
-            LETTER_PROBABILITY_POINTS[letter] += 20;
-            log(`${letter} is now slighly more likely to appear`);
-            Letter.calculateLetterProbabilityThresholds();
-        }
-    },
-    PROBABILITY_DOWN : {
-        name : "Probability down",
-        sprite : "/sprites/upgrades/TileRateDown.png",
-        onUse : (letter) => {
-            if (LETTER_PROBABILITY_POINTS[letter] > 40) {
-                LETTER_PROBABILITY_POINTS[letter] -= 20;
-            } else {
-                LETTER_PROBABILITY_POINTS[letter] /= 2;
-            }
-            log(`${letter} is less likely to appear`);
-            Letter.calculateLetterProbabilityThresholds();
-        }
-    },
-    /*REMOVE_LETTER : {
-        name : "Remove Letter",
-        sprite : "/sprites/upgrades/TileDiscard.png",
-        onUse : (letter) => {
-            LETTER_PROBABILITY_POINTS[letter] = 0
-            log(`${letter} will no longer appear`);
-            Letter.calculateLetterProbabilityThresholds();
-        }
-    }*/
-}

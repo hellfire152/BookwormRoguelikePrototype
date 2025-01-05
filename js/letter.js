@@ -54,6 +54,37 @@ var LETTER_PROBABILTY_THRESHOLDS = {
     "y" : 0,
     "z" : 0
 }
+
+// this stores any effects that apply to all instances of certain letter
+var letterUpgrades = {
+    "a" : [],
+    "b" : [],
+    "c" : [],
+    "d" : [],
+    "e" : [],
+    "f" : [],
+    "g" : [],
+    "h" : [],
+    "i" : [],
+    "j" : [],
+    "k" : [],
+    "l" : [],
+    "m" : [],
+    "n" : [],
+    "o" : [],
+    "p" : [],
+    "q" : [],
+    "r" : [],
+    "s" : [],
+    "t" : [],
+    "u" : [],
+    "v" : [],
+    "w" : [],
+    "x" : [],
+    "y" : [],
+    "z" : []
+}
+
 let LETTER_PROBABILITY_POINT_MAX = 0;
 
 const SPECIAL_TILE_TYPES = {
@@ -120,7 +151,7 @@ class Letter {
         }
     }
     
-    static generateLetters(noLettersToGenerate, specialTilesToGenerate) {
+    static generateLetters(noLettersToGenerate, specialTilesToGenerate, letterFunction) {
         if (!noLettersToGenerate) {
             // fill to max if not defined
             noLettersToGenerate = GAME_CONSTANTS.STARTING_LETTER_COUNT 
@@ -142,7 +173,8 @@ class Letter {
 
         for(let i = 0; i < noLettersToGenerate; i++) {
             let specialTile = specialTileGenerator.next().value;
-            let letter = new Letter(Letter.randomLetterMatchingProbabilities(), specialTile)
+            let l = (letterFunction) ? letterFunction() : Letter.randomLetterMatchingProbabilities();
+            let letter = new Letter(l, specialTile);
 
             let element = letter.generateElement();
             UI.Letter.appendLetterElement(element);
@@ -175,6 +207,12 @@ class Letter {
         for (const te in TILE_EFFECTS) {
             this.tileEffects[TILE_EFFECTS[te]] = null;
         }
+        if(letterUpgrades[l]) {
+            for (const lu of letterUpgrades[l]) {
+                lu.apply(this);
+            }
+        }
+        this.element = null;
     }
 
     generateElement() { // jquery element to add to DOM
@@ -203,24 +241,25 @@ class Letter {
             if (!te) continue;
             element = te.modifyLetterElement(element);
         }
+        this.element = element;
         return element;
     }
 
-    rerollLetter(elementToReplace) {
+    rerollLetter(elementToReplace = this.element) {
         this.replaceLetter(elementToReplace, Letter.randomLetterMatchingProbabilities());
     }
-    replaceLetter(elementToReplace, newLetter) {
+    replaceLetter(elementToReplace = this.element, newLetter) {
         this.letter = newLetter;
         this.rerender(elementToReplace);
     }
-    rerender(elementToReplace) {
+    rerender(elementToReplace = this.element) {
         $(elementToReplace).replaceWith(this.generateElement());
     }
-    applyTileEffect(letterElement, tileEffectType, stateVar) {
+    applyTileEffect(letterElement = this.element, tileEffectType, stateVar) {
         this.tileEffects[tileEffectType] = TileEffect.generateTileEffect(tileEffectType, stateVar);
         this.rerender(letterElement);
     }
-    removeTileEffect(letterElement, tileEffectType) {
+    removeTileEffect(letterElement = this.element, tileEffectType) {
         this.tileEffects[tileEffectType] = null;
         this.rerender(letterElement);
     }

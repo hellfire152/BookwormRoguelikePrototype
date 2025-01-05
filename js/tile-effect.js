@@ -31,7 +31,7 @@ class TileEffect {
     } // call when updating internal state and visuals need to be updated, return {removeEffect} if the effect should be removed.
     reapply() {} // call if somehow the attack effect is reapplied onto the same tile
     resolvePreTurnEffects() {} // define this function if something should be done pre turn
-    resolvePostTurnEffects(ref) {return ref.update()} // define this function if something should be done post turn, default behaviour is ticking down the duration
+    resolvePostTurnEffects(ref) {return ref.update(ref)} // define this function if something should be done post turn, default behaviour is ticking down the duration
     
     // generic factory method if the exact type may not be known
     static generateTileEffect(tileEffectType, data) {

@@ -8,3 +8,11 @@ function testTileEffect() {
         return _.sampleSize(unlockedLetters, 3);
     }, {duration : 3, cost: 3, damage : 5});
 }
+
+function giveAbility() {
+    player.newAbility(ABILITY_ID.DAMAGE_BOOST);
+}
+
+function getWordData(word) {
+    return wordlist[word];
+}

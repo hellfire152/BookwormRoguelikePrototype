@@ -10,6 +10,7 @@
             href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
         />
         <link rel="stylesheet" href="./css/main.css" />
+        <link rel="stylesheet" href="./css/anim.css" />
         <link rel="stylesheet" href="./css/enemy.css" />
         <link rel="stylesheet" href="./css/tiles.css" />
         <link rel="stylesheet" href="./css/companion.css" />
@@ -19,6 +20,7 @@
     </head>
     <body>
         <div id="container">
+           <div id="progress-display"></div>
            <div id="combat-area">
             <div id="event-area"></div>
             <div id="letter-board"></div>
@@ -52,15 +54,19 @@
         <div id="stat-screen-open-buttons">
             <p><a href="#stat-screen-letter" rel="modal:open" data-modal>Letter Info</a></p>
         </div>
+        <div id="overlays-container"></div>
         <button id="game-start">Start game</button>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" integrity="sha256-qXBd/EfAdjOA2FGrGAG+b3YBn2tn5A6bhz+LSgYD96k=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
         <script src="https://unpkg.com/@popperjs/core@2"></script>
         <script src="https://unpkg.com/tippy.js@6"></script>
+        <script src="./js/anime.min.js"></script>
         <script src="./js/constants.js"></script>
         <script src="./js/utils.js"></script>
         <script src="./js/ui.js"></script>
+        <script src="./js/ui-animations.js"></script>
+        <script src="./js/refresh-button.js"></script>
         <script src="./js/consumables.js"></script>
         <script src="./js/combat-rewards.js"></script>
         <script src="./js/effects.js"></script>
@@ -71,6 +77,7 @@
         <script src="./js/player.js"></script>
         <script src="./js/shop.js"></script>
         <script src="./js/letter.js"></script>
+        <script src="./js/letter-upgrade.js"></script>
         <script src="./js/enemies.js"></script>
         <script src="./js/events.js"></script>
         <script src="./js/relics.js"></script>

@@ -6,7 +6,8 @@ const ABILITY_ID = {
     NEXT_LETTER : "A|NEXT_LETTER",
     PREVIOUS_LETTER : "A|PREVIOUS_LETTER",
     DAMAGE_BOOST : "A|DAMAGE_BOOST",
-    MAKE_TILE_POISONOUS : "A|MAKE_TILE_POISONOUS"
+    MAKE_TILE_POISONOUS : "A|MAKE_TILE_POISONOUS",
+    OMNISCIENCE : "A|OMNISCIENCE"
 }
 
 class AbilityFactory {
@@ -154,10 +155,10 @@ class AbilityFactory {
             case ABILITY_ID.OMNISCIENCE : {
                 let a = new Ability({
                     id : ABILITY_ID.OMNISCIENCE,
-                    cost : 100,
+                    cost : 10,
                     name : "Search",
                     sprite : "./sprites/abilities/Search.png",
-                    tooltip : "Finds the longest word and enters it."
+                    tooltip : "Finds the longest word."
                 });
                 a.use = () => {
                     if (!director.isInCombat) return false;
@@ -167,25 +168,37 @@ class AbilityFactory {
                     let result = Utils.findLongestWord(letterObjects);
 
                     // now figure out how to actually play the word
-                    let ordered = _.orderBy(letterObjects, [(l) => {return l.letter.length}], 'desc');
+                    // NOTE: Not implementing this, too hard for not much point
+                    //let ordered = _.orderBy(letterObjects, [(l) => {return l.letter.length}], 'desc');
                     
+                    log(`Longest word is: ${result}`);
+                    return true;
                 }
+                return a;
             }
             default : {
-                throw new Error("Ability does not exist!");
+                throw new Error(`Ability ${abilityId} does not exist!`);
             }
         }
     }
 }
 
 class Ability {
-    static removeAbilitySubmitOnClick(e) {
-        let abilityId = UI.Ability.getAbilityIdFromOnclick(e);
-        player.removeAbility(abilityId);
-        ui.loadPreviousSceneState(GAME_CONSTANTS.GAME_STATES.EVENT);
+    static abilityOverflowSubmitOnClick(e) {
+        let j = $(e.currentTarget);
+        player.removeAbility(selectedAbility);
+        let state = j.attr("data-return-state") || GAME_CONSTANTS.GAME_STATES.EVENT;
+        ui.loadPreviousSceneState(state);
     }
     static abilityOnClick(e) {
         let abilityId = UI.Ability.getAbilityIdFromOnclick(e);
+        let chargeHealRelic = relicHandler.getRelic(RELIC_ID.T_CHARGE_HEAL);
+        console.log(chargeHealRelic)
+        if (chargeHealRelic) {
+            let ability = player.getChargeAbility(abilityId);
+            if (!ability) throw new Error(`Player does not have ability of ability id ${abilityId}`);
+            chargeHealRelic.update(ability.cost)
+        }
         player.useChargeAbility(abilityId);
     }
 
@@ -199,7 +212,7 @@ class Ability {
 
     use() {console.log("unimplemented")} // implement separately for each ability
     
-    generateElement() {
+    generateElement(showCost = true) {
         // reset cost
         if (this._cost) this.cost = this._cost;
         
@@ -225,7 +238,8 @@ class Ability {
             abilityText.addClass("ability-text-discount-highlight")
         }
 
-        abilityContainer.append(abilitySprite, abilityText);
+        abilityContainer.append(abilitySprite);
+        if (showCost) abilityContainer.append(abilityText);
         return abilityContainer;
     }
 }

@@ -30,15 +30,22 @@ class Utils {
         return !!wordlist[word]
     }
 
-    static evaluateInput(word) { 
+    static evaluateInput(word, relicEffects = true) { 
         // minimum word length is three
         if (word.length < 3) return ui.setSubmitButtonEnabled(false);
+
         // no blank tiles, stright forward lookup
         if(!word.includes("?")) {
+            // evaluate relics that allow custom word forms
+            if (relicEffects) {
+                // MEGAPHONE
+                let megaphone = relicHandler.getRelic(RELIC_ID.MEGAPHONE);
+                if (megaphone && megaphone.validWordBypass) return true;
+            }
             if (Utils.checkWordExists(word)) {
-                return ui.setSubmitButtonEnabled(true);
+                return true;
             } else {
-                return ui.setSubmitButtonEnabled(false);
+                return false;
             }
         }
 
@@ -68,11 +75,11 @@ class Utils {
         })(depth);
         for (let c = candidateGenerator.next().value; c; 
           c = candidateGenerator.next().value) {
-            if (Object.hasOwn(wordlist, c)) {
-                return ui.setSubmitButtonEnabled(true);
+            if (Utils.evaluateInput(c)) {
+                return true;
             }
         }
-        return ui.setSubmitButtonEnabled(false);
+        return false;
     }
 
 
@@ -130,7 +137,13 @@ class Utils {
         }
     }
 
-    static findLongestWord(letters) {
+    static findLongestWord(letterObjects) {
+        // construct word obj first
+        let letters = "";
+        for (const l of letterObjects) {
+            letters += l.letter;
+        }
+
         let wordLengths = Object.keys(wordLetterCount).map((i) => {return parseInt(i)});
         wordLengths = _.reverse(wordLengths);
         let inputLetterCount = Utils.countLetters(letters);
@@ -138,12 +151,21 @@ class Utils {
             if (wl > letters.length) continue;
             for (const word in wordLetterCount[wl]) {
                 if (Utils.checkLetters(inputLetterCount, wordLetterCount[wl][word])) {
+                    // NOTE: Does not check if it's possible to play.
+                    // Shouldn't come up too often, but will need to implement a check
+                    // in the actual game
                     return word;
+                    if (playPossible) {
+                        return word;
+                    } else continue;
                 }
             }
         }
     }
 
+    static async sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 }
 
 var wordLetterCount = null;

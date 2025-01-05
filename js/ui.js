@@ -31,6 +31,72 @@ class UI {
         this._generateLog();
     }
 
+    setProgressDisplay(chapter, node) {
+        let progressDisplay = $("#progress-display");
+        progressDisplay.text(`Chapter ${chapter} - Part ${node}`);
+    }
+
+    decideNextNodeEvent(options) {
+        let uiOptions = [];
+        for (const o of options) {
+            switch (o) {
+                case "combat" : {
+                    uiOptions.push({
+                        text : "Take a fight",
+                        onSelect : "combat-normal"
+                    });
+                    break;
+                }
+                case "elite" : {
+                    uiOptions.push({
+                        text : "Fight a strong enemy",
+                        onSelect : "combat-elite"
+                    });
+                    break;
+                }
+                case "event" : {
+                    uiOptions.push({
+                        text : "Explore the area",
+                        onSelect : "_random-event"
+                    });
+                    break;
+                }
+                case "itemShop" : {
+                    uiOptions.push({
+                        text : "Visit the items shop",
+                        onSelect : "load-item-shop"
+                    });
+                    break;
+                }
+                case "upgradeShop" : {
+                    uiOptions.push({
+                        text : "Visit the upgrades shop",
+                        onSelect : "load-upgrade-shop"
+                    });
+                    break;
+                }
+                case "treasure" : {
+                    uiOptions.push({
+                        text : "Get some treasure",
+                        onSelect : "treasure-event"
+                    });
+                    break;
+                }
+                case "boss" : {
+                    uiOptions.push({
+                        text : "Fight the boss",
+                        onSelect : "combat-boss"
+                    });
+                    break;
+                }
+            }
+        }
+        console.log(uiOptions);
+        this.setupDynamicEvent({
+            prompt : "Decide the next event...",
+            options : uiOptions
+        })
+    }
     // for events with static prompt and option text
     setupEvent(eventName) {
         let eventDetails = EVENT_DETAILS[eventName];
@@ -247,6 +313,7 @@ class UI {
         static initializeEnemyDisplay(enemy) {
             let enemyContainer = $(ui.sceneStore.combat.enemy);
             enemyContainer.find("#enemy-name").text(enemy.name);
+            enemyContainer.css("opacity", "100%");
             let display = enemyContainer.find("#enemy-display");
             display.attr("src", enemy.sprite);
             display.attr("data-tooltip-content", enemy.tooltip);
@@ -297,7 +364,48 @@ class UI {
         static updateMoneyDisplay(money) {
             $("#player-money").text(`${money} Money`)
         }
-    
+        static abilityOverflow(abilities, gameState) {
+            ui.saveCurrentSceneState();
+
+            // generate display
+            let abilityOverflowContainer = $("<div>");
+            abilityOverflowContainer.attr("id", "ability-overflow-container");
+
+            let abilityOverflowPrompt = $("<div>");
+            abilityOverflowPrompt.attr("id", "ability-overflow-prompt");
+            abilityOverflowPrompt.text("Too many abilities! Choose one to remove");
+
+            let abilitiesContainer = $("<div>");
+            abilitiesContainer.attr("id", "ability-overflow-abilities-container");
+            
+            for (const a of abilities) {
+                let abilityContainer = $("<div>");
+                abilityContainer.addClass("ability-overflow-ability-container");
+                abilityContainer.attr("data-ability-id", a.id);
+
+                abilityContainer.append(a.generateElement(false));
+                abilitiesContainer.append(abilityContainer);
+            }
+
+            // submit button
+            let submitAbilityButton = $("<button>Submit<button>");
+            submitAbilityButton.attr("id", "ability-overflow-submit");
+            submitAbilityButton.attr("data-return-state", gameState);
+            submitAbilityButton.addClass("bottom-row-button");
+
+            let bottomRowContainer = $("<div>");
+            bottomRowContainer.attr("id", "bottom-row-buttons-container");
+            bottomRowContainer.append(submitAbilityButton);
+
+            let container = $("<div>")
+            container.attr("id", "ability-overflow-submit-container");
+            container.append(bottomRowContainer);
+
+            abilityOverflowContainer.append(abilityOverflowPrompt, abilitiesContainer);
+            ui.sceneStore.event.text = abilityOverflowContainer;
+            ui.sceneStore.event.options = container.append(bottomRowContainer);
+            ui.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
+        }
     }
 
     static Letter = class UILetter {
@@ -328,9 +436,9 @@ class UI {
         static letterInInputOnClick(e) {
             let t = $(e.target);
             t.detach();
-    
+
             $(`.placeholder-letter[_pfor=${t.attr("_letterref")}]`).replaceWith(t);
-            Utils.evaluateInput(ui.getWordInInput());
+            UI.Letter.checkValidWordAndSetSubmitButton(ui.getWordInInput());
         }
         static letterAvailableOnClick(e) {
             let t = $(e.target);
@@ -351,14 +459,27 @@ class UI {
             $('#letter-input').append(t);
             let word = ui.getWordInInput();
 
+            UI.Letter.checkValidWordAndSetSubmitButton(word);
+        }
+        static checkValidWordAndSetSubmitButton(word) {
             // relic bonus indicators
             for (const r of relicHandler.ownedRelicsArr) {
                 r.checkWordBonus(word);
             }
 
-            Utils.evaluateInput(word);
-        }
+            // companion bonus indicators
+            for (const c of companionHandler.companionArr) {
+                companionHandler.rerenderCompanion(c.id, c.isBonusWord(word));
+            }
 
+
+            let isValid = Utils.evaluateInput(word);
+            if (isValid) {
+                ui.setSubmitButtonEnabled(true);
+            } else {
+                ui.setSubmitButtonEnabled(false);
+            }
+        }
         static appendLetterElement(letterElement) {
             $(ui.sceneStore.combat["player-input"])
               .find("#letters-available")
@@ -382,6 +503,41 @@ class UI {
         }
         static unselectAllLetters() {
             UI.Letter.getLetterElementsInInput().trigger("click");
+        }
+        // used in the longest word search logic
+        static getAvailableLetterObjects() {
+            let letterElements = UI.Letter.getAvailableLetterElements();
+            let letterObjects = []
+            for (const le of letterElements) {
+                letterObjects.push(Letter.getLetterObjectFromElement(le));
+            }
+            return letterObjects;
+        }
+
+        // for use in effects that pick one letter out of all 26 letters
+        static singleLetterPickerSelector(prompt, effectFunction) {
+            let gameState = director.gameState;
+            ui.saveCurrentSceneState();
+
+            ui.setEventPrompt(prompt);
+            
+            let letterContainer = $("<div>");
+            for (const l of Letter.ALPHABET_SET) {
+                let letter = new Letter(l);
+                letterContainer.append(letter.generateElement());
+            }
+            
+
+            ui.sceneStore.event.options = letterContainer;
+            ui.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
+
+            let _l = letterContainer.find(".letter")
+            _l.one('click', (e) => {
+                let t = $(e.currentTarget);
+                effectFunction(t.text());
+                _l.off("click");
+                ui.loadPreviousSceneState(gameState);
+            });
         }
     }
     static Relic = class UIRelic {
@@ -469,6 +625,25 @@ class UI {
                 selectedAbilityToRemove = j.attr("data-ability-id");
             }
         }
+
+        static abilityOverflowAbilityOnClick(e) {
+            let j = $(e.currentTarget);
+
+            // unselect everything else
+            let otherLetters = j.siblings();
+            otherLetters.attr("data-ability-overflow-selected", "false");
+            otherLetters.css("border", "");
+
+            if (j.attr("data-ability-overflow-selected") == "true") {
+                j.attr("data-ability-overflow-selected", "false");
+                j.css("border", "");
+                selectedAbility = null;
+            } else {
+                j.attr("data-ability-overflow-selected", "true");
+                j.css("border", "3px solid blue");
+                selectedAbility = j.attr("data-ability-id");
+            }
+        }
     }
     static Shop = class UIShop {
         static loadItemShop() {
@@ -485,7 +660,8 @@ class UI {
             //generate 3 random relics and 3 random consumables
             let options = [];
             let consumables = _.sampleSize(CONSUMABLE_ID, 3).sort();
-        
+            let relics = _.sampleSize(Object.values(RELIC_ID), 3);
+
             for (const cid of consumables) {
                 let consumable = ConsumableFactory.generateConsumable(cid);
                 shopItems.append(consumable.generateElement(true));
@@ -495,6 +671,18 @@ class UI {
                     "onSelect" : "purchase-item",
                     "args" : `${cid}@consumable`
                 });
+            }
+
+            for (const r of relics) {
+                let relicObj = RelicFactory.generateRelic(r);
+                let relicContainer = relicObj.generateElement(true);
+                shopItems.append(relicContainer);
+
+                options.push({
+                    "text" : relicObj.name,
+                    "onSelect" : "purchase-item", 
+                    "args" : `${r}@relic`
+                })
             }
         
             shopContainer.append(shopPrompt, shopItems);
@@ -518,24 +706,11 @@ class UI {
             let modifiersContainers = $("<div>");
             modifiersContainers.attr("id", "shop-modifiers-container");
         
-            // generate 3 random modifiers
-            let modifiers = _.sampleSize(Object.keys(MODIFIERS), 3);
+            // generate 3 random modifiers from common upgrades
+            let modifiers = _.sampleSize(COMMON_UPGRADES, 3);
             for (const mod of modifiers) {
-                let m = MODIFIERS[mod];
-                let modifierContainer = $("<div>");
-                modifierContainer.addClass("modifier-container");
-                modifierContainer.attr("_modifierid", mod)
-        
-                let modifierName = $("<div>");
-                modifierName.addClass("modifier-name");
-                modifierName.text(m.name);
-        
-                let modifierSprite = $("<img>");
-                modifierSprite.addClass("modifier-sprite");
-                modifierSprite.attr("src", m.sprite);
-        
-                modifierContainer.append(modifierName, modifierSprite);
-                modifiersContainers.append(modifierContainer);
+                let lu = LetterModifier.generateModifier(MODIFIER_ID[mod]);
+                modifiersContainers.append(lu.generateShopElement());
             }
         
             shopContainer.append(shopPrompt, modifiersContainers);
@@ -683,5 +858,14 @@ class UI {
 
     setSubmitButtonEnabled(state) {
         $("#send-input").prop("disabled", !state);
+    }
+
+    setRefreshButtonText(text) {
+        let refreshButton = $("#refresh");
+        if (text) {
+            refreshButton.text(text);
+        } else {
+            refreshButton.text("Refresh (skips turn!)");
+        }
     }
 }

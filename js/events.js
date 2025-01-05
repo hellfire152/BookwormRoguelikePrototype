@@ -63,6 +63,7 @@ const EVENT_DETAILS = {
     },
 }
 
+
 const EVENT_FUNCTIONS = {
     "intro_1" : () => {
         player.giveMoney(50);
@@ -99,7 +100,7 @@ const EVENT_FUNCTIONS = {
     "purchase-item" : (target, args) => {
         let [itemID, type] = _.split(args, "@");
         let isPurchaseSuccessful = player.attemptPurchase(itemID, type);
-        if (isPurchaseSuccessful) target.remove();
+        if (isPurchaseSuccessful) $(target).remove();
     },
     "combat-reward-money" : (target, money) => {
         target.remove();
@@ -127,5 +128,19 @@ const EVENT_FUNCTIONS = {
     },
     "load-previous-scene-state" : (gameState) => {
         ui.loadPreviousSceneState(gameState);
-    }
+    }, 
+    "combat-normal" : () => {
+        director.setupCombat();
+        director.nodeIndex++;
+    },
+    "combat-elite" : () => {
+        director.nodeIndex++;
+    },
+    "combat-boss" : () => {
+        director.nodeIndex++;
+    },
+    "treasure-event" : () => {
+        director.nodeIndex++;
+    },
+
 }

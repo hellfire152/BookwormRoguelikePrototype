@@ -5,14 +5,35 @@ let GAME_CONSTANTS = {
         "EVENT" : 2,
         "DECIDING-EVENT" : 3
     },
+    UPGRADE_LETTERS_OFFERRED_COUNT : 5,
+    NEXT_NODE_OPTIONS_COUNT : 2
 }
+
+
+
 
 // this guy controls the higher level game flow
 // class that interacts with a bunch of other classes to make the game work
 class Director {
     constructor(options) {
         this.gameState = null;
-        this.levelsCleared = 0;
+        this._nodeIndex = 0;
+        this.chapter = 1;
+        this.maxNodes = 15;
+        this.forcedNextNode = null;
+        this.previousEventType = null;
+        this.currentEventType = null;
+        this.nodeTypeProbabilties = {
+            combat : 42,
+            elite : 7,
+            event : 41,
+            itemShop : 10,
+            upgradeShop : 10,
+            treasure : 0,
+            boss : 0
+        }
+        this.nodeTypeProbabilitiesThreshold = {}
+        this.nodeTypeProbabilitiyPointMax = 0;
     }
 
     // signals are used when something needs to happen, but the component that
@@ -43,15 +64,14 @@ class Director {
 
     }
 
+    
     // should only be called once
     startGame() {
+        // calculate node type probablities
+        this.calculateNodeTypeProbabilitiesThresholds();
+
         // so we need to start the game loop somewhere
         // let's start with intro (event) -> combat -> event -> combat and so on for now
-        //relicHandler.addRelic(RELIC_ID.LIVED_IN_THE_PAST);
-        //relicHandler.addRelic(RELIC_ID.ADVERBLY);
-        //relicHandler.addRelic(RELIC_ID.PERPETUAL_MOTION_MACHINE);
-        //relicHandler.addRelic(RELIC_ID.QUILL);
-        //relicHandler.addRelic(RELIC_ID.EXTRA_TILE);
         player.newAbility(ABILITY_ID.GIVE_VULNERABILITY);
         player.newAbility(ABILITY_ID.MAKE_TILE_POISONOUS);
         //player.newAbility(ABILITY_ID.REROLL_TILE);
@@ -59,47 +79,69 @@ class Director {
         //player.newAbility(ABILITY_ID.DAMAGE_BOOST);
         player.newAbility(ABILITY_ID.NEXT_LETTER);
         player.newAbility(ABILITY_ID.PREVIOUS_LETTER);
+        player.newAbility(ABILITY_ID.OMNISCIENCE);
         player.giveConsumable(CONSUMABLE_ID.SCROLL);
-        player.gainCharge(15);
-        relicHandler.addRelic(RELIC_ID.ANCIENT_TOME);
-        relicHandler.addRelic(RELIC_ID.SHANK);
-        relicHandler.addRelic(RELIC_ID.LENS);
-        relicHandler.addRelic(RELIC_ID.SYRINGE);
-        relicHandler.addRelic(RELIC_ID.PEN_NIB);
+
+        player.gainCharge(225);
+        player.dealDamage(50);
+        player.giveMoney(2000);
+
         companionHandler.addCompanion(COMPANION_ID.CAT);
         this.setupEvent("_intro");
         ui.removeStartButton();
     }
 
     nextEvent() {
-        switch(this.gameState) {
-            case GAME_CONSTANTS.GAME_STATES.COMBAT:
-                this.gameState = GAME_CONSTANTS.GAME_STATES.EVENT;
-                ui.setupEvent("_decide-event");
-                break;
-            case GAME_CONSTANTS.GAME_STATES["DECIDING-EVENT"]:
-                
-                break;
-            case GAME_CONSTANTS.GAME_STATES.EVENT:
-                //switch to combat
-                this.setupCombat();
-                break;
-            default : {
-                console.log("Invalid game state!");
-                break;
-            }
-        }
+        this.previousEventType = this.currentEventType;
+        let options = this.getNextNodeOptions();
+        ui.decideNextNodeEvent(options);
     }
 
     setupCombat() {
         // spawn random enemy
         //currentEnemy = EnemyFactory.generateEnemy(_.sample(ENEMY_ID), this.levelsCleared);
-        currentEnemy = EnemyFactory.generateEnemy(ENEMY_ID.GOBBO, this.levelsCleared);
+        currentEnemy = EnemyFactory.generateEnemy(ENEMY_ID.GOBBO, this.nodeIndex);
         currentEnemy.initializeDisplay();
          // begin the combat. players start first.
         this.gameState = GAME_CONSTANTS.GAME_STATES.COMBAT;
         ui.switchScene(this.gameState);
         combatHandler.beginCombat();
+    }
+
+    getSingleNodeOption() {
+        let randomInt = Math.floor(Math.random() * this.nodeTypeProbabilitiyPointMax + 1);
+        for (const t in this.nodeTypeProbabilitiesThreshold) {
+            if (randomInt <= this.nodeTypeProbabilitiesThreshold[t]) {
+                return t;
+            }
+        }
+    }
+
+    getNextNodeOptions() {
+        let options = [];
+        if (this.nodeIndex == 0) { // start with combat
+            options.push("combat");
+            return options;
+        }
+        if (this.nodeIndex == 14) { // right before boss
+            options.push("boss");
+            return options;
+        }
+        if (this.nodeIndex == 4) {// treasure at 5th node
+            options.push("treasure");
+            return options;
+        }
+        if (this.forcedNextNode) {
+            // add forced node as single option and return
+            return options;
+        }
+        while (options.length < GAME_CONSTANTS.NEXT_NODE_OPTIONS_COUNT) { // random options otherwise
+            let option = this.getSingleNodeOption();
+            if (options.includes(option)) continue;
+            options.push(option);
+        }
+
+        return options;
     }
 
     // force setup an event. Usually used for subsequent pages in an event
@@ -112,5 +154,27 @@ class Director {
         return (this.gameState == GAME_CONSTANTS.GAME_STATES.COMBAT
             && currentEnemy.isAlive
         );
+    }
+
+    calculateNodeTypeProbabilitiesThresholds() {
+        let threshold = 0;
+        for (const t in this.nodeTypeProbabilties) {
+            threshold += this.nodeTypeProbabilties[t];
+            this.nodeTypeProbabilitiesThreshold[t] = threshold;
+        }
+        this.nodeTypeProbabilitiyPointMax = threshold;
+    }
+
+    nextWorld() {
+        
+    }
+    get nodeIndex() {
+        return this._nodeIndex;
+    }
+
+    set nodeIndex(value) {
+        this._nodeIndex = value;
+        if (this._nodeIndex > 15) this.nextWorld();
+        ui.setProgressDisplay(this.chapter, this._nodeIndex);
     }
 }

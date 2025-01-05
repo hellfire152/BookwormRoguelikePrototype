@@ -1,0 +1,39 @@
+.enemy-damage-number ,.player-damage-number {
+    position : fixed;
+    font-size : 20px;
+    color: rgb(117, 8, 8);
+    text-shadow:
+        2px 2px 0 #ffffff,
+      -1px -1px 0 #ffffff,  
+       1px -1px 0 #ffffff,
+       -1px 1px 0 #ffffff,
+        1px 1px 0 #ffffff;
+}
+
+.player-heal-number {
+    position : fixed;
+    font-size : 20px;
+    color: rgb(18, 149, 37);
+    text-shadow:
+        2px 2px 0 #ffffff,
+      -1px -1px 0 #ffffff,  
+       1px -1px 0 #ffffff,
+       -1px 1px 0 #ffffff,
+        1px 1px 0 #ffffff;
+}
+
+.player-charge-spent-number, .player-charge-gained-number {
+    position : fixed;
+    font-size : 20px;
+    color: rgb(20, 96, 143);
+    text-shadow:
+        2px 2px 0 #ffffff,
+      -1px -1px 0 #ffffff,  
+       1px -1px 0 #ffffff,
+       -1px 1px 0 #ffffff,
+        1px 1px 0 #ffffff;
+}
+
+.poison-damage-number {
+  color : rgb(34, 124, 41);
+}

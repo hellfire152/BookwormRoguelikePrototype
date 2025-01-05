@@ -89,17 +89,17 @@ class CombatHandler {
     }
 
     // this function calls resolveTurn. Purpose is to avoid using recurring function calls
-    handleTurn(skipTurn = false) {
+    async handleTurn(skipTurn = false) {
         let continueTurn;
         do {
             if (COMBAT_PHASES[this.combatPhaseIndex] == "PLAYER_STANDBY" 
                 && player.isStunned) {
                 skipTurn = true;
             }
-            continueTurn = this.resolveTurn(skipTurn);
+            continueTurn = await this.resolveTurn(skipTurn);
         } while(continueTurn)
     }
-    resolveTurn(skipTurn = false) {
+    async resolveTurn(skipTurn = false) {
         switch(COMBAT_PHASES[this.combatPhaseIndex]) {
             case "PLAYER_STANDBY" : {
                 if (skipTurn) {
@@ -108,16 +108,16 @@ class CombatHandler {
                     player.customResolveEffect(Effect.EFFECT_TYPES.STUN);
                     break;
                 } else {
-                    this._playerSubmit();
+                    await this._playerSubmit();
                     break;
                 }
             }
             case "PLAYER_POST_TURN" : {
-                player.resolvePostTurnEffects();
+                await player.resolvePostTurnEffects();
                 break;
             }
             case "ENEMY_PRE_TURN" : {
-                currentEnemy.resolvePreTurnEffects();
+                await currentEnemy.resolvePreTurnEffects();
                 break;
             }
             case "ENEMY_ACTION" : {
@@ -125,15 +125,15 @@ class CombatHandler {
                     currentEnemy.customResolveEffect(Effect.EFFECT_TYPES.STUN);
                     break;
                 };
-                currentEnemy.selectAndPerformAttack();
+                await currentEnemy.selectAndPerformAttack();
                 break;
             }
             case "ENEMY_POST_TURN" : {
-                currentEnemy.resolvePostTurnEffects();
+                await currentEnemy.resolvePostTurnEffects();
                 break;
             }
             case "PLAYER_PRE_TURN" : {
-                player.resolvePreTurnEffects();
+                await player.resolvePreTurnEffects();
                 break;
             }
         }
@@ -150,7 +150,7 @@ class CombatHandler {
     }
 
     // called on resolving player turn
-    _playerSubmit() {
+    async _playerSubmit() {
         let letters = UI.Letter.getLettersInInput();
         if(!letters) throw new Error("Invalid input?");
         let attackResult = this.calculateAttackResult(letters);
@@ -183,12 +183,15 @@ class CombatHandler {
             pennib.reset();
         }
 
+        // gain one reroll after every word play
+        this.rerollsLeft++;
+
         // handle damage to enemies
-        currentEnemy.dealDamage(attackResult.damage, true);
+        await currentEnemy.dealDamage(attackResult.damage, true);
 
         // Companion advancement
         for (const c of companionHandler.companionArr) {
-            c.resolveSubmitWord(attackResult.word);
+            await c.resolveSubmitWord(attackResult.word);
         } 
 
         if (!currentEnemy.isAlive) {
@@ -250,12 +253,27 @@ class CombatHandler {
     }
 
     // called by director to start combat
-    beginCombat(enemy) {
+    async beginCombat(enemy) {
         this.combatPhaseIndex = COMBAT_PHASES.length - 1; // PLAYER_PRE_TURN
         
-        // start of combat effects
+        // start of combat relic effects
         let syringeRelic = relicHandler.getRelic(RELIC_ID.SYRINGE);
         if (syringeRelic) syringeRelic.update(true); // enable syringe
+        let coinRelic = relicHandler.getRelic(RELIC_ID.COIN);
+        if (coinRelic) {
+            coinRelic.update(true) // enable coin
+            ui.setRefreshButtonText("Refresh");
+        }
+        let firstWordDoubleRelic = relicHandler.getRelic(RELIC_ID.T_FIRST_WORD_DOUBLE);
+        if (firstWordDoubleRelic) firstWordDoubleRelic.update(true);
+
+        // reset reroll count
+        this.rerollsLeft = this.maxRerolls;
+
+        // companions entering combat with a full bar attack immediately
+        for (const c of companionHandler.companionArr) {
+            await c.advanceCounter(0);
+        } 
 
         this.handleTurn();
     }
@@ -287,7 +305,7 @@ class CombatHandler {
                 chargeGain++;
                 if (player.isConfused) {
                     tileDamage += confusedDamage[l2];
-                } else {
+                } else if (!l.tileEffects[TILE_EFFECTS.POISONOUS]){ // poison does not deal regular damage
                     tileDamage += LETTER_DAMAGE_VALUES[l2]
                 }
             }
@@ -313,9 +331,11 @@ class CombatHandler {
         for (const s in specialTiles) { // handle special tiles
             for (let i = 0; i < specialTiles[s]; i++) {
                 chargeGain += extraChargeGainOnGem;
+                let multiplier = 1;
+                if (relicHandler.checkHasRelic(RELIC_ID.SHINY_HAMMER)) multiplier += 0.1;
                 switch(s) {
                     case SPECIAL_TILE_TYPES.TYPE_1 : {
-                        multipliers.push(1.2);
+                        multiplier += 0.2;
                         chargeGain += 2;
                         if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
                             effects.push(AttackEffect.applyStatusEffect("enemy", 
@@ -325,7 +345,7 @@ class CombatHandler {
                         break;
                     }
                     case SPECIAL_TILE_TYPES.TYPE_2 : {
-                        multipliers.push(1.5);
+                        multiplier += 0.5;
                         chargeGain += 4;
                         if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
                             effects.push(AttackEffect.applyStatusEffect("enemy", 
@@ -338,10 +358,27 @@ class CombatHandler {
                         console.log(typeof s)
                     }
                 }
+                multipliers.push(multiplier);
             }
         }
+
+        // damage related relic effects
+        if (relicHandler.checkHasRelic(RELIC_ID.HAMMER)) damage += 3;
+        let firstWordDoubleRelic = relicHandler.getRelic(RELIC_ID.T_FIRST_WORD_DOUBLE);
+        if (firstWordDoubleRelic) {
+            multipliers.push(2);
+            firstWordDoubleRelic.update(false);
+        }
+        if (relicHandler.checkHasRelic(RELIC_ID.T_SHORT_WORD_DOUBLE)
+          && length < 5) multipliers.push(2);
+
         // bonus multiplier for long words
-        multipliers.push(LENGTH_DAMAGE_MULTIPLIERS[length]); 
+        let lengthBonus = 0;
+        if (relicHandler.checkHasRelic(RELIC_ID.T_LONG_MULTIPLIER) && length >= 5) {
+            lengthBonus += 0.1 * (length - 4)
+        }
+        multipliers.push(LENGTH_DAMAGE_MULTIPLIERS[length] + lengthBonus); 
+
         // handle effects
         if (player.effects[Effect.EFFECT_TYPES.WEAKNESS]) multipliers.push(0.5);
         if (player.effects[Effect.EFFECT_TYPES.DAMAGE_BOOST]) {
@@ -350,15 +387,16 @@ class CombatHandler {
             );
             player.removeEffect(Effect.EFFECT_TYPES.DAMAGE_BOOST);
         };
+        if (cursedCount > 0) {
+            multipliers.push(0.5 ** cursedCount);
+        }
         for(const m of multipliers) {
             damage *= parseFloat(m);
         }
         damage = Utils.roundToOneDP(damage);
 
         if (player.isSilenced) damage = 0;
-        if (cursedCount > 0) {
-            damage = damage * (0.5 ** cursedCount);
-        }
+
         
         // misc relics stuff
         if (relicHandler.checkHasRelic(RELIC_ID.SHANK) && length < 5) {
@@ -367,19 +405,26 @@ class CombatHandler {
         if (relicHandler.checkHasRelic(RELIC_ID.ANCIENT_TOME)) {
             chargeGain *= 2;
         }
+        if (relicHandler.checkHasRelic(RELIC_ID.T_SHORT_WORD_CHARGE) && length < 5) {
+            chargeGain *= 2;
+        }
+        if (relicHandler.checkHasRelic(RELIC_ID.CACTUS) && length >= 5) {
+            effects.push(AttackEffect.generateTileEffect(1));
+        }
         
         return {
             word,
-            damage : damage,
+            damage,
             effects,
             length,
-            chargeGain : chargeGain
+            chargeGain
         };
     }
 
     specialTilesToGenerate(letters) {
         let output = {};
         let length = Letter.countTrueLength(letters);
+        if (relicHandler.checkHasRelic(RELIC_ID.T_GEM_LOW_THRESH)) length += 1;
         for (const s of Object.values(SPECIAL_TILE_TYPES)) {
             output[s] = 0;
         }
@@ -412,6 +457,7 @@ class CombatHandler {
 
     set rerollsLeft(value) {
         if (value > this.maxRerolls) value = this.maxRerolls;
+        if (value < 0) value = 0;
         this._rerollsLeft = value;
         ui.updateRerollCount(this._rerollsLeft);
     }

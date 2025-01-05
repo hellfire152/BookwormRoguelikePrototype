@@ -7,10 +7,7 @@ let player;
 let director;
 let combatHandler;
 let ui;
-
-function submitInput() {
-    combatHandler.handleTurn();
-}
+let letterModifierHandler;
 
 function log(text) {
     let logItem = $("<p></p>");
@@ -30,6 +27,7 @@ function preload() {
     companionHandler = new CompanionHandler();
     director = new Director();
     combatHandler = new CombatHandler();
+    letterModifierHandler = new LetterModifierHandler();
 
     // pre-make the elements
     ui.preloadElements();
@@ -51,16 +49,13 @@ function preload() {
         if (t.disabled) {
             return;
         } else {
-            submitInput();
+            combatHandler.handleTurn();
         }
     });
     // shuffle button
     $('#letter-board').on("click", "#shuffle", UI.Letter.shuffle);
     // refresh but skip turn button
-    $('#letter-board').on("click", "#refresh", (e) => {
-        Letter.refreshAllLetters(true);
-        combatHandler.handleTurn(skipTurn = true);
-    });
+    $('#letter-board').on("click", "#refresh", RefreshButton.refreshButtonOnClick);
     $('#letter-board').on("click", "#reroll", (e) => {
         combatHandler.rerollButtonOnClick(e);
     });
@@ -75,12 +70,12 @@ function preload() {
     // somehow declaring these variables here works???
     selectedLetter = null;
     selectedModifier = null;
-    selectedAbilityToRemove = null;
+    selectedAbility = null;
     $('#letter-board').on("click", "#modifier-letter-container .letter", UI.Shop.modifyLetterOnClick);
     $("#event-area").on("click", ".modifier-container", UI.Shop.modifierOnClick);
     $("#letter-board").on("click", "#modifier-submit", Shop.modifySubmitOnClick);
-    $("#event-area").on("click", ".remove-ability-ability-container", UI.Ability.removeAbilityAbilityOnClick);
-    $("#letter-board").on("click", "#remove-ability-submit", Ability.removeAbilitySubmitOnClick);
+    $("#event-area").on("click", ".ability-overflow-ability-container", UI.Ability.abilityOverflowAbilityOnClick);
+    $("#letter-board").on("click", "#ability-overflow-submit", Ability.abilityOverflowSubmitOnClick);
     
     // info screen modal using jquery-modal
     $('a[data-modal]').click((e) => {
@@ -92,6 +87,7 @@ function preload() {
         j.modal();
         return false;
     })
+
     ui.enableTooltips();
     $('#game-start').click(() => {director.startGame()});
 }

@@ -22,16 +22,16 @@ class Companion {
         this.name = data.name;
         this.tooltip = data.tooltip;
     }
-    resolveSubmitWord(word) { // can change this behaviour in child classes
+    async resolveSubmitWord(word) { // can change this behaviour in child classes
         let toAdvance = 1; 
         if (this.isBonusWord(word)) {
             toAdvance += 1;
         }
-        this.advanceCounter(toAdvance);
+        await this.advanceCounter(toAdvance);
     } 
     isBonusWord(word) {} // define in child classes
-    advanceCounter(value) {
-        if (value) {
+    async advanceCounter(value) {
+        if (value || value == 0) {
             this.currentCount += value; // allow overflow
         }
         else {
@@ -39,7 +39,8 @@ class Companion {
         }
         if (director.isInCombat) {
             while(this.isReady) {
-                this.resolveAttack();
+                await Anim.companionAttack(this, async () => {await this.resolveAttack()});
+                await Utils.sleep(300); // this is to resolve a bit of a weird delay
             }
         }
         this._updateCompanionDisplay();
@@ -54,12 +55,15 @@ class Companion {
         return Math.round(this.currentCount / this.maxCount * 100);
     }
 
-    resolveAttack() {
+    async resolveAttack() {
+        this.currentCount -= this.maxCount;
         let companionAttack = this.getAttackResult();
         for (const e of companionAttack.effects) {
-            e.apply(e, this.name);
+            if (relicHandler.checkHasRelic(RELIC_ID.LIGHTSTICK) && e.type == "damage") {
+                e.value *= 1.5;
+            }
+            await e.apply(e, this.name);
         }
-        this.currentCount -= this.maxCount;
         this._updateCompanionDisplay();
     }
 
@@ -67,11 +71,11 @@ class Companion {
         UI.Companion.updateSingleCompanion(this);
     }
 
-    generateElement() {
+    generateElement(bonusWord = false) {
         let companionContainer = $("<div><div>");
         companionContainer.addClass("companion-container hover-tooltip");
         companionContainer.attr("data-companion-id", this.id);
-        companionContainer.attr("data-tooltip-content", this.tooltip);
+        companionContainer.attr("data-tooltip-content", `${this.name}\n-------\n${this.tooltip}`);
 
         let companionCounter = $("<div></div>");
         companionCounter.addClass("companion-counter-max");
@@ -87,6 +91,7 @@ class Companion {
         let companionSprite = $("<img>");
         companionSprite.addClass("companion-sprite");
         companionSprite.attr("src", this.sprite);
+        if (bonusWord) companionSprite.addClass("companion-active-highlight");
         
         let companionName = $(`<div>${this.name}</div>`);
         companionName.addClass("companion-name")
@@ -101,11 +106,11 @@ class Companion {
 class CatCompanion extends Companion {
     constructor(data) {
         super({
-            maxCount : 3,
+            maxCount : 2,
             sprite : "./sprites/companions/cat.png",
             id : COMPANION_ID.CAT,
-            name : "Cat",
-            tooltip : "When you play a word, advance 1.\nWhen you play a verb, advance 1 more."
+            name : "Biggles",
+            tooltip : `When you play a word, advance 1.\nWhen you play a verb, advance 1 more.`
         });
     }
 
@@ -119,7 +124,8 @@ class CatCompanion extends Companion {
     }
 
     isBonusWord(word) {
-        return wordlist[word]["types"].includes("verb");
+        let data = wordlist[word];
+        if(data) return data["types"].includes("verb")
     }
 }
 
@@ -155,5 +161,14 @@ class CompanionHandler {
             return true;
         }
         return false;
+    }
+
+    rerenderCompanion(companionId, bonusWord) {
+        let companionSprite = $(`.companion-container[data-companion-id="${companionId}"] .companion-sprite`);
+        if (bonusWord) {
+            companionSprite.addClass("companion-active-highlight");
+        } else {
+            companionSprite.removeClass("companion-active-highlight");
+        }
     }
 }

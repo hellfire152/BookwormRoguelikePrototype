@@ -25,19 +25,19 @@ class Character {
         this._updateEffectDisplay();
     }
 
-    resolvePreTurnEffects() {
+    async resolvePreTurnEffects() {
         for (const effType in this.effects) {
             if (!this.effects[effType]) continue;
-            let result = this.effects[effType].resolvePreTurn(this);
+            let result = await this.effects[effType].resolvePreTurn(this);
             this.handleEffectResolution(effType, result);
         }
         this._updateEffectDisplay();
     }
 
-    resolvePostTurnEffects() {
+    async resolvePostTurnEffects() {
         for(const effType in this.effects) {
             if (!this.effects[effType]) continue;
-            let result = this.effects[effType].resolvePostTurn(this);
+            let result = await this.effects[effType].resolvePostTurn(this);
             this.handleEffectResolution(effType, result);
         }
         this._updateEffectDisplay();

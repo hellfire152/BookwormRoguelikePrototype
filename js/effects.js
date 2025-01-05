@@ -90,10 +90,10 @@ class PoisonEffect extends Effect {
         });
     }
 
-    resolvePostTurn(character) {
-        character.dealDamage(this.value, false);
+    async resolvePostTurn(character) {
         log(`${character.name} took ${this.value} damage from Poison`);
-        // effect is reduced by half every turn
+        await character.dealDamage(this.value, false, "poison");
+        
         if (--this.value < 1) {
             return {
                 removeEffect : true

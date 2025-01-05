@@ -6,7 +6,8 @@ class AttackEffect {
         DESTROY_TILE : "AE|DESTROY_TILE",
         APPLY_STATUS : "AE|APPLY_STATUS",
         APPLY_TILE_EFFECT : "AE|APPLY_TILE_EFFECT",
-        CHARGE_DRAIN : "AE|CHARGE_DRAIN"
+        CHARGE_DRAIN : "AE|CHARGE_DRAIN",
+        GENERATE_TILE : "AE|GENERATE_TILE"
     }
     // could just create new AttackEffects directly, but these methods
     // should make the code a lot readable
@@ -15,14 +16,14 @@ class AttackEffect {
             type : "damage",
             value : value,
             target : target,
-            apply : (ref, source) => {
+            apply : async (ref, source) => {
                 let v = Utils.getValue(ref.value);
                 let s = source || "Player";
                 if (ref.target == "player") {
-                    player.dealDamage(v);
+                    await player.dealDamage(v);
                     log(`${currentEnemy.name} dealt ${v} damage`);
                 } else if (ref.target == "enemy") {
-                    currentEnemy.dealDamage(v);
+                    await currentEnemy.dealDamage(v);
                     log(`${s} dealt ${v} damage to ${currentEnemy.name}`);
                 }
             }
@@ -120,6 +121,16 @@ class AttackEffect {
         })
     }
     
+    static generateTileEffect(value, letterFunction) {
+        return new AttackEffect({
+            type : AttackEffect.GENERATE_TILE,
+            value : value,
+            apply : (ref) => {
+                Letter.generateLetters(value, letterFunction);
+            }
+        })
+    }
+
     constructor(data) {
         this.type = data.type;
         this.value = data.value;

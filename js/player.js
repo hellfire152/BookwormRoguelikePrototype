@@ -28,7 +28,18 @@ class Player extends Character {
                 log(`Puchased ${consumable.name} for ${consumable.baseCost} Money!`);
                 return true;
             }
+        } else if (itemType == "relic") {
+            let relic = RelicFactory.generateRelic(itemID);
+            if (this.money < relic.shopCost) {
+                log(`Insufficient Money for ${relic.name}`);
+                return false;
+            } else {
+                this.money -= relic.shopCost;
+                relicHandler.addRelic(itemID);
+                return true;
+            }
         }
+        return false;
     }
 
     giveConsumable(itemID) {
@@ -73,6 +84,7 @@ class Player extends Character {
 
     dealDamage(damage) {
         let result = super.dealDamage(damage);
+        Anim.playerReciveDamage(damage);
         if (!this.isAlive) {
             alert(`Game Over! You lasted ${levelsCleared} rounds.`);
         }
@@ -84,6 +96,7 @@ class Player extends Character {
         if (this.currentCharge > this.maxCharge) {
             this.currentCharge = this.maxCharge;
         }
+        Anim.playerChargeGained(charge);
         this._updateChargeDisplay();
     }
 
@@ -92,6 +105,7 @@ class Player extends Character {
         if (this.currentCharge < 0) {
             this.currentCharge = 0;
         }
+        Anim.playerChargeSpent(charge);
         this._updateChargeDisplay();
     }
 
@@ -131,15 +145,22 @@ class Player extends Character {
         }
 
         // limit of 5 charge abilites, must remove one
-        ui.saveCurrentSceneState();
+        UI.Player.abilityOverflow(this.chargeAbilities, director.gameState);
 
     }
 
     removeAbility(abilityId) {
-        this.chargeAbilities.filter((a) => {
+        this.chargeAbilities = this.chargeAbilities.filter((a) => {
             return a.id != abilityId;
         });
         UI.Ability.updateDisplay(this);
+    }
+
+    getChargeAbility(abilityId) {
+        for (const a of this.chargeAbilities) {
+            if (a.id == abilityId) return a;
+        }
+        return null;
     }
 
     useConsumable(consumableIndex) {

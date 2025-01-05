@@ -23,13 +23,15 @@ class Enemy extends Character {
         this.tooltip = data.tooltip;
     }
 
-    selectAndPerformAttack() { // goes through attacks in order by default
+    async selectAndPerformAttack() { // goes through attacks in order by default
         if(this.attacks.length <= 0) {
             throw new Error("No attacks on this enemy!");
         }
 
-        this._performAttack(this.attacks[this.state]);
-        this.stateTransition(this);
+        let anim = await Anim.enemyAttack(() => {
+            this._performAttack(this.attacks[this.state]);
+            this.stateTransition(this);
+        });
     }
 
     _performAttack(attack) {
@@ -46,8 +48,14 @@ class Enemy extends Character {
         combatHandler.enemyDefeated(this);
     }
 
-    dealDamage(damage, isDirect) {
+    async dealDamage(damage, isDirect, type) {
         let result = super.dealDamage(damage);
+        if (this.isAlive) {
+            await Anim.enemyReceiveDamage(damage, type);
+        } else {
+            await Anim.enemyDeath();
+        }
+        
         isDirect && log(`Player dealt ${result.damage} damage to ${this.name}`);
 
         if (!this.isAlive) {
@@ -77,7 +85,7 @@ const ENEMY_ID = {
 const ENEMIES = {
     [ENEMY_ID.GOBBO] : {
         name : "gobbo",
-        baseMaxHP : 200,
+        baseMaxHP : 2,
         attacks : [
             {
                 name : "Gobbo punch",

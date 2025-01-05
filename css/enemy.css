@@ -1,6 +1,7 @@
 #enemy-display {
     width : 50%;
 }
+
 #enemy-status-container {
     width: 80%;
     margin: auto;
@@ -39,6 +40,8 @@
     margin: auto;
     text-align: center;
     font-size : 15pt;
+    border-color:red;
+    border-radius : 5px;
 }
 
 #enemy-max-hp {
