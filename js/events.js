@@ -61,6 +61,23 @@ const EVENT_DETAILS = {
             }
         ]
     },
+    "_treasure-event" : {
+        "prompt" : "Treasure!",
+        "options" : [
+            {
+                "text" : "Obtain a random ability",
+                "onSelect" : "treasure-ability"
+            },
+            {
+                "text" : "Obtain a random relic",
+                "onSelect" : "treasure-relic"
+            },
+            {
+                "text" : "Move On",
+                "onSelect" : "_next-event"
+            }
+        ]
+    }
 }
 
 
@@ -131,16 +148,51 @@ const EVENT_FUNCTIONS = {
     }, 
     "combat-normal" : () => {
         director.setupCombat();
-        director.nodeIndex++;
     },
     "combat-elite" : () => {
-        director.nodeIndex++;
+        director.setupCombat();
     },
     "combat-boss" : () => {
-        director.nodeIndex++;
+        director.setupCombat();
     },
     "treasure-event" : () => {
-        director.nodeIndex++;
+        director.setupEvent("_treasure-event");
     },
+    "treasure-ability" : (target) => {
+        target.remove();
 
+        // pick one of 3 abilities
+        ui.saveCurrentSceneState();
+
+        let abilities = AbilityFactory.getRandomUnownedAbilities(3);
+        ui.loadRewardChoices("Get a new Ability", abilities, "ability");       
+    },
+    "treasure-relic" : (target) => {
+        target.remove();
+
+        // pick one of 3 relics
+        ui.saveCurrentSceneState();
+
+        let relics = RelicFactory.getRandomUnownedRelic(3);
+        ui.loadRewardChoices("Obtain a new relic", relics, "relic")
+    },
+    "reward-choice" : (target, args) => {
+        target.remove();
+        let [itemID, type] = args.split("@");
+        let returnState = true;
+        switch(type) {
+            case "ability" : {
+                returnState = player.newAbility(itemID);
+                break;
+            }
+            case "relic" : {
+                returnState = relicHandler.addRelic(itemID);
+                break;
+            }
+            default : {
+                throw new Error("Invalid reward type!");
+            }
+        }
+        ui.loadPreviousSceneState();
+    }
 }

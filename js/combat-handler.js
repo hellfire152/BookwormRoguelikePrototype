@@ -79,6 +79,34 @@ let LETTER_UPGRADE_DAMAGE_INCREASE = {
     "y" : 1.5,
     "z" : 2
 }
+var letterChargeBonus = {
+    "a" : 0,
+    "b" : 0,
+    "c" : 0,
+    "d" : 0,
+    "e" : 0,
+    "f" : 0,
+    "g" : 0,
+    "h" : 0,
+    "i" : 0,
+    "j" : 0,
+    "k" : 0,
+    "l" : 0,
+    "m" : 0,
+    "n" : 0,
+    "o" : 0,
+    "p" : 0,
+    "q" : 0,
+    "r" : 0,
+    "s" : 0,
+    "t" : 0,
+    "u" : 0,
+    "v" : 0,
+    "w" : 0,
+    "x" : 0,
+    "y" : 0,
+    "z" : 0
+}
 
 // handles combat related things and turn order
 class CombatHandler {
@@ -302,7 +330,7 @@ class CombatHandler {
             let tileDamage = 0;
             for (const l2 of l.letter) { // count raw damage
                 word += l2;
-                chargeGain++;
+                chargeGain += 1 + letterChargeBonus[l2];
                 if (player.isConfused) {
                     tileDamage += confusedDamage[l2];
                 } else if (!l.tileEffects[TILE_EFFECTS.POISONOUS]){ // poison does not deal regular damage

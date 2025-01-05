@@ -141,12 +141,14 @@ class Player extends Character {
         this.chargeAbilities.push(AbilityFactory.generateAbility(abilityId));
         
         if (this.chargeAbilities.length <= 5) {
-            return UI.Ability.updateDisplay(this);
+            UI.Ability.updateDisplay(this);
+            return true;
         }
 
         // limit of 5 charge abilites, must remove one
-        UI.Player.abilityOverflow(this.chargeAbilities, director.gameState);
 
+        UI.Player.abilityOverflow(this.chargeAbilities, director.gameState, true);
+        return false;
     }
 
     removeAbility(abilityId) {

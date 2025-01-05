@@ -155,9 +155,6 @@ class Utils {
                     // Shouldn't come up too often, but will need to implement a check
                     // in the actual game
                     return word;
-                    if (playPossible) {
-                        return word;
-                    } else continue;
                 }
             }
         }

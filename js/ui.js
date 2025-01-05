@@ -91,7 +91,6 @@ class UI {
                 }
             }
         }
-        console.log(uiOptions);
         this.setupDynamicEvent({
             prompt : "Decide the next event...",
             options : uiOptions
@@ -165,11 +164,31 @@ class UI {
     }
 
     saveCurrentSceneState() {
-        this._tempSceneStore = _.cloneDeep(this.sceneStore);
+        this._tempSceneStore = {
+            "combat" : {
+                "enemy" : $(this.sceneStore.combat.enemy).clone(),
+                "player-input" : $(this.sceneStore.combat["player-input"]).clone(),
+            },
+            "event" : {
+                "text" : $(this.sceneStore.event.text).clone(),
+                "options" : $(this.sceneStore.event.options).clone(),
+            },
+            "item-shop" : {
+                "text" : null,
+                "options" : null,
+            },
+            "upgrade-shop" : {
+                "text" : null,
+                "options" : null
+            },
+        }
+        director.tempGameState = director.gameState;
     }
     loadPreviousSceneState(gameState) {
+        gameState = gameState || director.tempGameState;
         this.sceneStore = this._tempSceneStore;
-        this._tempSceneStore = null;
+        //this._tempSceneStore = null;
+        director.tempGameState = null;
         this.switchScene(parseInt(gameState));
     }
    
@@ -364,8 +383,8 @@ class UI {
         static updateMoneyDisplay(money) {
             $("#player-money").text(`${money} Money`)
         }
-        static abilityOverflow(abilities, gameState) {
-            ui.saveCurrentSceneState();
+        static abilityOverflow(abilities, gameState, skipSaveState = false) {
+            if (!skipSaveState) ui.saveCurrentSceneState();
 
             // generate display
             let abilityOverflowContainer = $("<div>");
@@ -867,5 +886,35 @@ class UI {
         } else {
             refreshButton.text("Refresh (skips turn!)");
         }
+    }
+
+    loadRewardChoices(prompt, rewardOptions, rewardType) {
+        let options = [];
+
+        // reusing the shop-container css stuff
+        let shopContainer = $("<div></div>");
+        shopContainer.attr("id", "shop-container");
+    
+        let shopPrompt = $("<div>");
+        shopPrompt.attr("id", "shop-text");
+        shopPrompt.text(prompt);
+    
+        let shopItems = $("<div></div>");
+        shopItems.attr("id", "shop-items-container");
+
+        for (const r of rewardOptions) {
+            shopItems.append(r.generateElement(true));
+
+            options.push({
+                text : r.name,
+                onSelect : "reward-choice",
+                args : `${r.id}@${rewardType}`
+            })
+        }
+
+        shopContainer.append(shopPrompt, shopItems);
+        this.setCustomEventPrompt(shopContainer);
+        this.setEventPlayerOptions(options);
+        this.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
     }
 }

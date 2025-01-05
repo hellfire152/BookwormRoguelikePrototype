@@ -15,7 +15,6 @@ class RelicHandler {
         return commonRelics[relicKeys[ relicKeys.length * Math.random() << 0 ]];
     }
 
-    
     constructor() {
         this.ownedRelics = {};
     }
@@ -612,5 +611,19 @@ class RelicFactory {
                 throw new Error("No relic found! Did you forget to add it to the Factory class?")
             }
         }
+    }
+
+    static getRandomUnownedRelic(amount) {
+        let relics = [];
+        while(relics.length < amount) {
+            let relicId = _.sample(Object.values(RELIC_ID));
+            if(!relicHandler.checkHasRelic(relicId) && !relics.includes(relicId)) {
+                relics.push(relicId);
+            }
+        }
+        relics = relics.map((relicId) => {
+            return RelicFactory.generateRelic(relicId);
+        })
+        return relics;
     }
 }

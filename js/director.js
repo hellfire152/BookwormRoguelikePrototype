@@ -72,9 +72,8 @@ class Director {
 
         // so we need to start the game loop somewhere
         // let's start with intro (event) -> combat -> event -> combat and so on for now
-        player.newAbility(ABILITY_ID.GIVE_VULNERABILITY);
         player.newAbility(ABILITY_ID.MAKE_TILE_POISONOUS);
-        //player.newAbility(ABILITY_ID.REROLL_TILE);
+        player.newAbility(ABILITY_ID.REROLL_TILE);
         //player.newAbility(ABILITY_ID.EXTRA_TILE);
         //player.newAbility(ABILITY_ID.DAMAGE_BOOST);
         player.newAbility(ABILITY_ID.NEXT_LETTER);
@@ -92,6 +91,7 @@ class Director {
     }
 
     nextEvent() {
+        this.nodeIndex++;
         this.previousEventType = this.currentEventType;
         let options = this.getNextNodeOptions();
         ui.decideNextNodeEvent(options);
@@ -119,16 +119,15 @@ class Director {
 
     getNextNodeOptions() {
         let options = [];
-        if (this.nodeIndex == 0) { // start with combat
+        if (this.nodeIndex == 1) { // start with combat
             options.push("combat");
             return options;
         }
-        if (this.nodeIndex == 14) { // right before boss
+        if (this.nodeIndex == 15) { // boss
             options.push("boss");
             return options;
         }
-        if (this.nodeIndex == 4) {// treasure at 5th node
-            options.push("treasure");
+        if (this.nodeIndex == 5) {// treasure at 5th node
             return options;
         }
         if (this.forcedNextNode) {

@@ -9,10 +9,12 @@ const MODIFIER_ID = {
     POISON : "LU|POISON",
     HARMONIZED : "LU|HARMONIZED",
     EMPHASIS : "LU|EMPHASIS",
-    SPIKY : "LU|SPIKY"
+    SPIKY : "LU|SPIKY",
+    CHARGE_GAIN_UP : "LU|CHARGE_GAIN_UP",
+    CHARGE_GAIN_DOWN : "LU|CHARGE_GAIN_DOWN"
 }
 
-const COMMON_UPGRADES = ["DAMAGE_INCREASE", "PROBABILITY_DOWN", "PROBABILITY_UP"];
+const COMMON_UPGRADES = ["DAMAGE_INCREASE", "PROBABILITY_DOWN", "PROBABILITY_UP", "CHARGE_GAIN_UP"];
 
 class LetterModifier {
     static generateModifier(upgradeId) {
@@ -25,6 +27,15 @@ class LetterModifier {
             }
             case MODIFIER_ID.PROBABILITY_UP : {
                 return new ProbabilityIncreaseLetterUpgrade();
+            }
+            case MODIFIER_ID.CHARGE_GAIN_UP : {
+                return new ChargeGainUpLetterModifier();
+            }
+            case MODIFIER_ID.CHARGE_GAIN_DOWN : {
+                return new ChargeGainDownLetterModifier();
+            }
+            default : {
+                throw new Error(`Unimplemented letter modifier ${upgradeId}`);
             }
         }
     }
@@ -138,6 +149,50 @@ class ProbabilityDecreaseLetterUpgrade extends LetterModifier {
         }
         log(`${letter} is more likely to appear again`);
         Letter.calculateLetterProbabilityThresholds();
+    }
+}
+
+class ChargeGainUpLetterModifier extends LetterModifier {
+    constructor(value) {
+        super({
+            id : MODIFIER_ID.CHARGE_GAIN_UP,
+            name : "Increase Charge Gain",
+            sprite : "./sprites/Questionmorks.png",
+            isUpgrade : true
+        })
+        this.value = value || 0.5;
+    }
+
+    onAdd(letter) {
+        letterChargeBonus[letter] += this.value;
+        log(`Charge gain of ${letter} tiles increased by ${this.value}`);
+    }
+
+    onRemove(letter) {
+        letterChargeBonus[letter] -= this.value;
+        log(`Charge gain of ${letter} reduced by ${this.value}`);
+    }
+}
+
+class ChargeGainDownLetterModifier extends LetterModifier {
+    constructor(value) {
+        super({
+            id : MODIFIER_ID.CHARGE_GAIN_DOWN,
+            name : "Decrease Charge Gain",
+            sprite : "./sprites/Questionmorks.png",
+            isUpgrade : false
+        })
+        this.value = value || 0.5;
+    }
+
+    onAdd(letter) {
+        letterChargeBonus[letter] -= this.value;
+        log(`Charge gain of ${letter} reduced by ${this.value}`);
+    }
+
+    onRemove(letter) {
+        letterChargeBonus[letter] += this.value;
+        log(`Charge gain of ${letter} tiles increased by ${this.value}`);
     }
 }
 

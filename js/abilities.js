@@ -181,6 +181,20 @@ class AbilityFactory {
             }
         }
     }
+
+    static getRandomUnownedAbilities(amount) {
+        let abilities = [];
+        while(abilities.length < amount) {
+            let abilityId = _.sample(Object.values(ABILITY_ID));
+            if (!player.getChargeAbility(abilityId)) {
+                abilities.push(abilityId);
+            }
+        }
+        abilities = abilities.map((abilityId) => {
+            return AbilityFactory.generateAbility(abilityId);
+        })
+        return abilities;
+    }
 }
 
 class Ability {
