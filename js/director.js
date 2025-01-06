@@ -127,7 +127,8 @@ class Director {
             options.push("boss");
             return options;
         }
-        if (this.nodeIndex == 5) {// treasure at 5th node
+        if (this.nodeIndex == 2) {// treasure at 5th node
+            options.push("treasure");
             return options;
         }
         if (this.forcedNextNode) {

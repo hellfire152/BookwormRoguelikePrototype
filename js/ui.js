@@ -534,9 +534,9 @@ class UI {
         }
 
         // for use in effects that pick one letter out of all 26 letters
-        static singleLetterPickerSelector(prompt, effectFunction) {
+        static singleLetterPickerSelector(prompt, effectFunction, saveState = true) {
             let gameState = director.gameState;
-            ui.saveCurrentSceneState();
+            if (saveState) ui.saveCurrentSceneState();
 
             ui.setEventPrompt(prompt);
             

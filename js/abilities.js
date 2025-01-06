@@ -186,7 +186,7 @@ class AbilityFactory {
         let abilities = [];
         while(abilities.length < amount) {
             let abilityId = _.sample(Object.values(ABILITY_ID));
-            if (!player.getChargeAbility(abilityId)) {
+            if (!player.getChargeAbility(abilityId) && !abilities.includes(abilityId)) {
                 abilities.push(abilityId);
             }
         }

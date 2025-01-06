@@ -26,9 +26,10 @@ class RelicHandler {
     addRelic(relicId) {
         if(this.checkHasRelic(relicId)) return false;
         this.ownedRelics[relicId] = RelicFactory.generateRelic(relicId);
-        this.ownedRelics[relicId].onObtain();
+        let returnState = this.ownedRelics[relicId].onObtain();
         log(`Added relic ${this.ownedRelics[relicId].name} to inventory`);
         this._updateRelicDisplay();
+        if (returnState != undefined) return returnState;
         return true;
     }
 
@@ -589,7 +590,7 @@ class RelicFactory {
                     onObtain : () => {
                         let randomLetters = _.sampleSize(Letter.ALPHABET_SET, 3);
                         for (const l of randomLetters) {
-                            MODIFIERS.DAMAGE_UP.onUse(l);
+                            letterModifierHandler.addModifierFromId(l, MODIFIER_ID.DAMAGE_INCREASE);
                         }
                     }
                 })
@@ -603,7 +604,8 @@ class RelicFactory {
                     onObtain : () => {
                         UI.Letter.singleLetterPickerSelector("Pick a letter to poison", (l) => {
                             letterUpgrades[l].push(new PoisonLetterUpgrade());
-                        });
+                        }, false);
+                        return false;
                     }
                 })
             }
@@ -615,6 +617,7 @@ class RelicFactory {
 
     static getRandomUnownedRelic(amount) {
         let relics = [];
+        relics.push(RELIC_ID.T_POISON_ONE_LETTER);
         while(relics.length < amount) {
             let relicId = _.sample(Object.values(RELIC_ID));
             if(!relicHandler.checkHasRelic(relicId) && !relics.includes(relicId)) {

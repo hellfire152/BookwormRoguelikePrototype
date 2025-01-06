@@ -15,6 +15,8 @@ const MODIFIER_ID = {
 }
 
 const COMMON_UPGRADES = ["DAMAGE_INCREASE", "PROBABILITY_DOWN", "PROBABILITY_UP", "CHARGE_GAIN_UP"];
+const RARE_UPGRADES = ["POISON", "HARMONIZED", "EMPHASIS"];
+const NEGATIVE_MODIFIERS = ["SPIKY", "CHARGE_GAIN_DOWN"]
 
 class LetterModifier {
     static generateModifier(upgradeId) {
@@ -44,6 +46,7 @@ class LetterModifier {
         this.name = data.name;
         this.sprite = data.sprite;
         this.isUpgrade = data.isUpgrade;
+        this.shopCost = data.shopCost || 100;
     }
 
     // define these functions to implement the upgrade
@@ -79,7 +82,8 @@ class DamageIncreaseLetterUpgrade extends LetterModifier {
             id : MODIFIER_ID.DAMAGE_INCREASE,
             name : "Damage Up",
             sprite : "./sprites/upgrades/dmgUP.png",
-            isUpgrade : true
+            isUpgrade : true,
+
         });
     }
 

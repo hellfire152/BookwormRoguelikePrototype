@@ -193,6 +193,6 @@ const EVENT_FUNCTIONS = {
                 throw new Error("Invalid reward type!");
             }
         }
-        ui.loadPreviousSceneState();
+        if (returnState) ui.loadPreviousSceneState();
     }
 }

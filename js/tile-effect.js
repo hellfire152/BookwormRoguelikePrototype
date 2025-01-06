@@ -7,7 +7,8 @@ const TILE_EFFECTS = {
     SPIKED : "TE|SPIKED",
     CLEANSING : "TE|CLEANSING",
     DECAY : "TE|DECAY",
-    RADIOACTIVE : "TE|RADIOACTIVE"
+    RADIOACTIVE : "TE|RADIOACTIVE",
+    WEAKEN : "TE|WEAKEN"
 }
 
 // basically an abstract class. Has some static factory methods to actually create the TileEffect instances
