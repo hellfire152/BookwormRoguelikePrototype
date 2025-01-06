@@ -1,0 +1,49 @@
+.item-container {
+    width : 50px;
+    height : 100px;
+    display : inline-block;
+    padding : 15px;
+    margin : 15px;
+}
+.item-sprite {
+    width : 60px;
+    max-height : 75px;
+}
+.item-name {
+    font-size : 13px;
+}
+.item-cost {
+    width : 100%;
+}
+
+#shop-container {
+    text-align: center;
+    margin-top : 5%;
+}
+#shop-modifiers-container {
+    display : flex;
+}
+.modifier-sprite {
+    width : 58x;
+    height : 100px;
+}
+.modifier-container {
+    padding : 10px;
+    margin : 20px;
+}
+#shop-items-container {
+    display : block;
+}
+#upgrade-shop-container {
+    height : 100%;
+}
+.upgrade-shop-modifier {
+    display : inline-block;
+    width : 70px;
+    height : 70px;
+    font-size : 13px;
+}
+.upgrade-shop-modifier img {
+    max-width : 40px;
+    height : auto;
+}

@@ -138,7 +138,13 @@ const EVENT_FUNCTIONS = {
         // first remove the button that loads the upgrade shop
         target.remove();
         ui.saveCurrentSceneState();
-        UI.Shop.loadUpgradeShop({returnToSavedState : GAME_CONSTANTS.GAME_STATES.EVENT});
+        UI.Shop.loadUpgradeReward({returnToSavedState : GAME_CONSTANTS.GAME_STATES.EVENT});
+    },
+    "combat-reward-relic" : (target, relicId) => {
+        target.remove();
+        // in case the relic onObtain opens a new screen and needs to load state
+        ui.saveCurrentSceneState();
+        relicHandler.addRelic(relicId);
     },
     "combat-complete" : () => {
         director.signal("combat-complete");
@@ -150,10 +156,10 @@ const EVENT_FUNCTIONS = {
         director.setupCombat();
     },
     "combat-elite" : () => {
-        director.setupCombat();
+        director.setupCombat("elite");
     },
     "combat-boss" : () => {
-        director.setupCombat();
+        director.setupCombat("boss");
     },
     "treasure-event" : () => {
         director.setupEvent("_treasure-event");
@@ -194,5 +200,21 @@ const EVENT_FUNCTIONS = {
             }
         }
         if (returnState) ui.loadPreviousSceneState();
+    },
+    "upgrade-shop-purchase" : (target, modId) => {
+        let modifier = LetterModifier.generateModifier(modId);
+        if (player.money >= modifier.shopCost) {
+            target.remove();
+            // also remove the shop display element
+            $(`.upgrade-shop-modifier[_modifierId="${modId}"]`).remove();
+
+            // when purchasing an upgrade, you can choose exactly which letter to apply it to        
+            UI.Letter.singleLetterPickerSelector("Select the letter to apply the upgrade to", (letter) => {
+                letterModifierHandler.addModifier(letter, modifier);
+                player.money -= modifier.shopCost;
+            });
+        } else {
+            log(`Cannot afford upgrade ${modifier.name}`);
+        }
     }
 }

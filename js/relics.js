@@ -55,6 +55,21 @@ class RelicHandler {
             return this.ownedRelics[relicId]
         } else return null;
     }
+
+    getRandomUnownedRelic(amount) {
+        let relics = [];
+        while(relics.length < amount) {
+            let relicId = _.sample(Object.values(RELIC_ID));
+            if(!this.checkHasRelic(relicId) && !relics.includes(relicId)) {
+                relics.push(relicId);
+            }
+        }
+        console.log(relics)
+        relics = relics.map((relicId) => {
+            return RelicFactory.generateRelic(relicId);
+        })
+        return relics;
+    }
 }
 
 const RELIC_ID = {
@@ -70,6 +85,7 @@ const RELIC_ID = {
     T_MORE_REROLLS : "R|T_M_R",
     T_FIRST_WORD_DOUBLE : "R|T_F_W_D",
     T_BETTER_REROLL_GEN : "R|T_B_R_G",
+    T_MORE_UPGRADE_LETTER_CHOICES : "R|T_M_U_L_C",
 
     // uncommon relics
     ANTIQUE_CLOCK : "R|ANTIQUE_CLOCK",
@@ -609,24 +625,25 @@ class RelicFactory {
                     }
                 })
             }
+            case RELIC_ID.T_MORE_UPGRADE_LETTER_CHOICES : {
+                return new GenericRelic({
+                    id : relicId,
+                    name : "Temp | More upgrade letter choices",
+                    sprite : "./sprites/Questionmorks.png",
+                    tooltipDescription : "Increase the number of letters you can pick from in letter upgrade rewards by 3.",
+                    onObtain : () => {
+                        GAME_CONSTANTS.UPGRADE_LETTERS_OFFERRED_COUNT += 3;
+                    },
+                    onRemove : () => {
+                        GAME_CONSTANTS.UPGRADE_LETTERS_OFFERRED_COUNT -= 3;
+                    }
+                })
+            }
             default : {
-                throw new Error("No relic found! Did you forget to add it to the Factory class?")
+                throw new Error(`No relic ${relicId} found! Did you forget to add it to the Factory class?`)
             }
         }
     }
 
-    static getRandomUnownedRelic(amount) {
-        let relics = [];
-        relics.push(RELIC_ID.T_POISON_ONE_LETTER);
-        while(relics.length < amount) {
-            let relicId = _.sample(Object.values(RELIC_ID));
-            if(!relicHandler.checkHasRelic(relicId) && !relics.includes(relicId)) {
-                relics.push(relicId);
-            }
-        }
-        relics = relics.map((relicId) => {
-            return RelicFactory.generateRelic(relicId);
-        })
-        return relics;
-    }
+
 }

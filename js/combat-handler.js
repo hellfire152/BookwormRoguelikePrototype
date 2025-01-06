@@ -234,6 +234,10 @@ class CombatHandler {
     }
 
     enemyDefeated(enemy) {
+        // clear status effects from player
+        player.removeAllStatuses();
+        director.gameState = GAME_CONSTANTS.GAME_STATES.EVENT;
+
         let rewards = CombatReward.collateRewards(enemy.rewards);
 
         // switch to the rewards scene
@@ -262,6 +266,16 @@ class CombatHandler {
                 onSelect : "combat-reward-charge",
                 args : rewards.charge
             });
+        }
+        if (rewards.relic) {
+            for (const r of rewards.relic) {
+                let rel = RelicFactory.generateRelic(r);
+                options.push({
+                    text : `Get relic ${rel.name}`,
+                    onSelect : "combat-reward-relic",
+                    args : rel.id
+                })
+            }
         }
         options.push({
             text : "Continue...",

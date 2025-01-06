@@ -54,7 +54,7 @@ class LetterModifier {
     onAdd(letter) {}
     onRemove(letter) {}
 
-    generateShopElement() {
+    generateShopElement(showCost = false) {
         let modifierContainer = $("<div>");
         modifierContainer.addClass("modifier-container");
         modifierContainer.attr("_modifierid", this.id)
@@ -67,7 +67,12 @@ class LetterModifier {
         modifierSprite.addClass("modifier-sprite");
         modifierSprite.attr("src", this.sprite);
 
+        let shopCost = $("<div>");
+        shopCost.addClass("item-cost");
+        shopCost.text(`Cost: ${this.shopCost}`);
+
         modifierContainer.append(modifierName, modifierSprite);
+        if (showCost) modifierContainer.append(shopCost);
         return modifierContainer;
     }
     generateStatScreenElement() {

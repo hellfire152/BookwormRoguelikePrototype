@@ -9,7 +9,8 @@ class Effect {
         SHIELD : 6,
         SILENCE : 7,
         VULNERABLE : 8,
-        DAMAGE_BOOST : "E|DAMAGE_BOOST"
+        DAMAGE_BOOST : "E|DAMAGE_BOOST",
+        SNAKE_VENOM : "E|SNAKE_VENOM"
     }    
 
     constructor(effectOptions) {
@@ -91,6 +92,7 @@ class PoisonEffect extends Effect {
     }
 
     async resolvePostTurn(character) {
+        if (typeof character == "Player") character.name = "Player";
         log(`${character.name} took ${this.value} damage from Poison`);
         await character.dealDamage(this.value, false, "poison");
         
@@ -149,6 +151,33 @@ class ShieldEffect extends Effect {
         return super.generateElement(type, "value");
     }
 }
+
+// unique effect for snek elite
+class SnakeVenomEffect extends Effect {
+    constructor(value) {
+        super({
+            effectType : Effect.EFFECT_TYPES.SNAKE_VENOM,
+            value : value,
+            duration : null,
+            sprite : "./sprites/effects/Poison.png"
+        });
+    }
+
+    async resolvePostTurn(character) {
+        this.value++;
+        log(`${character.name} took ${this.value} damage from Snake Venom`);
+        await character.dealDamage(this.value, false, "poison");
+    }
+
+    reapply(value) {
+        this.value += Math.floor(value);
+    }
+
+    generateElement(type) { // show value instead of duration
+        return super.generateElement(type, "value");
+    }
+}
+
 class EffectFactory {
     static generateEffect(effType, value) {
         switch(effType) {
@@ -195,6 +224,9 @@ class EffectFactory {
             }
             case Effect.EFFECT_TYPES.DAMAGE_BOOST : {
                 return new DamageBoostEffect(value);
+            }
+            case Effect.EFFECT_TYPES.SNAKE_VENOM : {
+                return new SnakeVenomEffect(value);
             }
         }
     }

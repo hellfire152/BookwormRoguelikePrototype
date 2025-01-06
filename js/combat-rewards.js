@@ -31,6 +31,14 @@ class CombatReward {
         })
     }
 
+    static relic(id, probability) {
+        return new CombatReward({
+            field : "relic",
+            value : id,
+            probability
+        })
+    }
+
     constructor (data) {
         this.field = data.field;
         this.value = data.value;
@@ -39,6 +47,14 @@ class CombatReward {
 
     getReward(obj) {
         if (this.probability && Math.random >= this.probability) return;
+        if(this.field == "relic") {
+            if (!Object.hasOwn(obj, "relic")) obj.relic = [];
+            if (this.value == null) {
+                this.value = relicHandler.getRandomUnownedRelic(1)[0].id;
+            }
+            obj.relic.push((this.value));
+            return;
+        }
         if (!Object.hasOwn(obj, this.field)) obj[this.field] = 0;
         obj[this.field] += Utils.getValue(this.value);
     }

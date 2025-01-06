@@ -10,6 +10,7 @@ class Player extends Character {
         this.maxCharge = 100;
         this.chargeAbilities = [];
         this.consumables = [];
+        this.name = "Player";
     }
 
     attemptPurchase(itemID, itemType) {
@@ -188,8 +189,8 @@ class Player extends Character {
     }   
 
     // adding in handling tile effects
-    resolvePostTurnEffects() {
-        super.resolvePostTurnEffects();
+    async resolvePostTurnEffects() {
+        await super.resolvePostTurnEffects();
 
         // resolve tile effects
         for (const e of UI.Letter.getLetters().toArray()) {
@@ -198,8 +199,8 @@ class Player extends Character {
         }
     }
 
-    resolvePreTurnEffects() {
-        super.resolvePreTurnEffects();
+    async resolvePreTurnEffects() {
+        await super.resolvePreTurnEffects();
 
         //resolve tile effects
         for (const e of UI.Letter.getLetters().toArray()) {

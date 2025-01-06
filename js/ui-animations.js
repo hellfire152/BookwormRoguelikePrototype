@@ -47,7 +47,6 @@ class Anim {
 
     static async enemyReceiveDamage(damageTaken, type) {
         if (!currentEnemy) throw new Error("Cannot deal damage to nonexistant enemy!");
-        console.log(type);
         Anim.enemyDamageNumber(damageTaken, type);
         
         let bgColor = "245, 146, 146";

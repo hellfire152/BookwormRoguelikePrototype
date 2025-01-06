@@ -671,7 +671,7 @@ class UI {
         
             let shopPrompt = $("<div>");
             shopPrompt.attr("id", "shop-text");
-            shopPrompt.text("SHOP");
+            shopPrompt.text("ITEM SHOP");
         
             let shopItems = $("<div></div>");
             shopItems.attr("id", "shop-items-container");
@@ -714,7 +714,7 @@ class UI {
             ui.setEventPlayerOptions(options);
             ui.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
         }
-        static loadUpgradeShop(args) {
+        static loadUpgradeReward(args) {
             let shopContainer = $("<div>");
             shopContainer.attr("id", "shop-container")
         
@@ -734,8 +734,8 @@ class UI {
         
             shopContainer.append(shopPrompt, modifiersContainers);
         
-            // generate 6 letters to apply the modifiers to
-            let letters = _.sampleSize(Letter.ALPHABET_SET, 6);
+            // generate letters to apply the modifiers to
+            let letters = _.sampleSize(Letter.ALPHABET_SET, GAME_CONSTANTS.UPGRADE_LETTERS_OFFERRED_COUNT);
             let upgradeLetterContainer = $("<div>");
             upgradeLetterContainer.attr("id", "modifier-letter-container");
         
@@ -763,6 +763,44 @@ class UI {
             
             ui.sceneStore.event.text = shopContainer;
             ui.sceneStore.event.options = modifierLetterContainer;
+            ui.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
+        }
+        static loadUpgradeShop() {
+            // same as upgrade reward screen
+            let shopContainer = $("<div>");
+            shopContainer.attr("id", "upgrade-shop-container")
+        
+            let shopPrompt = $("<div></div>");
+            shopPrompt.attr("id", "shop-prompt");
+            shopPrompt.text("Choose a blessing......");
+        
+            let modifiersContainers = $("<div>");
+            modifiersContainers.attr("id", "upgrade-shop-modifiers-container");
+        
+            let options = [];
+            // generate 4 common 2 rare letter upgrades
+            let modifiers = _.sampleSize(COMMON_UPGRADES, 4);
+            for (const mod of modifiers) {
+                let lm = LetterModifier.generateModifier(MODIFIER_ID[mod]);
+                let e = lm.generateShopElement(true);
+                e.addClass("upgrade-shop-modifier");
+                modifiersContainers.append(e);
+
+                options.push({
+                    text : lm.name,
+                    onSelect : "upgrade-shop-purchase",
+                    args : lm.id
+                })
+            }
+        
+            shopContainer.append(shopPrompt, modifiersContainers);
+            ui.sceneStore.event.text = shopContainer;
+        
+            options.push({
+                "text" : "Continue",
+                "onSelect" : "_next-event"
+            });
+            ui.setEventPlayerOptions(options);
             ui.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
         }
         static modifyLetterOnClick(e) {

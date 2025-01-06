@@ -72,19 +72,15 @@ class Director {
 
         // so we need to start the game loop somewhere
         // let's start with intro (event) -> combat -> event -> combat and so on for now
-        player.newAbility(ABILITY_ID.MAKE_TILE_POISONOUS);
-        player.newAbility(ABILITY_ID.REROLL_TILE);
-        //player.newAbility(ABILITY_ID.EXTRA_TILE);
-        //player.newAbility(ABILITY_ID.DAMAGE_BOOST);
         player.newAbility(ABILITY_ID.NEXT_LETTER);
         player.newAbility(ABILITY_ID.PREVIOUS_LETTER);
         player.newAbility(ABILITY_ID.OMNISCIENCE);
         player.giveConsumable(CONSUMABLE_ID.SCROLL);
 
         player.gainCharge(225);
-        player.dealDamage(50);
         player.giveMoney(2000);
 
+        relicHandler.addRelic(RELIC_ID.T_MORE_UPGRADE_LETTER_CHOICES);
         companionHandler.addCompanion(COMPANION_ID.CAT);
         this.setupEvent("_intro");
         ui.removeStartButton();
@@ -97,10 +93,26 @@ class Director {
         ui.decideNextNodeEvent(options);
     }
 
-    setupCombat() {
-        // spawn random enemy
-        //currentEnemy = EnemyFactory.generateEnemy(_.sample(ENEMY_ID), this.levelsCleared);
-        currentEnemy = EnemyFactory.generateEnemy(ENEMY_ID.GOBBO, this.nodeIndex);
+    setupCombat(enemyType = "normal", enemyId) {
+        if (enemyId) {
+            currentEnemy = enemyId; //fixed enemy
+        } else {
+            switch (enemyType) {
+                case "normal" : {
+                    currentEnemy = EnemyFactory.generateEnemy(ENEMY_ID.GOBBO, this.chapter);
+                    break;
+                }
+                case "elite" : {
+                    currentEnemy = EnemyFactory.generateEnemy(ENEMY_ID.SNEK, this.chapter);
+                    break;
+                }
+                case "boss" : {
+                    currentEnemy = EnemyFactory.generateEnemy(ENEMY_ID.SNEK, this.chapter);
+                    break;
+                }
+            }
+        }
+        
         currentEnemy.initializeDisplay();
          // begin the combat. players start first.
         this.gameState = GAME_CONSTANTS.GAME_STATES.COMBAT;
@@ -119,6 +131,8 @@ class Director {
 
     getNextNodeOptions() {
         let options = [];
+        options.push("elite");
+        options.push("upgradeShop");
         if (this.nodeIndex == 1) { // start with combat
             options.push("combat");
             return options;
@@ -127,7 +141,7 @@ class Director {
             options.push("boss");
             return options;
         }
-        if (this.nodeIndex == 2) {// treasure at 5th node
+        if (this.nodeIndex == 5) {// treasure at 5th node
             options.push("treasure");
             return options;
         }

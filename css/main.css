@@ -14,14 +14,7 @@ body {
     float: left;
     background-color: #d8f2e9;
 }
-#companion-area {
-    float:left;
-    text-align: center;
-    width: 14%;
-    height : 100%;
-    margin-left: 10px;
-    background-color: #d8e3f2
-}
+
 #information-area {
     width: 35%;
     height: 100%;
@@ -146,39 +139,6 @@ body {
     width : 100%;
 }
 
-.item-container {
-    width : 50px;
-    height : 100px;
-    display : inline-block;
-    padding : 15px;
-    margin : 15px;
-}
-.item-sprite {
-    width : 60px;
-    max-height : 75px;
-}
-.item-name {
-    font-size : 13px;
-}
-#shop-container {
-    text-align: center;
-    margin-top : 5%;
-}
-#shop-modifiers-container {
-    display : flex;
-}
-.modifier-sprite {
-    width : 58x;
-    height : 100px;
-}
-.modifier-container {
-    padding : 10px;
-    margin : 20px;
-}
-#shop-items-container {
-    display : block;
-}
-
 .temporary-highlight {
     border: 1px solid yellow;
 }
@@ -188,23 +148,6 @@ body {
 }
 .tippy-content { /* to render newlines in tooltips properly */
     white-space : pre-line;
-}
-
-#companion-area p {
-    font-weight: bold;
-}
-#companion-area hr {
-    margin : auto;
-    width : 80%;
-    text-align: center;
-    margin-top : -10px;
-}
-#companions-container {
-    border : 2px solid black;
-    width : 90%;
-    margin : auto;
-    height: 90%;
-    background-color: rgb(238, 238, 238);
 }
 
 .ability-overflow-ability-container {

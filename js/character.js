@@ -37,6 +37,8 @@ class Character {
     async resolvePostTurnEffects() {
         for(const effType in this.effects) {
             if (!this.effects[effType]) continue;
+            console.log(this);
+            console.log(effType);
             let result = await this.effects[effType].resolvePostTurn(this);
             this.handleEffectResolution(effType, result);
         }

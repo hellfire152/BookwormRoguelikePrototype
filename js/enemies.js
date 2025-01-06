@@ -1,9 +1,8 @@
 class Enemy extends Character {
-
     constructor(data, level) {
         super(); 
         this.name = data.name
-        let n = data.baseMaxHP * (1.15 ** level);
+        let n = data.baseMaxHP// * (1.15 ** level);
         this.maxHP = Utils.roundToOneDP(n);
         this.currentHP = this.maxHP;
         this.attacks = data.attacks;
@@ -81,6 +80,7 @@ const ENEMY_ID = {
     GOBBO : "E_001",
     GHOST : "E_002",
     SLIME : "E_003",
+    SNEK : "E_004"
 }
 const ENEMIES = {
     [ENEMY_ID.GOBBO] : {
@@ -90,19 +90,13 @@ const ENEMIES = {
             {
                 name : "Gobbo punch",
                 effects : [
-                    AttackEffect.damageEffect("player", (level) => {
-                        if (!level) level = 0;
-                        return 5 * (1.15 ** level)
-                    })
+                    AttackEffect.damageEffect("player", 3)
                 ]
             },
             {
                 name : "Gobbo Slam",
                 effects : [
-                    AttackEffect.damageEffect("player", (level) => {
-                        if (!level) level = 0;
-                        return 10 * (1.15 ** level)
-                    }),
+                    AttackEffect.damageEffect("player", 5),
                 ]
             }
         ],
@@ -174,6 +168,49 @@ const ENEMIES = {
         rewards : [CombatReward.money(12), CombatReward.heal(3)],
         sprite : "./sprites/enemies/Slime.png",
         tooltip : "Perpetually hungry"
+    },
+    [ENEMY_ID.SNEK] : {
+        name : "Snek",
+        baseMaxHP : 2,
+        attacks : [
+            {
+                name : "Apply Venom",
+                effects : [
+                    AttackEffect.damageEffect("player", 2),
+                    AttackEffect.applyStatusEffect("player", Effect.EFFECT_TYPES.SNAKE_VENOM, 1)
+                ]
+            },
+            {
+                name : "Tail Whip",
+                effects : [
+                    AttackEffect.damageEffect("player",  5),
+                    AttackEffect.destroyTileEffect(2)
+                ]
+            },
+            {
+                name : "Constrict",
+                effects : [
+                    AttackEffect.damageEffect(3),
+                    AttackEffect.applyStatusEffect("player", Effect.EFFECT_TYPES.WEAKNESS, 1)
+                ]
+            },
+            {
+                name : "Bite", 
+                effects : [
+                    AttackEffect.damageEffect(1),
+                    AttackEffect.applyStatusEffect("player", Effect.EFFECT_TYPES.SNAKE_VENOM, 2)
+                ]
+            }
+        ],
+        initialState : 0,
+        stateTransition : (ref) => {
+            if (++ref.state > 3) {
+                ref.state = 1;
+            }
+        },
+        rewards : [CombatReward.money(20), CombatReward.relic(RELIC_ID.T_POISON_ONE_LETTER)],
+        sprite : "./sprites/enemies/Snek.png",
+        tooltip : "Deals poison damage that deals increasing damage over time"
     }
 }
 

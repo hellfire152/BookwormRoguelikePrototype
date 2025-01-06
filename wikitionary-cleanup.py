@@ -58,12 +58,23 @@ def main():
             # if count > 10: break # for testing
 
         print(f"{word_count} words processed.")
+
         # copy tags of base words to their other forms
+        to_delete_words = []
         for w in output_wordlist:
             word = output_wordlist[w]
+
+            # remove initialisms and abbreviations only
+            if "abbreviation" in word["tags"] and "initialism" in word["tags"] and len(word["tags"]) <= 3:
+                to_delete_words.append(w)
             for form in word["forms"]:
                 output_wordlist[form]["tags"].update(word["tags"])
                 output_wordlist[form]["topics"].update(word["topics"])
+        
+        print(f"Removing abbreviations/initialsms")
+        for w in to_delete_words:
+            print(w)
+            output_wordlist.pop(w)
 
         # turn sets into lists so that it can be encoded to json
         for w in output_wordlist:
