@@ -32,7 +32,6 @@ function preload() {
     // pre-make the elements
     ui.preloadElements();
     Letter.calculateLetterProbabilityThresholds();
-    Letter.generateLetters();
 
     // DELEGATED HANDLERS FOR THINGS TO WORK
     // for the event options to work

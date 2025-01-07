@@ -207,8 +207,8 @@ class Letter {
         for (const te in TILE_EFFECTS) {
             this.tileEffects[TILE_EFFECTS[te]] = null;
         }
-        if(letterUpgrades[l]) {
-            for (const lu of letterUpgrades[l]) {
+        if(letterModifierHandler.letterModifiers[l]) {
+            for (const lu of letterModifierHandler.letterModifiers[l]) {
                 lu.apply(this);
             }
         }
@@ -223,14 +223,14 @@ class Letter {
         
         switch(this.specialTileType) {
             case SPECIAL_TILE_TYPES.TYPE_1:
-                element.css("background-color", "#e09fed");
+                element.addClass("tile-bonus-1");
                 break;
             case SPECIAL_TILE_TYPES.TYPE_2:
-                element.css("background-color", "#9fc6ed");
+                element.addClass("tile-bonus-2");
                 break;
             case SPECIAL_TILE_TYPES.UNSELECTABLE:
                 element.addClass("placeholder-letter");
-                element.attr("_pfor", this.placeholder_for)
+                element.attr("_pfor", this.placeholder_for);
                 break;
         }
 

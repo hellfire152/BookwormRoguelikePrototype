@@ -1,3 +1,11 @@
+.tile-bonus-1 {
+    outline : #e09fed solid 3px;
+}
+
+.tile-bonus-2 {
+    outline : #9fc6ed solid 3px;
+}
+
 .tile-effect-lock {
     color : white;
     background-color: #000000;
@@ -77,4 +85,21 @@
 .tile-effect-cursed {
     color : black;
     background: linear-gradient(0deg, rgba(51, 51, 51, 1), rgba(224, 224, 224, 1))
+}
+
+.tile-effect-harmonized {
+    background: rgb(231,123,255);
+    background: linear-gradient(90deg, rgba(231,123,255,1) 0%, rgba(148,237,255,1) 100%);
+}
+
+.tile-effect-emphasis {
+    border-style : dashed;
+    border-radius : 0px;
+    border-width: 2px;
+}
+
+.tile-effect-supercharged {
+    background-color: #e5e5f7;
+    opacity: 0.8;
+    background: linear-gradient(135deg, #8fc6ff55 25%, transparent 25%) -10px 0/ 20px 20px, linear-gradient(225deg, #8fc6ff 25%, transparent 25%) -10px 0/ 20px 20px, linear-gradient(315deg, #8fc6ff55 25%, transparent 25%) 0px 0/ 20px 20px, linear-gradient(45deg, #8fc6ff 25%, #e5e5f7 25%) 0px 0/ 20px 20px;
 }

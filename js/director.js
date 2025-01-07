@@ -82,6 +82,11 @@ class Director {
 
         relicHandler.addRelic(RELIC_ID.T_MORE_UPGRADE_LETTER_CHOICES);
         companionHandler.addCompanion(COMPANION_ID.CAT);
+
+        letterModifierHandler.addModifierFromId("e", MODIFIER_ID.POISON);
+        letterModifierHandler.addModifierFromId("o", MODIFIER_ID.HARMONY);
+        letterModifierHandler.addModifierFromId("i", MODIFIER_ID.EMPHASIS);
+        letterModifierHandler.addModifierFromId("u", MODIFIER_ID.SUPERCHARGE);
         this.setupEvent("_intro");
         ui.removeStartButton();
     }

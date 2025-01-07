@@ -214,6 +214,10 @@ class CombatHandler {
         // gain one reroll after every word play
         this.rerollsLeft++;
 
+        // apply effects first
+        for (const e of attackResult.effects) {
+            e.apply(e)
+        }
         // handle damage to enemies
         await currentEnemy.dealDamage(attackResult.damage, true);
 
@@ -226,10 +230,7 @@ class CombatHandler {
             return false; // don't resovle effects if enemy dies early
         } 
 
-        // apply effects
-        for (const e of attackResult.effects) {
-            e.apply(e)
-        }
+
         return true;
     }
 
@@ -296,6 +297,7 @@ class CombatHandler {
 
     // called by director to start combat
     async beginCombat(enemy) {
+        Letter.generateLetters(); // refill the tile board
         this.combatPhaseIndex = COMBAT_PHASES.length - 1; // PLAYER_PRE_TURN
         
         // start of combat relic effects
@@ -323,7 +325,6 @@ class CombatHandler {
     calculateAttackResult(letters) {
         let word = ""
         let damage = 0;
-        let chargeGain = 0;
         let multipliers = [];
         let length = Letter.countTrueLength(letters);
         let effects = [];
@@ -338,21 +339,27 @@ class CombatHandler {
             confusedDamage = Utils.shuffleObject(LETTER_DAMAGE_VALUES);
         }
         for (const o of Object.values(SPECIAL_TILE_TYPES)) {
-            specialTiles[o] = 0;
+            specialTiles[o] = [];
         }
+        let individualTileDamage = [];
+        let individualTileCharge = [];
+        let index = 0;
+        let harmonizedLetters = {};
+        let emphasizedLetterIndexes = [];
         for(const l of letters) {
+            let chargeGain = 0;
             let tileDamage = 0;
             for (const l2 of l.letter) { // count raw damage
                 word += l2;
                 chargeGain += 1 + letterChargeBonus[l2];
                 if (player.isConfused) {
                     tileDamage += confusedDamage[l2];
-                } else if (!l.tileEffects[TILE_EFFECTS.POISONOUS]){ // poison does not deal regular damage
+                } else { // poison does not deal regular damage
                     tileDamage += LETTER_DAMAGE_VALUES[l2]
                 }
             }
             if (l.specialTileType) { // count no. of special tiles of each type
-                specialTiles[l.specialTileType] += 1;
+                specialTiles[l.specialTileType].push(index);
             }
 
             // tile effects
@@ -366,32 +373,55 @@ class CombatHandler {
             }
             if (l.tileEffects[TILE_EFFECTS.POISONOUS]) {
                 effects.push(AttackEffect.applyStatusEffect("enemy", Effect.EFFECT_TYPES.POISON, tileDamage));
+                // poison damage replaces regular damage
+                tileDamage = 0;
+            }
+            if (l.tileEffects[TILE_EFFECTS.HARMONIZED]) {
+                for (const l2 of l.letter) { // gotta deal with multi-letter tiles again....
+                    if (!Object.hasOwn(harmonizedLetters, l2)) {
+                        harmonizedLetters[l2] = false;
+                        continue;
+                    }
+                    if (harmonizedLetters[l2] === false) {
+                        harmonizedLetters[l2] = true;
+                    }
+                }
+            }
+            if (l.tileEffects[TILE_EFFECTS.EMPHASIZED]) {
+                emphasizedLetterIndexes.push(index);
+            }
+            if (l.tileEffects[TILE_EFFECTS.SUPERCHARGED]) {
+                chargeGain *= 2;
             }
 
-            damage += tileDamage;
+            individualTileDamage.push(tileDamage);
+            individualTileCharge.push(chargeGain);
+            index++;
         }
         for (const s in specialTiles) { // handle special tiles
-            for (let i = 0; i < specialTiles[s]; i++) {
-                chargeGain += extraChargeGainOnGem;
+            for (const i of specialTiles[s]) {
+                individualTileCharge[i] += extraChargeGainOnGem;
                 let multiplier = 1;
                 if (relicHandler.checkHasRelic(RELIC_ID.SHINY_HAMMER)) multiplier += 0.1;
                 switch(s) {
                     case SPECIAL_TILE_TYPES.TYPE_1 : {
-                        multiplier += 0.2;
-                        chargeGain += 2;
+                        individualTileDamage[i] += 2;
+                        individualTileCharge[i] += 2;
+                        effects.push(AttackEffect.applyStatusEffect("player", Effect.EFFECT_TYPES.SHIELD, 5))
                         if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
                             effects.push(AttackEffect.applyStatusEffect("enemy", 
-                                Effect.EFFECT_TYPES.POISON, 0.5 * damage
+                                Effect.EFFECT_TYPES.POISON, individualTileDamage[i]
                             ))
                         }
                         break;
                     }
                     case SPECIAL_TILE_TYPES.TYPE_2 : {
-                        multiplier += 0.5;
-                        chargeGain += 4;
+                        individualTileDamage[i] += 4;
+                        individualTileCharge[i] += 4;
+                        effects.push(AttackEffect.healEffect("player", 3));
                         if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
                             effects.push(AttackEffect.applyStatusEffect("enemy", 
-                                Effect.EFFECT_TYPES.POISON, 0.5 * damage
+                                Effect.EFFECT_TYPES.POISON, individualTileDamage[i]
                             ))
                         }
                         break;
@@ -403,6 +433,34 @@ class CombatHandler {
                 multipliers.push(multiplier);
             }
         }
+        
+        // deal with harmonized letters
+        for (let i = 0; i < letters.length; i++) {
+            for (const l2 of letters[i].letter) {
+                if (Object.hasOwn(harmonizedLetters, l2) &&
+                  harmonizedLetters[l2] === true) {
+                    individualTileDamage[i] *= 2;
+                  }
+            }
+        }
+
+        // emphasized tiles
+        for (const i of emphasizedLetterIndexes) {
+            // double damage of tile
+            individualTileDamage[i] *= 2;
+            // 1.5x for adjacent tiles
+            console.log(typeof individualTileDamage[i])
+            if (typeof individualTileDamage[i+1] !== "undefined") {
+                individualTileDamage[i+1] *= 1.5;
+            }
+            if (typeof individualTileDamage[i-1] !== "undefined") {
+                individualTileDamage[i-1] *= 1.5;
+            }
+        }
+        console.log(individualTileDamage);
+
+        damage = _.sum(individualTileDamage);
+        let chargeGain = _.sum(individualTileCharge);
 
         // damage related relic effects
         if (relicHandler.checkHasRelic(RELIC_ID.HAMMER)) damage += 3;

@@ -8,7 +8,10 @@ const TILE_EFFECTS = {
     CLEANSING : "TE|CLEANSING",
     DECAY : "TE|DECAY",
     RADIOACTIVE : "TE|RADIOACTIVE",
-    WEAKEN : "TE|WEAKEN"
+    WEAKEN : "TE|WEAKEN",
+    HARMONIZED : "TE|HARMONIZED",
+    EMPHASIZED : "TE|EMPHASIZED",
+    SUPERCHARGED : "TE|SUPERCHARGED"
 }
 
 // basically an abstract class. Has some static factory methods to actually create the TileEffect instances
@@ -54,6 +57,12 @@ class TileEffect {
             }
             case TILE_EFFECTS.POISONOUS : {
                 return TileEffect.poisonous(data.duration);
+            }
+            case TILE_EFFECTS.EMPHASIZED : {
+                return TileEffect.emphasized(data.duration);
+            }
+            case TILE_EFFECTS.SUPERCHARGED : {
+                return TileEffect.supercharged(99);
             }
         }
     }
@@ -119,6 +128,36 @@ class TileEffect {
         return new TileEffect({
             modifyLetterElement : (element) => {
                 element.addClass("tile-effect-poisonous");
+                return element;
+            },
+            state : duration
+        })
+    }
+
+    static harmonized(duration) {
+        return new TileEffect({
+            modifyLetterElement : (element) => {
+                element.addClass("tile-effect-harmonized");
+                return element;
+            },
+            state : duration
+        })
+    }
+
+    static emphasized(duration) {
+        return new TileEffect({
+            modifyLetterElement : (element) => {
+                element.addClass("tile-effect-emphasis");
+                return element;
+            },
+            state : duration
+        });
+    }
+
+    static supercharged(duration) {
+        return new TileEffect({
+            modifyLetterElement : (element) => {
+                element.addClass("tile-effect-supercharged");
                 return element;
             },
             state : duration

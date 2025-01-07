@@ -7,11 +7,12 @@ const MODIFIER_ID = {
     PROBABILITY_UP : "LU|PROBABILITY_UP",
     PROBABILITY_DOWN : "LU|PROBABILITY_DOWN",
     POISON : "LU|POISON",
-    HARMONIZED : "LU|HARMONIZED",
+    HARMONY : "LU|HARMONY",
     EMPHASIS : "LU|EMPHASIS",
     SPIKY : "LU|SPIKY",
     CHARGE_GAIN_UP : "LU|CHARGE_GAIN_UP",
-    CHARGE_GAIN_DOWN : "LU|CHARGE_GAIN_DOWN"
+    CHARGE_GAIN_DOWN : "LU|CHARGE_GAIN_DOWN",
+    SUPERCHARGE : "LU|SUPERCHARGE"
 }
 
 const COMMON_UPGRADES = ["DAMAGE_INCREASE", "PROBABILITY_DOWN", "PROBABILITY_UP", "CHARGE_GAIN_UP"];
@@ -35,6 +36,18 @@ class LetterModifier {
             }
             case MODIFIER_ID.CHARGE_GAIN_DOWN : {
                 return new ChargeGainDownLetterModifier();
+            }
+            case MODIFIER_ID.POISON : {
+                return new PoisonLetterUpgrade();
+            }
+            case MODIFIER_ID.HARMONY : {
+                return new HarmonyLetterUpgrade();
+            }
+            case MODIFIER_ID.EMPHASIS : {
+                return new EmphasisLetterUpgrade();
+            }
+            case MODIFIER_ID.SUPERCHARGE : {
+                return new SuperchargedLetterUpgrade();
             }
             default : {
                 throw new Error(`Unimplemented letter modifier ${upgradeId}`);
@@ -220,6 +233,50 @@ class PoisonLetterUpgrade extends LetterModifier {
     }
 }
 
+class HarmonyLetterUpgrade extends LetterModifier {
+    constructor() {
+        super({
+            id : MODIFIER_ID.HARMONY,
+            name : "Harmony",
+            sprite : "./sprites/Questionmorks.png",
+            isUpgrade : true
+        })
+    }
+
+    apply(letter) {
+        letter.tileEffects[TILE_EFFECTS.HARMONIZED] = TileEffect.harmonized(99);
+    }
+}
+
+class EmphasisLetterUpgrade extends LetterModifier {
+    constructor() {
+        super({
+            id : MODIFIER_ID.EMPHASIS,
+            name : "Emphasis",
+            sprite : "./sprites/Questionmorks.png",
+            isUpgrade : true
+        })
+    }
+
+    apply(letter) {
+        letter.tileEffects[TILE_EFFECTS.EMPHASIZED] = TileEffect.emphasized(99);
+    }
+}
+
+class SuperchargedLetterUpgrade extends LetterModifier {
+    constructor() {
+        super({
+            id : MODIFIER_ID.SUPERCHARGE,
+            name : "Supercharge",
+            sprite : "./sprites/Questionmorks.png",
+            isUpgrade : true
+        });
+    }
+
+    apply(letter) {
+        letter.tileEffects[TILE_EFFECTS.SUPERCHARGED] = TileEffect.supercharged(99);
+    }
+}
 
 class LetterModifierHandler {
     constructor() {
