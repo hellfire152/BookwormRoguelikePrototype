@@ -433,7 +433,15 @@ class CombatHandler {
                 multipliers.push(multiplier);
             }
         }
-        
+
+        // check bonus from enemy
+        let enemyBonuses = currentEnemy.calculateAttackBonus({letters, word});
+        if (enemyBonuses && enemyBonuses.bonusDamage) {
+            for (let i = 0; i < enemyBonuses.bonusDamage.length; i ++) {
+                individualTileDamage[i] += enemyBonuses.bonusDamage[i];
+            }
+        }
+
         // deal with harmonized letters
         for (let i = 0; i < letters.length; i++) {
             for (const l2 of letters[i].letter) {
@@ -443,7 +451,6 @@ class CombatHandler {
                   }
             }
         }
-
         // emphasized tiles
         for (const i of emphasizedLetterIndexes) {
             // double damage of tile
@@ -457,7 +464,6 @@ class CombatHandler {
                 individualTileDamage[i-1] *= 1.5;
             }
         }
-        console.log(individualTileDamage);
 
         damage = _.sum(individualTileDamage);
         let chargeGain = _.sum(individualTileCharge);

@@ -66,6 +66,13 @@ class Player extends Character {
     giveMoney(amountGiven) {
         this.money += parseInt(amountGiven);
     }
+    takeMoney(amountTaken) {
+        this.money -= amountTaken;
+        // process enemy effects on money use, mainly for pig boss
+        if (currentEnemy && currentEnemy.isAlive && currentEnemy.onMoneySpent) {
+            currentEnemy.onMoneySpent(amountTaken);
+        }
+    }
 
     get money() {
         return this._money;
@@ -178,13 +185,19 @@ class Player extends Character {
     }
 
     // selector function takes in the letters arr as input. Returns the letters that the effect will be applied on
-    applyTileEffect(tileEffectType, selectorFunction, stateVar) {
+    applyTileEffect(tileEffectType, selectorFunction, data) {
         let letters = UI.Letter.getLetters().toArray();
+        if (!selectorFunction) {
+            // random letter
+            selectorFunction = (letters) => {
+                return _.sample(letters)
+            }
+        }
         let affectedLetters = selectorFunction(letters);
 
         for (const l of affectedLetters) {
             let e = Letter.getLetterObjectFromElement(l);
-            e.applyTileEffect(l, tileEffectType, stateVar);
+            e.applyTileEffect(l, tileEffectType, data);
         }
     }   
 

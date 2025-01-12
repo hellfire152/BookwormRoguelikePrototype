@@ -74,18 +74,21 @@ class Enemy extends Character {
     initializeDisplay() {
         UI.Enemy.initializeEnemyDisplay(this);
     }
+
+    calculateAttackBonus() {} // implement enemy-specific bonuses here
 }
 
 const ENEMY_ID = {
     GOBBO : "E_001",
     GHOST : "E_002",
     SLIME : "E_003",
-    SNEK : "E_004"
+    SNEK : "E_004",
+    PIG_BOSS : "E|PIG_BOSS"
 }
 const ENEMIES = {
     [ENEMY_ID.GOBBO] : {
         name : "gobbo",
-        baseMaxHP : 200,
+        baseMaxHP : 10,
         attacks : [
             {
                 name : "Gobbo punch",
@@ -208,14 +211,131 @@ const ENEMIES = {
                 ref.state = 1;
             }
         },
-        rewards : [CombatReward.money(20), CombatReward.relic(RELIC_ID.T_POISON_ONE_LETTER)],
+        rewards : [CombatReward.money(20), CombatReward.relic(null)],
         sprite : "./sprites/enemies/Snek.png",
         tooltip : "Deals poison damage that deals increasing damage over time"
+    },
+    [ENEMY_ID.PIG_BOSS] : {
+        name : "General Manager",
+        baseMaxHP : 150,
+        attacks : [
+            {
+                name : "Smite",
+                effects : [
+                    AttackEffect.damageEffect("player", 5),
+                    AttackEffect.applyTileEffect(TILE_EFFECTS.MONEY_LOCK, (letters) => {
+                        return _.sampleSize(letters, 3);
+                    }, {cost : 5, duration : 2})
+                ]
+            },
+            {
+                name : "Extort",
+                effects : [
+                    AttackEffect.damageEffect("player", 3),
+                    AttackEffect.stealMoneyEffect(5)
+                ]
+            },
+            {
+                name : "Accost",
+                effects : [
+                    AttackEffect.damageEffect("player", 3),
+                    AttackEffect.applyStatusEffect("player", Effect.EFFECT_TYPES.VULNERABLE, 2)
+                ]
+            },
+            {
+                name : "Cash Out!",
+                effects : [
+                    AttackEffect.damageEffect("player", 10)
+                ]
+            }
+        ],
+        initialState : 0,
+        stateTransition : (ref) => {
+            let greedEffect = ref.getStatus(Effect.EFFECT_TYPES.GREED);
+            if (greedEffect && greedEffect.value >= 25) {
+                ref.state = 3 // use Cash Out
+                return;
+            }
+            if (++ref.state > 2) {
+                ref.state = 0
+            }
+        },
+        rewards : [CombatReward.money(50), CombatReward.relic(null,null,"rare"), CombatReward.heal(999)],
+        sprite : "./sprites/enemies/Pig.png",
+        tooltip : "Forces you to pay for certain tiles. He gains a greed stack for every money spent.\nAt 25 Greed stacks, uses a powerful attack."
+    }
+}
+
+class PigBossEnemy extends Enemy {
+    constructor() {
+        super(ENEMIES[ENEMY_ID.PIG_BOSS]);
+    }
+
+   
+    _performAttack(attack) { 
+        // add in greed damage buffs
+        for (const e of attack.effects) {
+            if (e.type == AttackEffect.TYPES.DAMAGE) {
+                let greedStacks = this.getStatus(Effect.EFFECT_TYPES.GREED);
+                if (greedStacks) {
+                    e.value *= 1 + (greedStacks.value/12.5);
+                }
+            }
+        }
+        return super._performAttack(attack);
+    }
+    
+    calculateAttackBonus(data) {
+        let letters = data.letters;
+        let bonusDamage = [];
+        for (const l of letters) {
+            let bonus = 0;
+            if (l.specialTileType) {
+                bonus += 3;
+            }
+            bonusDamage.push(bonus);
+        }
+        return {
+            bonusDamage
+        }
+    }
+
+    onMoneySpent(money) {
+        console.log("test");
+        // add greed stacks
+        this.applyEffect(Effect.EFFECT_TYPES.GREED, money);
     }
 }
 
 class EnemyFactory {
+    static NORMAL_ENEMIES = [
+        ENEMY_ID.GOBBO,
+        ENEMY_ID.GHOST,
+        ENEMY_ID.SLIME
+    ]
+    static ELITE_ENEMIES = [
+        ENEMY_ID.SNEK
+    ]
+    static BOSS_ENEMIES = [
+        ENEMY_ID.PIG_BOSS
+    ]
     static generateEnemy(enemyType, level) {
-        return new Enemy(ENEMIES[enemyType], level)
+        switch(enemyType) {
+            case ENEMY_ID.PIG_BOSS : {
+                return new PigBossEnemy();
+            }
+            default : {
+                return new Enemy(ENEMIES[enemyType], level)
+            }
+        }
+    }
+    static randomCommonEnemy(level) {
+        return EnemyFactory.generateEnemy(_.sample(EnemyFactory.NORMAL_ENEMIES), level)
+    }
+    static randomEliteEnemy(level) {
+        return EnemyFactory.generateEnemy(_.sample(EnemyFactory.ELITE_ENEMIES), level);
+    }
+    static randomBossEnemy(level) {
+        return EnemyFactory.generateEnemy(_.sample(EnemyFactory.BOSS_ENEMIES), level);
     }
 }

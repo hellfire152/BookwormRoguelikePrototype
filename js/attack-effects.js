@@ -7,13 +7,14 @@ class AttackEffect {
         APPLY_STATUS : "AE|APPLY_STATUS",
         APPLY_TILE_EFFECT : "AE|APPLY_TILE_EFFECT",
         CHARGE_DRAIN : "AE|CHARGE_DRAIN",
-        GENERATE_TILE : "AE|GENERATE_TILE"
+        GENERATE_TILE : "AE|GENERATE_TILE",
+        STEAL_MONEY : "AE|STEAL_MONEY"
     }
     // could just create new AttackEffects directly, but these methods
     // should make the code a lot readable
     static damageEffect(target, value) {
         return new AttackEffect({
-            type : "damage",
+            type : AttackEffect.TYPES.DAMAGE,
             value : value,
             target : target,
             apply : async (ref, source) => {
@@ -31,7 +32,7 @@ class AttackEffect {
     }
     static healEffect(target, value) {
         return new AttackEffect({
-            type : "heal",
+            type : AttackEffect.TYPES.HEAL,
             value : value,
             target : target,
             apply : (ref) => {
@@ -46,6 +47,16 @@ class AttackEffect {
             }
         });
     }
+    static stealMoneyEffect(value) {
+        return new AttackEffect({
+            type : AttackEffect.TYPES.STEAL_MONEY,
+            value : value,
+            apply : (ref) => {
+                player.takeMoney(ref.value);
+                log(`${ref.value} Money was stolen!`);
+            }
+        })
+    } 
     // no target as this can only apply to the player
     static replacementEffect(type, value, newLetter) {
         let ae = new AttackEffect({

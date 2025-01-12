@@ -45,7 +45,6 @@ class Director {
     signal(signalType, data) {
         switch(signalType) {
             case "combat-complete" : {
-                this.levelsCleared += 1;
                 this.nextEvent();
                 break;
             }
@@ -81,43 +80,43 @@ class Director {
         player.giveMoney(2000);
 
         relicHandler.addRelic(RELIC_ID.T_MORE_UPGRADE_LETTER_CHOICES);
+        relicHandler.addRelic(RELIC_ID.TUNING_FORK);
         companionHandler.addCompanion(COMPANION_ID.CAT);
-
-        letterModifierHandler.addModifierFromId("e", MODIFIER_ID.POISON);
-        letterModifierHandler.addModifierFromId("o", MODIFIER_ID.HARMONY);
-        letterModifierHandler.addModifierFromId("i", MODIFIER_ID.EMPHASIS);
-        letterModifierHandler.addModifierFromId("u", MODIFIER_ID.SUPERCHARGE);
         this.setupEvent("_intro");
         ui.removeStartButton();
     }
 
     nextEvent() {
-        this.nodeIndex++;
+        if (this.skipNodeCounterAdvance) {
+            this.skipNodeCounterAdvance = false;
+        } else {
+            this.nodeIndex++;
+        }
         this.previousEventType = this.currentEventType;
         let options = this.getNextNodeOptions();
         ui.decideNextNodeEvent(options);
     }
 
-    setupCombat(enemyType = "normal", enemyId) {
+    setupCombat(enemyType = "normal", enemyId, advanceNodeCounter = true) {
         if (enemyId) {
             currentEnemy = enemyId; //fixed enemy
         } else {
             switch (enemyType) {
                 case "normal" : {
-                    currentEnemy = EnemyFactory.generateEnemy(ENEMY_ID.GOBBO, this.chapter);
+                    currentEnemy = EnemyFactory.randomCommonEnemy(this.chapter);
                     break;
                 }
                 case "elite" : {
-                    currentEnemy = EnemyFactory.generateEnemy(ENEMY_ID.SNEK, this.chapter);
+                    currentEnemy = EnemyFactory.randomEliteEnemy(this.chapter);
                     break;
                 }
                 case "boss" : {
-                    currentEnemy = EnemyFactory.generateEnemy(ENEMY_ID.SNEK, this.chapter);
+                    currentEnemy = EnemyFactory.randomBossEnemy(this.chapter);
                     break;
                 }
             }
         }
-        
+        if (!advanceNodeCounter) this.skipNodeCounterAdvance = true;
         currentEnemy.initializeDisplay();
          // begin the combat. players start first.
         this.gameState = GAME_CONSTANTS.GAME_STATES.COMBAT;
@@ -136,8 +135,7 @@ class Director {
 
     getNextNodeOptions() {
         let options = [];
-        options.push("elite");
-        options.push("upgradeShop");
+        options.push("event");
         if (this.nodeIndex == 1) { // start with combat
             options.push("combat");
             return options;
@@ -152,6 +150,8 @@ class Director {
         }
         if (this.forcedNextNode) {
             // add forced node as single option and return
+            options.push(this.forcedNextNode);
+            // make sure the event is the forced one. Probably need to add some args
             return options;
         }
         while (options.length < GAME_CONSTANTS.NEXT_NODE_OPTIONS_COUNT) { // random options otherwise
@@ -187,6 +187,7 @@ class Director {
     nextWorld() {
         
     }
+
     get nodeIndex() {
         return this._nodeIndex;
     }

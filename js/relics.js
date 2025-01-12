@@ -1,4 +1,88 @@
+const RELIC_ID = {
+    // common relics
+    HAMMER : "R|HAMMER",
+    SHINY_HAMMER : "R|SHINY_HAMMER",
+    PEN_NIB : "R|PEN_NIB",
+    HEAVY_METAL : "R|HEAVY_METAL",
+    COIN : "R|COIN",
+    LIGHTSTICK : "R|LIGHTSTICK",
+    T_UPGRADE_3 : "R|T_U_3",
+    T_CHARGE_HEAL : "R|T_C_H",
+    T_MORE_REROLLS : "R|T_M_R",
+    T_FIRST_WORD_DOUBLE : "R|T_F_W_D",
+    T_BETTER_REROLL_GEN : "R|T_B_R_G",
+    T_MORE_UPGRADE_LETTER_CHOICES : "R|T_M_U_L_C",
+    TUNING_FORK : "R|TUNING_FORK",
+
+    // uncommon relics
+    ANTIQUE_CLOCK : "R|ANTIQUE_CLOCK",
+    LILY : "R|LILY",
+    PERPETUAL_MOTION_MACHINE : "R|PERPETUAL_MOTION_MACHINE",
+    QUILL : "R|QUILL",
+    SPECTACLES : "R|SPECTACLES",
+    BASKET : "R|BASKET",
+    LENS : "R|LENS",
+    SHANK : "R|SHANK",
+    SYRINGE : "R|SYRINGE",
+    CACTUS : "R|CACTUS",
+    MEGAPHONE : "R|MEGAPHONE",
+    T_GEM_LOW_THRESH : "R|G_L_T",
+    T_POISON_ONE_LETTER : "R|T_P_O_L",
+
+    // rare relics
+    GAUNTLET : "R|GAUNTLET",
+    ANCIENT_TOME : "R|ANCIENT_TOME",
+    T_LONG_MULTIPLIER : "R|T_L_M",
+    T_SHORT_WORD_DOUBLE : "R|T_S_W_D",
+    T_SHORT_WORD_CHARGE : "R|T_S_W_C"
+}
+
+const RELIC_RARITIES = {
+    COMMON : "common",
+    UNCOMMON : "uncommon",
+    RARE : "rare"
+}
+
 class RelicHandler {
+    static COMMON_RELICS = [
+        RELIC_ID.HAMMER,
+        RELIC_ID.SHINY_HAMMER,
+        RELIC_ID.PEN_NIB,
+        RELIC_ID.HEAVY_METAL,
+        RELIC_ID.COIN,
+        RELIC_ID.LIGHTSTICK,
+        RELIC_ID.T_UPGRADE_3,
+        RELIC_ID.T_CHARGE_HEAL,
+        RELIC_ID.T_MORE_REROLLS,
+        RELIC_ID.T_FIRST_WORD_DOUBLE,
+        RELIC_ID.T_BETTER_REROLL_GEN,
+        RELIC_ID.T_MORE_UPGRADE_LETTER_CHOICES,
+        RELIC_ID.TUNING_FORK
+    ]
+
+    static UNCOMMON_RELICS = [
+        RELIC_ID.ANTIQUE_CLOCK,
+        RELIC_ID.LILY,
+        RELIC_ID.PERPETUAL_MOTION_MACHINE,
+        RELIC_ID.QUILL,
+        RELIC_ID.SPECTACLES,
+        RELIC_ID.BASKET,
+        RELIC_ID.LENS,
+        RELIC_ID.SHANK,
+        RELIC_ID.SYRINGE,
+        RELIC_ID.CACTUS,
+        RELIC_ID.MEGAPHONE,
+        RELIC_ID.T_GEM_LOW_THRESH,
+        RELIC_ID.T_POISON_ONE_LETTER,
+    ]
+
+    static RARE_RELICS = [
+        RELIC_ID.GAUNTLET,
+        RELIC_ID.ANCIENT_TOME,
+        RELIC_ID.T_LONG_MULTIPLIER,
+        RELIC_ID.T_SHORT_WORD_DOUBLE,
+        RELIC_ID.T_SHORT_WORD_CHARGE
+    ]
     static getRandomRelic(alreadyHave) {
         // remove the relics that are already present
         let commonRelics = {};
@@ -56,58 +140,37 @@ class RelicHandler {
         } else return null;
     }
 
-    getRandomUnownedRelic(amount) {
-        let relics = [];
-        while(relics.length < amount) {
-            let relicId = _.sample(Object.values(RELIC_ID));
-            if(!this.checkHasRelic(relicId) && !relics.includes(relicId)) {
-                relics.push(relicId);
+    // TODO: Implement rarity
+    getRandomUnownedRelic(amount, rarity) {
+        let relicsAvailable;
+        switch (rarity) {
+            case RELIC_RARITIES.COMMON : {
+                relicsAvailable = RelicHandler.COMMON_RELICS;
+                break;
+            }
+            case RELIC_RARITIES.UNCOMMON : {
+                relicsAvailable = RelicHandler.UNCOMMON_RELICS;
+                break;
+            }
+            case RELIC_RARITIES.RARE : {
+                relicsAvailable = RelicHandler.RARE_RELICS;
+                break;
+            }
+            default : { // all rarities
+                relicsAvailable = Object.values(RELIC_ID);
+                break;
             }
         }
-        console.log(relics)
+        relicsAvailable = relicsAvailable.filter((r) => {
+            return !this.checkHasRelic(r);
+        })
+
+        let relics = _.sampleSize(relicsAvailable, amount);
         relics = relics.map((relicId) => {
             return RelicFactory.generateRelic(relicId);
         })
         return relics;
     }
-}
-
-const RELIC_ID = {
-    // common relics
-    HAMMER : "R|HAMMER",
-    SHINY_HAMMER : "R|SHINY_HAMMER",
-    PEN_NIB : "R|PEN_NIB",
-    HEAVY_METAL : "R|HEAVY_METAL",
-    COIN : "R|COIN",
-    LIGHTSTICK : "R|LIGHTSTICK",
-    T_UPGRADE_3 : "R|T_U_3",
-    T_CHARGE_HEAL : "R|T_C_H",
-    T_MORE_REROLLS : "R|T_M_R",
-    T_FIRST_WORD_DOUBLE : "R|T_F_W_D",
-    T_BETTER_REROLL_GEN : "R|T_B_R_G",
-    T_MORE_UPGRADE_LETTER_CHOICES : "R|T_M_U_L_C",
-
-    // uncommon relics
-    ANTIQUE_CLOCK : "R|ANTIQUE_CLOCK",
-    LILY : "R|LILY",
-    PERPETUAL_MOTION_MACHINE : "R|PERPETUAL_MOTION_MACHINE",
-    QUILL : "R|QUILL",
-    SPECTACLES : "R|SPECTACLES",
-    BASKET : "R|BASKET",
-    LENS : "R|LENS",
-    SHANK : "R|SHANK",
-    SYRINGE : "R|SYRINGE",
-    CACTUS : "R|CACTUS",
-    MEGAPHONE : "R|MEGAPHONE",
-    T_GEM_LOW_THRESH : "R|G_L_T",
-    T_POISON_ONE_LETTER : "R|T_P_O_L",
-
-    // rare relics
-    GAUNTLET : "R|GAUNTLET",
-    ANCIENT_TOME : "R|ANCIENT_TOME",
-    T_LONG_MULTIPLIER : "R|T_L_M",
-    T_SHORT_WORD_DOUBLE : "R|T_S_W_D",
-    T_SHORT_WORD_CHARGE : "R|T_S_W_C"
 }
 
 class GenericRelic { // for relics that don't need any internal logic
@@ -639,11 +702,17 @@ class RelicFactory {
                     }
                 })
             }
+            case RELIC_ID.TUNING_FORK : {
+                return new GenericRelic({
+                    id : relicId,
+                    name : "Tuning Fork",
+                    sprite : "./sprites/Questionmorks.png",
+                    tooltipDescription : "Tiles have a small change to spawn with the Harmonized effect",
+                });
+            }
             default : {
                 throw new Error(`No relic ${relicId} found! Did you forget to add it to the Factory class?`)
             }
         }
     }
-
-
 }

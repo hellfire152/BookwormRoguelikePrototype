@@ -37,6 +37,7 @@
     border : 2px solid darkgray;
     border-radius : 5px;
     position : relative;
+    overflow : hidden;
 }
 
 .companion-counter-current {

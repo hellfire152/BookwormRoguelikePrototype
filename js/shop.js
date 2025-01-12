@@ -5,8 +5,11 @@ class Shop {
         letterModifierHandler.addModifierFromId(selectedLetter, selectedModifier);
         if(t.attr("data-return-state")) {
             ui.loadPreviousSceneState(t.attr("data-return-state"));
-        } else {
-            director.signal("exit-shop");
+        } else if (t.attr("data-create-next-option")){
+            ui.setupDynamicEvent({
+                prompt : "You feel a little stronger...",
+                options : [nextEventEventOption]
+            });
         }
     }
 }

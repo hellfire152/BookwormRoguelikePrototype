@@ -31,12 +31,14 @@ class CombatReward {
         })
     }
 
-    static relic(id, probability) {
-        return new CombatReward({
+    static relic(id, probability, rarity = "common") {
+        let relicCombatReward = new CombatReward({
             field : "relic",
             value : id,
             probability
-        })
+        });
+        relicCombatReward.rarity = rarity;
+        return relicCombatReward;
     }
 
     constructor (data) {
@@ -50,7 +52,7 @@ class CombatReward {
         if(this.field == "relic") {
             if (!Object.hasOwn(obj, "relic")) obj.relic = [];
             if (this.value == null) {
-                this.value = relicHandler.getRandomUnownedRelic(1)[0].id;
+                this.value = relicHandler.getRandomUnownedRelic(1, this.rarity)[0].id;
             }
             obj.relic.push((this.value));
             return;

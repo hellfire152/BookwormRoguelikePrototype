@@ -213,6 +213,13 @@ class Letter {
             }
         }
         this.element = null;
+
+        // relic generation effects
+        if (relicHandler.checkHasRelic(RELIC_ID.TUNING_FORK)) {
+            if (Math.random() > 0.15) return;
+            this.applyTileEffect(undefined, TILE_EFFECTS.HARMONIZED, {duration : 99})
+            console.log(this);
+        }
     }
 
     generateElement() { // jquery element to add to DOM
@@ -255,8 +262,8 @@ class Letter {
     rerender(elementToReplace = this.element) {
         $(elementToReplace).replaceWith(this.generateElement());
     }
-    applyTileEffect(letterElement = this.element, tileEffectType, stateVar) {
-        this.tileEffects[tileEffectType] = TileEffect.generateTileEffect(tileEffectType, stateVar);
+    applyTileEffect(letterElement = this.element, tileEffectType, data) {
+        this.tileEffects[tileEffectType] = TileEffect.generateTileEffect(tileEffectType, data);
         this.rerender(letterElement);
     }
     removeTileEffect(letterElement = this.element, tileEffectType) {
@@ -276,7 +283,7 @@ class Letter {
             }
         }
         this.rerender(e);
-;    }
+    }
 
     lockedOnClick(t) {
         switch(this.lockedState) {
@@ -286,7 +293,7 @@ class Letter {
             case TILE_EFFECTS.MONEY_LOCK : {
                 let te = this.tileEffects[TILE_EFFECTS.MONEY_LOCK];
                 if (player.money >= te.moneyCost) {
-                    player.money -= te.moneyCost;
+                    player.takeMoney(te.moneyCost);
                     this.removeTileEffect(t, TILE_EFFECTS.MONEY_LOCK);
                 }
                 return;

@@ -104,7 +104,26 @@ class UI {
     // use this if the event description and option text have to be
     // dynamically generated i.e. battle rewards
     setupDynamicEvent(eventDetail) { 
-        this.setEventPrompt(eventDetail.prompt);
+        let container = $("<div>");
+        container.addClass("event-detail-container");
+
+        let prompt = $("<div>");
+        prompt.text(eventDetail.prompt);
+        prompt.addClass("event-prompt");
+
+        let sprite = $("<img>");
+        sprite.attr("src", eventDetail.sprite);
+        sprite.addClass("event-sprite");
+
+        let postPrompt = $("<div>");
+        postPrompt.text(eventDetail.postPrompt);
+        postPrompt.addClass("event-post-prompt");
+
+        container.append(prompt);
+        if (eventDetail.sprite) container.append(sprite);
+        if (eventDetail.postPrompt) container.append(postPrompt);
+
+        this.setCustomEventPrompt(container);
         this.setEventPlayerOptions(eventDetail.options);
         this.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
     }
@@ -467,7 +486,7 @@ class UI {
             }
             // handling locked tiles
             let l = Letter.getLetterObjectFromElement(t);
-            if (l.lockedState) l.lockedOnClick(t);
+            if (l.lockedState) return l.lockedOnClick(t);
 
             // generate a new blank letter to replace it with
             let placeholder = new Letter("", SPECIAL_TILE_TYPES.UNSELECTABLE);
@@ -749,6 +768,8 @@ class UI {
             submitModifierButton.attr("id", "modifier-submit");
             if (args && args.returnToSavedState) {
                 submitModifierButton.attr("data-return-state", args.returnToSavedState);
+            } else if (args.createNextOption) {
+                submitModifierButton.attr("data-create-next-option", "true");
             }
             submitModifierButton.text("Submit");
             submitModifierButton.addClass("bottom-row-button")
@@ -765,7 +786,7 @@ class UI {
             ui.sceneStore.event.options = modifierLetterContainer;
             ui.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
         }
-        static loadUpgradeShop() {
+        static loadUpgradeShop(data) {
             // same as upgrade reward screen
             let shopContainer = $("<div>");
             shopContainer.attr("id", "upgrade-shop-container")
@@ -795,7 +816,10 @@ class UI {
         
             shopContainer.append(shopPrompt, modifiersContainers);
             ui.sceneStore.event.text = shopContainer;
-        
+            
+            if (data.customOptions) {
+                options.push(customOption)
+            }
             options.push({
                 "text" : "Continue",
                 "onSelect" : "_next-event"

@@ -18,6 +18,10 @@ class Character {
         return !!this.effects[statusId];
     }
 
+    getStatus(statusId) {
+        return this.effects[statusId];
+    }
+
     removeAllStatuses() {
         for (let e in this.effects) {
             this.effects[e] = null;
@@ -98,7 +102,7 @@ class Character {
     }
 
     healDamage(healAmount) {
-        this.currentHP += healAmount;
+        this.currentHP += parseFloat(healAmount);
         if (this.currentHP > this.maxHP) {
             this.currentHP = this.maxHP;
         }
@@ -106,12 +110,12 @@ class Character {
     }
 
     setHP(hp) {
-        this.currentHP = hp;
+        this.currentHP = parseFloat(hp);
         this._updateHPDisplay();
     }
 
     setMaxHP(hp) {
-        this.maxHP = hp;
+        this.maxHP = parseFloat(hp);
         this._updateHPDisplay();
     }
 

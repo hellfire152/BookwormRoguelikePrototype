@@ -10,7 +10,8 @@ class Effect {
         SILENCE : 7,
         VULNERABLE : 8,
         DAMAGE_BOOST : "E|DAMAGE_BOOST",
-        SNAKE_VENOM : "E|SNAKE_VENOM"
+        SNAKE_VENOM : "E|SNAKE_VENOM",
+        GREED : "E|GREED" // pig boss passive
     }    
 
     constructor(effectOptions) {
@@ -178,6 +179,25 @@ class SnakeVenomEffect extends Effect {
     }
 }
 
+class GreedEffect extends Effect {
+    constructor(value) {
+        super({
+            effectType : Effect.EFFECT_TYPES.GREED,
+            value : value,
+            duration : null,
+            sprite : "./sprites/Questionmorks.png"
+        });
+    }
+
+    resolvePostTurn() {} // don't tick down post turn
+    reapply(value) {
+        this.value += value;
+    }
+    generateElement(type) {
+        return super.generateElement(type, "value");
+    }
+}
+
 class EffectFactory {
     static generateEffect(effType, value) {
         switch(effType) {
@@ -227,6 +247,9 @@ class EffectFactory {
             }
             case Effect.EFFECT_TYPES.SNAKE_VENOM : {
                 return new SnakeVenomEffect(value);
+            }
+            case Effect.EFFECT_TYPES.GREED : {
+                return new GreedEffect(value);
             }
         }
     }

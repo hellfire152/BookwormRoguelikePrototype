@@ -120,25 +120,6 @@ body {
     margin-left : 5px;
 }
 
-.event-option {
-    width: 95%;
-    background-color: gray;
-    text-align: center;
-    background-color: #dfdfdf;
-    border : 5px solid rgb(162, 162, 162);
-    border-radius : 5px;
-    font-family : "Geist Mono";
-    font-size : 16px;
-    margin-left : 10px;
-}
-.event-option:hover {
-    border : 5px solid rgb(102, 189, 194);
-}
-#event-options-container {
-    margin : auto;
-    width : 100%;
-}
-
 .temporary-highlight {
     border: 1px solid yellow;
 }

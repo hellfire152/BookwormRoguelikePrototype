@@ -24,11 +24,11 @@
     display : flex;
 }
 .modifier-sprite {
-    width : 58x;
+    max-width : 58x;
     height : 100px;
 }
 .modifier-container {
-    padding : 10px;
+    padding : 3px;
     margin : 20px;
 }
 #shop-items-container {

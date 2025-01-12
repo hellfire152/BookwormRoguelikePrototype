@@ -64,6 +64,9 @@ class TileEffect {
             case TILE_EFFECTS.SUPERCHARGED : {
                 return TileEffect.supercharged(99);
             }
+            case TILE_EFFECTS.HARMONIZED : {
+                return TileEffect.harmonized(data.duration);
+            }
         }
     }
 
