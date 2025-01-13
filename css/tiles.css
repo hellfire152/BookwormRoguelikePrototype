@@ -103,3 +103,10 @@
     opacity: 0.8;
     background: linear-gradient(135deg, #8fc6ff55 25%, transparent 25%) -10px 0/ 20px 20px, linear-gradient(225deg, #8fc6ff 25%, transparent 25%) -10px 0/ 20px 20px, linear-gradient(315deg, #8fc6ff55 25%, transparent 25%) 0px 0/ 20px 20px, linear-gradient(45deg, #8fc6ff 25%, #e5e5f7 25%) 0px 0/ 20px 20px;
 }
+
+.tile-effect-compelled {
+    background-color: #ffffff;
+    opacity: 0.8;
+    background-image: radial-gradient(circle at center center, #fc98f4, #ffffff), repeating-radial-gradient(circle at center center, #fc98f4, #fc98f4, 10px, transparent 20px, transparent 10px);
+    background-blend-mode: multiply;
+}

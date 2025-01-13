@@ -13,6 +13,7 @@ const RELIC_ID = {
     T_BETTER_REROLL_GEN : "R|T_B_R_G",
     T_MORE_UPGRADE_LETTER_CHOICES : "R|T_M_U_L_C",
     TUNING_FORK : "R|TUNING_FORK",
+    T_ADDITIONAL_GEM_TILE : "R|T_A_G_T",
 
     // uncommon relics
     ANTIQUE_CLOCK : "R|ANTIQUE_CLOCK",
@@ -57,7 +58,8 @@ class RelicHandler {
         RELIC_ID.T_FIRST_WORD_DOUBLE,
         RELIC_ID.T_BETTER_REROLL_GEN,
         RELIC_ID.T_MORE_UPGRADE_LETTER_CHOICES,
-        RELIC_ID.TUNING_FORK
+        RELIC_ID.TUNING_FORK,
+        RELIC_ID.T_ADDITIONAL_GEM_TILE
     ]
 
     static UNCOMMON_RELICS = [
@@ -140,7 +142,6 @@ class RelicHandler {
         } else return null;
     }
 
-    // TODO: Implement rarity
     getRandomUnownedRelic(amount, rarity) {
         let relicsAvailable;
         switch (rarity) {
@@ -171,6 +172,8 @@ class RelicHandler {
         })
         return relics;
     }
+
+    handleWord(word) {} //process word when it's played
 }
 
 class GenericRelic { // for relics that don't need any internal logic
@@ -313,6 +316,40 @@ class PenNibRelic extends GenericRelic {
     }
     reset() {
         this.value = 1;
+        UI.Relic.updateSingleRelic(this);
+    }
+}
+
+class AdditionalGemOnTileThresholdRelic extends GenericRelic {
+    constructor() {
+        super({
+            id : RELIC_ID.T_ADDITIONAL_GEM_TILE,
+            name : "Temp | Additional Gem Tile On Tile Threshold",
+            sprite : "./sprites/Questionmorks.png",
+            update : (ref, count) => {
+                this.value += count;
+            },
+            modifyDisplay : (ref, element) => {
+                if (this.value >= this.ACTIVE_THRESHOLD) {
+                    element.addClass("relic-active-highlight");
+                }
+                return element;
+            }
+        });
+        this.tooltipDescription = `Every ${this.ACTIVE_THRESHOLD} letters used, generate an extra gem tile.`;
+        this.value = 0;
+    }
+
+    ACTIVE_THRESHOLD = 15
+
+    handleWord(word) {
+        this.update(word.length);
+    }
+    get active() {
+        return this.value >= this.ACTIVE_THRESHOLD;
+    }
+    useAbility() {
+        this.value -= this.ACTIVE_THRESHOLD;
         UI.Relic.updateSingleRelic(this);
     }
 }
@@ -709,6 +746,9 @@ class RelicFactory {
                     sprite : "./sprites/Questionmorks.png",
                     tooltipDescription : "Tiles have a small change to spawn with the Harmonized effect",
                 });
+            }
+            case RELIC_ID.T_ADDITIONAL_GEM_TILE : {
+                return new AdditionalGemOnTileThresholdRelic();
             }
             default : {
                 throw new Error(`No relic ${relicId} found! Did you forget to add it to the Factory class?`)

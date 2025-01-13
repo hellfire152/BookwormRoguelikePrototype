@@ -83,7 +83,8 @@ const ENEMY_ID = {
     GHOST : "E_002",
     SLIME : "E_003",
     SNEK : "E_004",
-    PIG_BOSS : "E|PIG_BOSS"
+    PIG_BOSS : "E|PIG_BOSS",
+    SUCCUBUS : "E|SUCCUBUS"
 }
 const ENEMIES = {
     [ENEMY_ID.GOBBO] : {
@@ -245,7 +246,7 @@ const ENEMIES = {
             {
                 name : "Cash Out!",
                 effects : [
-                    AttackEffect.damageEffect("player", 10)
+                    AttackEffect.damageEffect("player", 10),
                 ]
             }
         ],
@@ -263,6 +264,50 @@ const ENEMIES = {
         rewards : [CombatReward.money(50), CombatReward.relic(null,null,"rare"), CombatReward.heal(999)],
         sprite : "./sprites/enemies/Pig.png",
         tooltip : "Forces you to pay for certain tiles. He gains a greed stack for every money spent.\nAt 25 Greed stacks, uses a powerful attack."
+    },
+    [ENEMY_ID.SUCCUBUS] : {
+        name : "Succubus",
+        baseMaxHP : 80,
+        attacks : [
+            {
+                name : "Whip",
+                effects : [
+                    AttackEffect.damageEffect("player", 7),
+                    AttackEffect.applyTileEffect(TILE_EFFECTS.SPIKED, (letters) => {
+                        return _.sampleSize(letters, 3);
+                    }, {damage: 5, duration : 3})
+                ]
+            },
+            {
+                name : "Seduce",
+                effects : [
+                    AttackEffect.damageEffect("player", 3),
+                    AttackEffect.applyTileEffect(TILE_EFFECTS.COMPELLED, (letters) => {
+                        return _.sampleSize(letters, 2);
+                    }, {duration : 1}),
+                    AttackEffect.applyStatusEffect("player", Effect.EFFECT_TYPES.WEAKNESS, 1)
+                ]
+            },
+            {
+                name : "Expose",
+                effects : [
+                    AttackEffect.damageEffect("player", 5),
+                    AttackEffect.applyTileEffect(TILE_EFFECTS.COMPELLED, (letters) => {
+                        return _.sampleSize(letters, 3);
+                    }, {duration : 1}),
+                    AttackEffect.applyStatusEffect("enemy", Effect.EFFECT_TYPES.VULNERABLE, 1)
+                ]
+            }
+        ],
+        initialState : 0,
+        stateTransition : (ref) => {
+            if (++ref.state > 2) {
+                ref.state = 0;
+            }
+        },
+        rewards : [CombatReward.money(50), CombatReward.relic(null,null,"rare")],
+        sprite : "./sprites/enemies/Lady.png",
+        tooltip : "Forces you to make tough decisions with your tiles.\nCan apply spiked tile effect, deals 5 damage to you if you use it.\nCan also apply compelled tile effect, which forces you to use that tile."
     }
 }
 
@@ -301,7 +346,6 @@ class PigBossEnemy extends Enemy {
     }
 
     onMoneySpent(money) {
-        console.log("test");
         // add greed stacks
         this.applyEffect(Effect.EFFECT_TYPES.GREED, money);
     }
@@ -314,7 +358,8 @@ class EnemyFactory {
         ENEMY_ID.SLIME
     ]
     static ELITE_ENEMIES = [
-        ENEMY_ID.SNEK
+        ENEMY_ID.SNEK,
+        //ENEMY_ID.SUCCUBUS
     ]
     static BOSS_ENEMIES = [
         ENEMY_ID.PIG_BOSS

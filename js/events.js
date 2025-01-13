@@ -294,7 +294,7 @@ const EVENT_FUNCTIONS = {
         // pick one of 3 relics
         ui.saveCurrentSceneState();
 
-        let relics = RelicFactory.getRandomUnownedRelic(3);
+        let relics = relicHandler.getRandomUnownedRelic(3);
         ui.loadRewardChoices("Obtain a new relic", relics, "relic")
     },
     "reward-choice" : (target, args) => {

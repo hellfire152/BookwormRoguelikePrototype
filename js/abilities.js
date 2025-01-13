@@ -207,7 +207,6 @@ class Ability {
     static abilityOnClick(e) {
         let abilityId = UI.Ability.getAbilityIdFromOnclick(e);
         let chargeHealRelic = relicHandler.getRelic(RELIC_ID.T_CHARGE_HEAL);
-        console.log(chargeHealRelic)
         if (chargeHealRelic) {
             let ability = player.getChargeAbility(abilityId);
             if (!ability) throw new Error(`Player does not have ability of ability id ${abilityId}`);

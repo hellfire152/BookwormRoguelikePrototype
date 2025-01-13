@@ -192,10 +192,10 @@ class CombatHandler {
         // remove placeholder letters
         $(".placeholder-letter").remove();
         // check which special tiles need to be generated
-        let specialTilesToGenerate = this.specialTilesToGenerate(letters);
+        let sttg = this.specialTilesToGenerate(letters);
         // replace letters lost
         Letter.generateLetters(GAME_CONSTANTS.STARTING_LETTER_COUNT - 
-            UI.Letter.getAvailableLetterElements().length, specialTilesToGenerate);
+            UI.Letter.getAvailableLetterElements().length, sttg);
 
         // charge gain
         if (relicHandler.checkHasRelic(RELIC_ID.GAUNTLET)) attackResult.chargeGain /= 2;
@@ -540,8 +540,16 @@ class CombatHandler {
         } else if (length >= 5) {
             output[SPECIAL_TILE_TYPES.TYPE_1] += 1;
         } else {
-
+            // generate nothing
         }
+        
+        // relic effects
+        let addGem = relicHandler.getRelic(RELIC_ID.T_ADDITIONAL_GEM_TILE);
+        if (addGem && addGem.active) {
+            addGem.useAbility();
+            output[SPECIAL_TILE_TYPES.TYPE_1] += 1;
+        }
+
         return output;
     }
 

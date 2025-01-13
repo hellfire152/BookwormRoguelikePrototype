@@ -34,6 +34,14 @@ class Utils {
         // minimum word length is three
         if (word.length < 3) return ui.setSubmitButtonEnabled(false);
 
+        // check compelled status
+        for (const l of UI.Letter.getAvailableLetterObjects()) {
+            if(!l) continue;
+            if (l.tileEffects[TILE_EFFECTS.COMPELLED]) {
+                return false;
+            }
+        }
+
         // no blank tiles, stright forward lookup
         if(!word.includes("?")) {
             // evaluate relics that allow custom word forms

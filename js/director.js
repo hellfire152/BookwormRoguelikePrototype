@@ -79,8 +79,7 @@ class Director {
         player.gainCharge(225);
         player.giveMoney(2000);
 
-        relicHandler.addRelic(RELIC_ID.T_MORE_UPGRADE_LETTER_CHOICES);
-        relicHandler.addRelic(RELIC_ID.TUNING_FORK);
+        relicHandler.addRelic(RELIC_ID.T_ADDITIONAL_GEM_TILE);
         companionHandler.addCompanion(COMPANION_ID.CAT);
         this.setupEvent("_intro");
         ui.removeStartButton();
@@ -135,7 +134,7 @@ class Director {
 
     getNextNodeOptions() {
         let options = [];
-        options.push("event");
+        options.push("elite");
         if (this.nodeIndex == 1) { // start with combat
             options.push("combat");
             return options;

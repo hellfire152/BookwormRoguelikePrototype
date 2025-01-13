@@ -11,7 +11,8 @@ const TILE_EFFECTS = {
     WEAKEN : "TE|WEAKEN",
     HARMONIZED : "TE|HARMONIZED",
     EMPHASIZED : "TE|EMPHASIZED",
-    SUPERCHARGED : "TE|SUPERCHARGED"
+    SUPERCHARGED : "TE|SUPERCHARGED",
+    COMPELLED : "TE|COMPELLED"
 }
 
 // basically an abstract class. Has some static factory methods to actually create the TileEffect instances
@@ -66,6 +67,9 @@ class TileEffect {
             }
             case TILE_EFFECTS.HARMONIZED : {
                 return TileEffect.harmonized(data.duration);
+            }
+            case TILE_EFFECTS.COMPELLED : {
+                return TileEffect.compelled(data.duration);
             }
         }
     }
@@ -161,6 +165,16 @@ class TileEffect {
         return new TileEffect({
             modifyLetterElement : (element) => {
                 element.addClass("tile-effect-supercharged");
+                return element;
+            },
+            state : duration
+        })
+    }
+
+    static compelled(duration) {
+        return new TileEffect({
+            modifyLetterElement : (element) => {
+                element.addClass("tile-effect-compelled");
                 return element;
             },
             state : duration

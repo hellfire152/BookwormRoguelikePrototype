@@ -215,10 +215,11 @@ class Letter {
         this.element = null;
 
         // relic generation effects
-        if (relicHandler.checkHasRelic(RELIC_ID.TUNING_FORK)) {
+        if (relicHandler.checkHasRelic(RELIC_ID.TUNING_FORK)
+          && !this.specialTileType 
+          && !(this.specialTileType && this.specialTileType == SPECIAL_TILE_TYPES.UNSELECTABLE)) {
             if (Math.random() > 0.15) return;
             this.applyTileEffect(undefined, TILE_EFFECTS.HARMONIZED, {duration : 99})
-            console.log(this);
         }
     }
 
