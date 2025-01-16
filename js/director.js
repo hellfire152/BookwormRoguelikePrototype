@@ -27,7 +27,8 @@ class Director {
             combat : 42,
             elite : 7,
             event : 41,
-            itemShop : 10,
+            itemShop : 5,
+            abilityShop : 5,
             upgradeShop : 10,
             treasure : 0,
             boss : 0
@@ -74,7 +75,7 @@ class Director {
         player.newAbility(ABILITY_ID.NEXT_LETTER);
         player.newAbility(ABILITY_ID.PREVIOUS_LETTER);
         player.newAbility(ABILITY_ID.OMNISCIENCE);
-        player.giveConsumable(CONSUMABLE_ID.SCROLL);
+        player.giveConsumable(CONSUMABLE_ID.CLEANSING_POTION);
 
         player.gainCharge(225);
         player.giveMoney(2000);
@@ -134,7 +135,7 @@ class Director {
 
     getNextNodeOptions() {
         let options = [];
-        options.push("elite");
+        options.push("boss");
         if (this.nodeIndex == 1) { // start with combat
             options.push("combat");
             return options;
@@ -181,6 +182,14 @@ class Director {
             this.nodeTypeProbabilitiesThreshold[t] = threshold;
         }
         this.nodeTypeProbabilitiyPointMax = threshold;
+    }
+
+    playerDefeated() {
+        let message = "Game Over!"
+        if (currentEnemy.name == "Prototype Boss") {
+            message += `Final score: ${currentEnemy.maxHP - currentEnemy.currentHP}`
+        }
+        alert(message);
     }
 
     nextWorld() {

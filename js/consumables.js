@@ -5,7 +5,10 @@ const CONSUMABLE_ID = {
     INSTANT_REFRESH : "C|INSTANT_REFRESH", // rerolls all tiles without skipping a turn
     TILE_DELIVERY : "C|TILE_DELIVERY", // adds a set number of extra tiles
     //OMNISCIENCE : 5, // plays the longest possible word for you
-    SCROLL : "C|SCROLL" // gives a set amount of charge
+    SCROLL : "C|SCROLL", // gives a set amount of charge
+    PORTABLE_CHARGER : "C|PORTABLE_CHARGER",
+    VOICE_RECORDER : "C|VOICE_RECORDER",
+    CLEANSING_POTION : "C|CLEANSING_POTION"
 }
 
 class Consumable {
@@ -158,6 +161,51 @@ class ConsumableFactory {
                     baseCost : 20,
                     sprite : "./sprites/Questionmorks.png",
                     tooltip : "Gives 15 Charge"
+                })
+            }
+            case CONSUMABLE_ID.PORTABLE_CHARGER : {
+                return new Consumable({
+                    id : CONSUMABLE_ID.PORTABLE_CHARGER,
+                    name : "Portable Charger",
+                    use : () => {
+                        let letters = UI.Letter.getLetterObjects();
+                        for (const l of letters) {
+                            l.applyTileEffect(TILE_EFFECTS.SUPERCHARGED, {duration:1})
+                        }
+                        return true;
+                    },
+                    baseCost : 70,
+                    sprite : "./sprites/Questionmorks.png",
+                    tooltip : "Gives all current tiles Supercharge for 1 turn"
+                })
+            }
+            case CONSUMABLE_ID.VOICE_RECORDER : {
+                return new Consumable({
+                    id : CONSUMABLE_ID.VOICE_RECORDER,
+                    name : "Voice Recorder",
+                    use : () => {
+                        let letters = UI.Letter.getLetterObjects();
+                        for (const l of letters) {
+                            l.applyTileEffect(TILE_EFFECTS.STUTTER, {duration: 1});
+                        }
+                        return true;
+                    },
+                    baseCost : 40,
+                    sprite : "./sprites/Questionmorks.png",
+                    tooltip : "Gives all tiles Stutter for 1 turn"
+                })
+            }
+            case CONSUMABLE_ID.CLEANSING_POTION : {
+                return new Consumable({
+                    id : CONSUMABLE_ID.CLEANSING_POTION,
+                    name : "Cleansing Potion",
+                    use : () => {
+                        player.cleanseTileAndStatus();
+                        return true;
+                    },
+                    baseCost : 50,
+                    sprite : "./sprites/Questionmorks.png",
+                    tooltip : "Cleanse all tile and status debuffs"
                 })
             }
         }

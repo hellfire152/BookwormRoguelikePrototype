@@ -110,3 +110,10 @@
     background-image: radial-gradient(circle at center center, #fc98f4, #ffffff), repeating-radial-gradient(circle at center center, #fc98f4, #fc98f4, 10px, transparent 20px, transparent 10px);
     background-blend-mode: multiply;
 }
+
+.tile-effect-stutter {
+    box-shadow: 
+        5px 5px hsla(0, 100%, 72%, 0.734), 
+        -5px 5px rgba(99, 238, 117, 0.445),  
+        0px -5px rgba(99, 171, 238, 0.445);
+}

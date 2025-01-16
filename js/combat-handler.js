@@ -193,9 +193,19 @@ class CombatHandler {
         $(".placeholder-letter").remove();
         // check which special tiles need to be generated
         let sttg = this.specialTilesToGenerate(letters);
+        // check for Stutter effect
+        let stutterTiles = letters.filter((l) => {
+            return l.hasTileEffect(TILE_EFFECTS.STUTTER);
+        });
+        function * stutterTileGenerator(st) {
+            for (const l of st) {
+                yield l.letter;
+            }
+            return;
+        }
         // replace letters lost
         Letter.generateLetters(GAME_CONSTANTS.STARTING_LETTER_COUNT - 
-            UI.Letter.getAvailableLetterElements().length, sttg);
+            UI.Letter.getAvailableLetterElements().length, sttg, stutterTileGenerator(stutterTiles));
 
         // charge gain
         if (relicHandler.checkHasRelic(RELIC_ID.GAUNTLET)) attackResult.chargeGain /= 2;
@@ -289,10 +299,6 @@ class CombatHandler {
         })
         this.combatPhaseIndex = null;
         //director.signal("enemy-defeated", rewards);
-    }
-
-    playerDefeated() {
-        
     }
 
     // called by director to start combat
@@ -418,6 +424,7 @@ class CombatHandler {
                     case SPECIAL_TILE_TYPES.TYPE_2 : {
                         individualTileDamage[i] += 4;
                         individualTileCharge[i] += 4;
+                        effects.push(AttackEffect.applyStatusEffect("player", Effect.EFFECT_TYPES.SHIELD, 5));
                         effects.push(AttackEffect.healEffect("player", 3));
                         if (relicHandler.checkHasRelic(RELIC_ID.HEAVY_METAL)) {
                             effects.push(AttackEffect.applyStatusEffect("enemy", 

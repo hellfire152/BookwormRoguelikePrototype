@@ -68,6 +68,13 @@ class UI {
                     });
                     break;
                 }
+                case "abilityShop" : {
+                    uiOptions.push({
+                        text : "Visit the Abilities Shop",
+                        onSelect : "load-ability-shop"
+                    })
+                    break;
+                }
                 case "upgradeShop" : {
                     uiOptions.push({
                         text : "Visit the upgrades shop",
@@ -450,6 +457,13 @@ class UI {
         static getLetters() {
             return $(".letter:not(.placeholder-letter)");
         }
+        static getLetterObjects() {
+            let letters = UI.Letter.getLetters();
+            letters = letters.toArray().map((l) => {
+                return Letter.getLetterObjectFromElement(l);
+            })
+            return letters;
+        }
         static getLettersInInput() {
             let letters = [];
             $('#letter-input').children().each((index, element) => {
@@ -710,6 +724,43 @@ class UI {
                     "args" : `${cid}@consumable`
                 });
             }
+
+            for (const r of relics) {
+                let relicObj = RelicFactory.generateRelic(r);
+                let relicContainer = relicObj.generateElement(true);
+                shopItems.append(relicContainer);
+
+                options.push({
+                    "text" : relicObj.name,
+                    "onSelect" : "purchase-item", 
+                    "args" : `${r}@relic`
+                })
+            }
+        
+            shopContainer.append(shopPrompt, shopItems);
+            ui.sceneStore.event.text = shopContainer;
+        
+            options.push({
+                "text" : "Continue",
+                "onSelect" : "_next-event"
+            });
+            ui.setEventPlayerOptions(options);
+            ui.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
+        }
+        static loadAbilityShop(args) {
+            let shopContainer = $("<div></div>");
+            shopContainer.attr("id", "shop-container");
+        
+            let shopPrompt = $("<div>");
+            shopPrompt.attr("id", "shop-text");
+            shopPrompt.text("UPGRADE SHOP");
+        
+            let shopItems = $("<div></div>");
+            shopItems.attr("id", "shop-items-container");
+         
+            //generate 3 random abilities
+            let options = [];
+            let abilities = _.sampleSize(CONSUMABLE_ID, 3).sort();
 
             for (const r of relics) {
                 let relicObj = RelicFactory.generateRelic(r);

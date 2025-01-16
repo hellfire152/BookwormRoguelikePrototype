@@ -58,7 +58,7 @@ class Enemy extends Character {
         isDirect && log(`Player dealt ${result.damage} damage to ${this.name}`);
 
         if (!this.isAlive) {
-            currentEnemy.defeatAndGiveRewards();
+            this.defeatAndGiveRewards();
         }
         return result;
     }
@@ -84,7 +84,8 @@ const ENEMY_ID = {
     SLIME : "E_003",
     SNEK : "E_004",
     PIG_BOSS : "E|PIG_BOSS",
-    SUCCUBUS : "E|SUCCUBUS"
+    SUCCUBUS : "E|SUCCUBUS",
+    PROTOTYPE_END_BOSS : "E|PROTOTYPE_END_BOSS"
 }
 const ENEMIES = {
     [ENEMY_ID.GOBBO] : {
@@ -308,6 +309,28 @@ const ENEMIES = {
         rewards : [CombatReward.money(50), CombatReward.relic(null,null,"rare")],
         sprite : "./sprites/enemies/Lady.png",
         tooltip : "Forces you to make tough decisions with your tiles.\nCan apply spiked tile effect, deals 5 damage to you if you use it.\nCan also apply compelled tile effect, which forces you to use that tile."
+    },
+    [ENEMY_ID.PROTOTYPE_END_BOSS] : {
+        name : "Prototype Boss",
+        baseMaxHP : 9999,
+        attacks : [
+            {
+                name : "Attack",
+                effects : [
+                    AttackEffect.damageEffect("player", (enemy) => {
+                        if (!enemy.attackLevel) {
+                            enemy.attackLevel = 0;
+                        }
+                        return 5 + (enemy.attackLevel++ * 3);
+                    })
+                ]
+            }
+        ],
+        initialState : 0,
+        stateTransition : (ref) => {ref.state = 0},
+        rewards : [],
+        sprite : "./sprites/enemies/MC.png",
+        tooltip : "Supposededly unwinnable fight. See how far you can make it!"
     }
 }
 
@@ -349,6 +372,20 @@ class PigBossEnemy extends Enemy {
         // add greed stacks
         this.applyEffect(Effect.EFFECT_TYPES.GREED, money);
     }
+
+    defeatAndGiveRewards() {
+        log(`Congratuations on beating the boss!`);
+
+        ui.setupDynamicEvent({
+            prompt : "Congratulations on defeating the boss! This is it for the prototype content, but there's one more unwinnable encounter. Try to get as far as you can!",
+            options : [
+                {
+                    text : "Benchmark fight",
+                    onSelect : "prototype-boss"
+                }
+            ]
+        })
+    }
 }
 
 class EnemyFactory {
@@ -358,11 +395,12 @@ class EnemyFactory {
         ENEMY_ID.SLIME
     ]
     static ELITE_ENEMIES = [
-        ENEMY_ID.SNEK,
-        //ENEMY_ID.SUCCUBUS
+        //ENEMY_ID.SNEK,
+        ENEMY_ID.SUCCUBUS
     ]
     static BOSS_ENEMIES = [
-        ENEMY_ID.PIG_BOSS
+        //ENEMY_ID.PIG_BOSS,
+        ENEMY_ID.PROTOTYPE_END_BOSS
     ]
     static generateEnemy(enemyType, level) {
         switch(enemyType) {

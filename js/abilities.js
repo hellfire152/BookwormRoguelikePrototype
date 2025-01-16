@@ -146,7 +146,7 @@ class AbilityFactory {
                 a.use = () => {
                     if (!director.isInCombat) return false;
                     UI.Letter.temporaryTileHighlightWithCallback((t, letter) => {
-                        letter.applyTileEffect(t, TILE_EFFECTS.POISONOUS, {duration : 3})
+                        letter.applyTileEffect(TILE_EFFECTS.POISONOUS, {duration : 3})
                     }, "temporary-highlight-ability")
                     return true;
                 }
@@ -221,11 +221,12 @@ class Ability {
         this.sprite = data.sprite;
         this.tooltip = data.tooltip;
         this.id = data.id;
+        this.shopCost = data.shopCost || 50;
     }
 
     use() {console.log("unimplemented")} // implement separately for each ability
     
-    generateElement(showCost = true) {
+    generateElement(showCost = true, showShopCost = false) {
         // reset cost
         if (this._cost) this.cost = this._cost;
         

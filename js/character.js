@@ -22,11 +22,33 @@ class Character {
         return this.effects[statusId];
     }
 
+    removeStatus(statusId) {
+        delete this.effects[statusId];
+        this._updateEffectDisplay();
+    }
+
     removeAllStatuses() {
         for (let e in this.effects) {
             this.effects[e] = null;
         }
         this._updateEffectDisplay();
+    }
+
+    getDebuffs() {
+        let debuffs = [];
+        for (const e in this.effects) {
+            if(!this.effects[e]) return;
+            if(this.effects[e].isDebuff) debuffs.push(this.effects[e]);
+        }
+        return debuffs;
+    }
+
+    cleanseStatus(cleanseAmount) {
+        let debuffs = this.getDebuffs();
+        let toRemove = _.sampleSize(debuffs, cleanseAmount);
+        for (const s of toRemove) {
+            this.removeStatus(s.id);
+        }
     }
 
     async resolvePreTurnEffects() {

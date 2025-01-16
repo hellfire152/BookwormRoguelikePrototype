@@ -18,7 +18,7 @@ class AttackEffect {
             value : value,
             target : target,
             apply : async (ref, source) => {
-                let v = Utils.getValue(ref.value);
+                let v = Utils.getValue(ref.value, ref);
                 let s = source || "Player";
                 if (ref.target == "player") {
                     await player.dealDamage(v);

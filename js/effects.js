@@ -20,6 +20,8 @@ class Effect {
         this.value = effectOptions.value;
         this.duration = effectOptions.duration;
         this.sprite = effectOptions.sprite;
+        this.isDebuff = effectOptions.isDebuff || false;
+        this.isCleansable = effectOptions.isCleansable || true;
     }
 
     // behaviour if the status is already present, and it is reapplied
@@ -88,7 +90,8 @@ class PoisonEffect extends Effect {
             effectType : Effect.EFFECT_TYPES.POISON,
             value : Math.floor(value),
             duration : null, // unused since poison duration is based on value,
-            sprite : "./sprites/effects/poison.png"
+            sprite : "./sprites/effects/poison.png",
+            isDebuff : true
         });
     }
 
@@ -119,7 +122,8 @@ class StunEffect extends Effect {
             effectType : Effect.EFFECT_TYPES.STUN,
             value : null,
             duration : value,
-            sprite : "./sprites/effects/Stun.png"
+            sprite : "./sprites/effects/Stun.png",
+            isDebuff : true
         });
     }
 
@@ -160,7 +164,9 @@ class SnakeVenomEffect extends Effect {
             effectType : Effect.EFFECT_TYPES.SNAKE_VENOM,
             value : value,
             duration : null,
-            sprite : "./sprites/effects/Poison.png"
+            sprite : "./sprites/effects/Poison.png",
+            isDebuff : true,
+            isCleansable : false
         });
     }
 
@@ -209,7 +215,8 @@ class EffectFactory {
                     effectType : Effect.EFFECT_TYPES.WEAKNESS,
                     value : null,
                     duration : value,
-                    sprite : "./sprites/effects/Weaken.png"
+                    sprite : "./sprites/effects/Weaken.png",
+                    isDebuff : true
                 });
             }
             case Effect.EFFECT_TYPES.VULNERABLE : {
@@ -217,7 +224,8 @@ class EffectFactory {
                     effectType : Effect.EFFECT_TYPES.VULNERABLE,
                     value : null,
                     duration : value,
-                    sprite : "./sprites/effects/Weakness.png"
+                    sprite : "./sprites/effects/Weakness.png",
+                    isDebuff : true,
                 });
             }
             case Effect.EFFECT_TYPES.STUN : {
@@ -231,7 +239,8 @@ class EffectFactory {
                     effectType : Effect.EFFECT_TYPES.SILENCE,
                     value : null,
                     duration : value,
-                    sprite : "./sprites/effects/Silenced.png"
+                    sprite : "./sprites/effects/Silenced.png",
+                    isDebuff : true
                 });
             }
             case Effect.EFFECT_TYPES.CONFUSION : {
@@ -239,7 +248,8 @@ class EffectFactory {
                     effectType : Effect.EFFECT_TYPES.CONFUSION,
                     value : null,
                     duration : 5,
-                    sprite : "./sprites/effects/Confusion.png"
+                    sprite : "./sprites/effects/Confusion.png",
+                    isDebuff : true
                 });
             }
             case Effect.EFFECT_TYPES.DAMAGE_BOOST : {

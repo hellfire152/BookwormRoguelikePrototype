@@ -94,7 +94,7 @@ class Player extends Character {
         let result = super.dealDamage(damage);
         Anim.playerReciveDamage(damage);
         if (!this.isAlive) {
-            alert(`Game Over! You lasted ${levelsCleared} rounds.`);
+            return director.playerDefeated();
         }
         return false;
     }
@@ -197,9 +197,41 @@ class Player extends Character {
 
         for (const l of affectedLetters) {
             let e = Letter.getLetterObjectFromElement(l);
-            e.applyTileEffect(l, tileEffectType, data);
+            e.applyTileEffect(tileEffectType, data);
         }
-    }   
+    }
+    
+    cleanseTileEffect(cleanseAmount) {
+        if (typeof cleanseAmount == "undefined") cleanseAmount = 99; // cleanse all
+        let debuffs = [];
+        for (const l of UI.Letter.getLetterObjects()) {
+            let tileDebuffs = l.getDebuffs();
+            if (tileDebuffs.length <= 0) continue;
+            for (const td of tileDebuffs) {
+                if (!td.isCleansable) continue;
+                debuffs.push({
+                    ref : l,
+                    debuff : td
+                })
+            }
+        }
+        let toRemove = _.sampleSize(debuffs, cleanseAmount);
+        for (const d of toRemove) {
+            d.ref.removeTileEffect(d.debuff.id)
+        }
+    }
+
+    cleanseTileAndStatus(cleanseAmount) {
+        if (!cleanseAmount) { // remove all debuffs
+            super.removeAllStatuses();
+            this.cleanseTileEffect();
+        }
+
+        let statusToCleanse = Math.floor(Math.random() * (cleanseAmount + 1));
+        let tileEffectsToCleanse = cleanseAmount - statusToCleanse;
+        super.cleanseStatus(statusToCleanse);
+        this.cleanseTileEffect(tileEffectsToCleanse);
+    }
 
     // adding in handling tile effects
     async resolvePostTurnEffects() {

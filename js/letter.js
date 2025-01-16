@@ -151,7 +151,7 @@ class Letter {
         }
     }
     
-    static generateLetters(noLettersToGenerate, specialTilesToGenerate, letterFunction) {
+    static generateLetters(noLettersToGenerate, specialTilesToGenerate, letterGenerator) {
         if (!noLettersToGenerate) {
             // fill to max if not defined
             noLettersToGenerate = GAME_CONSTANTS.STARTING_LETTER_COUNT 
@@ -173,7 +173,7 @@ class Letter {
 
         for(let i = 0; i < noLettersToGenerate; i++) {
             let specialTile = specialTileGenerator.next().value;
-            let l = (letterFunction) ? letterFunction() : Letter.randomLetterMatchingProbabilities();
+            let l = (letterGenerator) ? letterGenerator.next().value : Letter.randomLetterMatchingProbabilities();
             let letter = new Letter(l, specialTile);
 
             let element = letter.generateElement();
@@ -219,7 +219,7 @@ class Letter {
           && !this.specialTileType 
           && !(this.specialTileType && this.specialTileType == SPECIAL_TILE_TYPES.UNSELECTABLE)) {
             if (Math.random() > 0.15) return;
-            this.applyTileEffect(undefined, TILE_EFFECTS.HARMONIZED, {duration : 99})
+            this.applyTileEffect(TILE_EFFECTS.HARMONIZED, {duration : 99})
         }
     }
 
@@ -263,13 +263,24 @@ class Letter {
     rerender(elementToReplace = this.element) {
         $(elementToReplace).replaceWith(this.generateElement());
     }
-    applyTileEffect(letterElement = this.element, tileEffectType, data) {
-        this.tileEffects[tileEffectType] = TileEffect.generateTileEffect(tileEffectType, data);
-        this.rerender(letterElement);
+    hasTileEffect(tileEffectType) {
+        return !!this.tileEffects[tileEffectType];
     }
-    removeTileEffect(letterElement = this.element, tileEffectType) {
+    applyTileEffect(tileEffectType, data) {
+        this.tileEffects[tileEffectType] = TileEffect.generateTileEffect(tileEffectType, data);
+        this.rerender();
+    }
+    removeTileEffect(tileEffectType) {
         this.tileEffects[tileEffectType] = null;
-        this.rerender(letterElement);
+        this.rerender();
+    }
+    getDebuffs() {
+        let debuffs = [];
+        for (const te of Object.values(this.tileEffects)) {
+            if(!te) continue;
+            if (te.isDebuff) debuffs.push(te);
+        }
+        return debuffs;
     }
     
     resolveTileEffects(e, isPostTurn) {
@@ -295,7 +306,7 @@ class Letter {
                 let te = this.tileEffects[TILE_EFFECTS.MONEY_LOCK];
                 if (player.money >= te.moneyCost) {
                     player.takeMoney(te.moneyCost);
-                    this.removeTileEffect(t, TILE_EFFECTS.MONEY_LOCK);
+                    this.removeTileEffect(TILE_EFFECTS.MONEY_LOCK);
                 }
                 return;
             }
@@ -303,7 +314,7 @@ class Letter {
                 let te = this.tileEffects[TILE_EFFECTS.CHARGE_LOCK];
                 if (player.currentCharge >= te.chargeCost) {
                     player.removeCharge(te.chargeCost);
-                    this.removeTileEffect(t, TILE_EFFECTS.CHARGE_LOCK);
+                    this.removeTileEffect(TILE_EFFECTS.CHARGE_LOCK);
                 }
                 return;
             }

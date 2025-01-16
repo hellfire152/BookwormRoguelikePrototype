@@ -3,6 +3,7 @@ const nextEventEventOption = {
     "onSelect" : "_next-event"
 }
 const EVENT_DETAILS = {
+    // intro stuff
     "_intro" : {
         "prompt" : "This is a test event! Please don't mind",
         "postPrompt" : "Test post prompt",
@@ -23,6 +24,7 @@ const EVENT_DETAILS = {
             }
         ]
     },
+    // TEST ONLY
     "_test_event" : {
         "prompt" : "Test event",
         "options" : [
@@ -48,19 +50,7 @@ const EVENT_DETAILS = {
             nextEventEventOption
         ]
     },
-    "_decide-event" : {
-        "prompt" : "Select the next event",
-        "options" : [
-            {
-                "text" : "Item shop",
-                "onSelect" : "load-item-shop"
-            },
-            {
-                "text" : "Explore the area",
-                "onSelect" : "_random-event"
-            }
-        ]
-    },
+    // treasure event
     "_treasure-event" : {
         "prompt" : "Treasure!",
         "options" : [
@@ -75,6 +65,8 @@ const EVENT_DETAILS = {
             nextEventEventOption
         ]
     },
+
+    // Random events
     "pit-stop" : {
         "prompt" : "You arrive at a pit stop. Time to take a break",
         "postPrompt" : "What do you do?",
@@ -225,6 +217,9 @@ const EVENT_FUNCTIONS = {
     },
     "load-item-shop" : () => {
         UI.Shop.loadItemShop();
+    },
+    "load-ability-shop" : () => {
+        UI.Shop.loadAbilityShop();
     },
     "load-upgrade-shop" : () => {
         UI.Shop.loadUpgradeShop();
@@ -392,5 +387,8 @@ const EVENT_FUNCTIONS = {
             player.removeCharge(player.currentCharge / 2);
             director.setupEvent("_abandoned-building-rare-reward-failure");
         }
+    },
+    "prototype-boss" : (target) => {
+        director.setupCombat("prototype-boss", ENEMY_ID.PROTOTYPE_END_BOSS, false);
     }
 }
