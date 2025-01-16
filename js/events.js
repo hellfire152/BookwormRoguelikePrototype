@@ -226,8 +226,10 @@ const EVENT_FUNCTIONS = {
     },
     "purchase-item" : (target, args) => {
         let [itemID, type] = _.split(args, "@");
-        let isPurchaseSuccessful = player.attemptPurchase(itemID, type);
-        if (isPurchaseSuccessful) $(target).remove();
+        let isPurchaseSuccessful = player.attemptPurchase(itemID, type, target);
+        if (isPurchaseSuccessful){
+            $(target).remove();
+        }
     },
     "combat-reward-money" : (target, money) => {
         target.remove();

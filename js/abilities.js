@@ -7,7 +7,8 @@ const ABILITY_ID = {
     PREVIOUS_LETTER : "A|PREVIOUS_LETTER",
     DAMAGE_BOOST : "A|DAMAGE_BOOST",
     MAKE_TILE_POISONOUS : "A|MAKE_TILE_POISONOUS",
-    OMNISCIENCE : "A|OMNISCIENCE"
+    OMNISCIENCE : "A|OMNISCIENCE",
+    GENERATE_GEM : "A|GENERATE_GEM"
 }
 
 class AbilityFactory {
@@ -176,6 +177,22 @@ class AbilityFactory {
                 }
                 return a;
             }
+            case ABILITY_ID.GENERATE_GEM : {
+                let a = new Ability({
+                    id : ABILITY_ID.GENERATE_GEM,
+                    cost : 15,
+                    name : "Generate Gem Tile",
+                    sprite : "./sprites/Questionmorks.png",
+                    tooltip : "Generates a new tile, this tile is also a bonus tile."
+                })
+                a.use = () => {
+                    if (!director.isInCombat) return false;
+
+                    Letter.generateLetters(1, {[SPECIAL_TILE_TYPES.TYPE_1] : 1})
+                    return true;
+                }
+                return a;
+            }
             default : {
                 throw new Error(`Ability ${abilityId} does not exist!`);
             }
@@ -237,11 +254,21 @@ class Ability {
         let abilitySprite = $("<img>");
         abilitySprite.attr("src", this.sprite);
         abilitySprite.addClass("ability-sprite hover-tooltip");
-        abilitySprite.attr("data-tooltip-content", this.tooltip);
+
 
         let abilityText = $("<div>");
         abilityText.text(this.cost);
         abilityText.addClass("ability-text");
+
+        let shopCost;
+        if (showShopCost) {
+            shopCost = $("<div>");
+            shopCost.addClass("item-cost");
+            shopCost.text(this.shopCost);
+
+            abilitySprite.addClass("item-sprite");
+            abilityContainer.addClass("item-container");
+        }
 
         // relics
         if (relicHandler.checkHasRelic(RELIC_ID.SYRINGE)
@@ -252,8 +279,12 @@ class Ability {
             abilityText.addClass("ability-text-discount-highlight")
         }
 
+        let tt = `${this.name}\n---------------\n${this.tooltip}\n---------------\nCharge Cost: ${this.cost}`
+        abilitySprite.attr("data-tooltip-content", tt);
         abilityContainer.append(abilitySprite);
+
         if (showCost) abilityContainer.append(abilityText);
+        if (showShopCost) abilityContainer.append(shopCost);
         return abilityContainer;
     }
 }

@@ -78,6 +78,18 @@ class Anim {
         damageNumberContainer.addClass(tc);
         damageNumberContainer.text("-" + damageTaken);
         Anim.playerHPNumberAnim(damageNumberContainer, tc);
+        Anim.playerDamageFlash();
+    }
+
+    static async playerDamageFlash() {
+        let damageFlashElement = $("<div>");
+        damageFlashElement.addClass("damage-flash");
+
+        $("#damage-flash-container").append(damageFlashElement);
+        damageFlashElement.one("animationend", () => {
+            damageFlashElement.remove();
+        })
+        damageFlashElement.addClass("damage-flash-active");
     }
 
     static playerHealDamage(heal) {

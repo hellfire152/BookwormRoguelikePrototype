@@ -132,10 +132,7 @@ const ENEMIES = {
                             return (r) ? "o" : "u"
                         }
                     ),
-                    AttackEffect.damageEffect("player", (level) => {
-                        if (!level) level = 0;
-                        return 5 * (1.15 ** level)
-                    })
+                    AttackEffect.damageEffect("player",5)
                 ]
             }
         ],
@@ -155,14 +152,8 @@ const ENEMIES = {
                 name : "Consume",
                 effects : [
                     AttackEffect.destroyTileEffect(1),
-                    AttackEffect.damageEffect("player", (level) => {
-                        if (!level) level = 0;
-                        return 5 * (1.15 ** level)
-                    }),
-                    AttackEffect.healEffect("enemy", (level) => {
-                        if (!level) level = 0;
-                        return 2 * (1.15 ** level)
-                    })
+                    AttackEffect.damageEffect("player", 5),
+                    AttackEffect.healEffect("enemy", 2)
                 ]
             },
         ],
@@ -339,7 +330,6 @@ class PigBossEnemy extends Enemy {
         super(ENEMIES[ENEMY_ID.PIG_BOSS]);
     }
 
-   
     _performAttack(attack) { 
         // add in greed damage buffs
         for (const e of attack.effects) {
@@ -374,7 +364,7 @@ class PigBossEnemy extends Enemy {
     }
 
     defeatAndGiveRewards() {
-        log(`Congratuations on beating the boss!`);
+        log(`Boss defeated!`);
 
         ui.setupDynamicEvent({
             prompt : "Congratulations on defeating the boss! This is it for the prototype content, but there's one more unwinnable encounter. Try to get as far as you can!",

@@ -433,7 +433,8 @@ class UI {
             }
 
             // submit button
-            let submitAbilityButton = $("<button>Submit<button>");
+            let submitAbilityButton = $("<button>");
+            submitAbilityButton.text("Submit");
             submitAbilityButton.attr("id", "ability-overflow-submit");
             submitAbilityButton.attr("data-return-state", gameState);
             submitAbilityButton.addClass("bottom-row-button");
@@ -448,7 +449,7 @@ class UI {
 
             abilityOverflowContainer.append(abilityOverflowPrompt, abilitiesContainer);
             ui.sceneStore.event.text = abilityOverflowContainer;
-            ui.sceneStore.event.options = container.append(bottomRowContainer);
+            ui.sceneStore.event.options = container;
             ui.switchScene(GAME_CONSTANTS.GAME_STATES.EVENT);
         }
     }
@@ -704,7 +705,7 @@ class UI {
         
             let shopPrompt = $("<div>");
             shopPrompt.attr("id", "shop-text");
-            shopPrompt.text("ITEM SHOP");
+            shopPrompt.text("ITEM SHOP\n----------------");
         
             let shopItems = $("<div></div>");
             shopItems.attr("id", "shop-items-container");
@@ -753,24 +754,23 @@ class UI {
         
             let shopPrompt = $("<div>");
             shopPrompt.attr("id", "shop-text");
-            shopPrompt.text("UPGRADE SHOP");
+            shopPrompt.text("UPGRADE SHOP\n----------------");
         
             let shopItems = $("<div></div>");
             shopItems.attr("id", "shop-items-container");
          
             //generate 3 random abilities
             let options = [];
-            let abilities = _.sampleSize(CONSUMABLE_ID, 3).sort();
+            let abilities = AbilityFactory.getRandomUnownedAbilities(3);
 
-            for (const r of relics) {
-                let relicObj = RelicFactory.generateRelic(r);
-                let relicContainer = relicObj.generateElement(true);
-                shopItems.append(relicContainer);
+            for (const a of abilities) {
+                let abilityContainer = a.generateElement(false, true);
+                shopItems.append(abilityContainer);
 
                 options.push({
-                    "text" : relicObj.name,
+                    "text" : a.name,
                     "onSelect" : "purchase-item", 
-                    "args" : `${r}@relic`
+                    "args" : `${a.id}@ability`
                 })
             }
         
@@ -790,7 +790,7 @@ class UI {
         
             let shopPrompt = $("<div></div>");
             shopPrompt.attr("id", "shop-prompt");
-            shopPrompt.text("Choose a blessing......");
+            shopPrompt.text("Choose an upgrade...\n----------------");
         
             let modifiersContainers = $("<div>");
             modifiersContainers.attr("id", "shop-modifiers-container");

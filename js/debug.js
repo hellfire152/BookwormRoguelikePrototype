@@ -16,3 +16,4 @@ function giveAbility() {
 function getWordData(word) {
     return wordlist[word];
 }
+let debugVar; 

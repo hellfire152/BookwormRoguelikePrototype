@@ -73,7 +73,7 @@ class Director {
         // so we need to start the game loop somewhere
         // let's start with intro (event) -> combat -> event -> combat and so on for now
         player.newAbility(ABILITY_ID.NEXT_LETTER);
-        player.newAbility(ABILITY_ID.PREVIOUS_LETTER);
+        player.newAbility(ABILITY_ID.GENERATE_GEM);
         player.newAbility(ABILITY_ID.OMNISCIENCE);
         player.giveConsumable(CONSUMABLE_ID.CLEANSING_POTION);
 
@@ -135,7 +135,7 @@ class Director {
 
     getNextNodeOptions() {
         let options = [];
-        options.push("boss");
+        options.push("abilityShop");
         if (this.nodeIndex == 1) { // start with combat
             options.push("combat");
             return options;
@@ -193,7 +193,6 @@ class Director {
     }
 
     nextWorld() {
-        
     }
 
     get nodeIndex() {

@@ -13,7 +13,7 @@ class Player extends Character {
         this.name = "Player";
     }
 
-    attemptPurchase(itemID, itemType) {
+    attemptPurchase(itemID, itemType, targetElement) {
         if (itemType == "consumable") {
             let consumable = ConsumableFactory.generateConsumable(itemID);
             if (this.money < consumable.baseCost) {
@@ -37,6 +37,17 @@ class Player extends Character {
             } else {
                 this.money -= relic.shopCost;
                 relicHandler.addRelic(itemID);
+                return true;
+            }
+        } else if (itemType == "ability") {
+            let ability = AbilityFactory.generateAbility(itemID);
+            if (this.money < ability.shopCost) {
+                log(`Insufficient Money for ${ability.name}`);
+                return false;
+            } else {
+                this.money -= ability.shopCost;
+                targetElement.remove();
+                this.newAbility(ability.id, false);
                 return true;
             }
         }
@@ -91,6 +102,7 @@ class Player extends Character {
     }
 
     dealDamage(damage) {
+        console.log(damage);
         let result = super.dealDamage(damage);
         Anim.playerReciveDamage(damage);
         if (!this.isAlive) {
@@ -145,7 +157,7 @@ class Player extends Character {
         }
     }
 
-    newAbility(abilityId) {
+    newAbility(abilityId, saveState = true) {
         this.chargeAbilities.push(AbilityFactory.generateAbility(abilityId));
         
         if (this.chargeAbilities.length <= 5) {
@@ -154,8 +166,7 @@ class Player extends Character {
         }
 
         // limit of 5 charge abilites, must remove one
-
-        UI.Player.abilityOverflow(this.chargeAbilities, director.gameState, true);
+        UI.Player.abilityOverflow(this.chargeAbilities, director.gameState, saveState);
         return false;
     }
 
