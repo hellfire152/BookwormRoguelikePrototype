@@ -85,6 +85,11 @@ const ENEMY_ID = {
     SNEK : "E_004",
     PIG_BOSS : "E|PIG_BOSS",
     SUCCUBUS : "E|SUCCUBUS",
+    NORMAL_BIRD : "E|NORMAL_BIRD",
+    MR_ROACH : "E|ROACH",
+    SPOODER : "E|SPOODER",
+    MIMIC : "E|MIMIC",
+    DICE : "E|DICE",
     PROTOTYPE_END_BOSS : "E|PROTOTYPE_END_BOSS"
 }
 const ENEMIES = {
@@ -322,6 +327,153 @@ const ENEMIES = {
         rewards : [],
         sprite : "./sprites/enemies/MC.png",
         tooltip : "Supposededly unwinnable fight. See how far you can make it!"
+    },
+    [ENEMY_ID.NORMAL_BIRD] : {
+        name : "Normal Bird",
+        baseMaxHP : 60,
+        attacks : [
+            {
+                name : "ALERT",
+                effects : [
+                    AttackEffect.damageEffect(2),
+                    AttackEffect.applyTileEffect(TILE_EFFECTS.CHARGE_LOCK, (letters) => {
+                        return _.sampleSize(letters, 2)
+                    }, {duration : 2})
+                ]
+            },
+            {
+                name : "P-E-E-E-ECK",
+                effects : [
+                    AttackEffect.damageEffect(3),
+                    AttackEffect.damageEffect(3),
+                    AttackEffect.damageEffect(3),
+                    AttackEffect.damageEffect(3)
+                ]
+            }
+        ],
+        initialState : 0,
+        stateTransition : (ref) => {
+            if (++ref.state > 1) {
+                ref.state = 0;
+            }
+        },
+        rewards : [CombatReward.money(20), CombatReward.charge(10)],
+        sprite : "./sprites/enemies/Bird.png",
+        tooltip : "This is a very normal bird. Move along."
+    },
+    [ENEMY_ID.MR_ROACH] : {
+        name : "Mr. Roach",
+        baseMaxHP : 50,
+        attacks : [
+            {
+                name : "Spook",
+                effects : [
+                    AttackEffect.damageEffect(5),
+                    AttackEffect.applyTileEffect(TILE_EFFECTS.CURSED, (letters) => {
+                        return _.sampleSize(letters, 2)
+                    }, {duration : 1})
+                ]
+            },
+            {
+                name : "Lecture",
+                effects : [
+                    AttackEffect.damageEffect(6),
+                    AttackEffect.applyStatusEffect("player", Effect.EFFECT_TYPES.WEAKNESS, 2)
+                ]
+            }
+        ],
+        initialState : 0,
+        stateTransition : (ref) => {
+            if (++ref.state > 1) {
+                ref.state = 0;
+            }
+        },
+        rewards : [CombatReward.money(10)],
+        sprite : "./sprites/enemies/Cockroach.png",
+        tooltip : "Will get triggered if you touch him."
+    },
+    [ENEMY_ID.SPOODER] : {
+        name : "Spooder",
+        baseMaxHP : 50,
+        attacks : [
+            {
+                name : "Entangle",
+                effects : [
+                    AttackEffect.damageEffect(5),
+                    AttackEffect.applyTileEffect(TILE_EFFECTS.LOCK, (letters) => {
+                        return _.sampleSize(letters, 2)
+                    }, {duration : 2})
+                ]
+            },
+            {
+                name : "Bite",
+                effects :  [
+                    AttackEffect.damageEffect(2),
+                    AttackEffect.applyStatusEffect("player", Effect.EFFECT_TYPES.POISON, 5)
+                ]
+            }
+        ],
+        initialState : 0,
+        stateTransition : (ref) => {
+            if (++ref.state > 1) {
+                ref.state = 0
+            }
+        },
+        rewards : [CombatReward.money(15)],
+        sprite : "./sprites/enemies/Spider.png",
+        tooltip : "Will lock your tiles and poison you. Don't get caught for too long!"
+    },
+    [ENEMY_ID.MIMIC] : {
+        name : "Mimic",
+        baseMaxHP : 65,
+        attacks : [
+            {
+                name : "Entrap",
+                effects : [
+                    AttackEffect.damageEffect(4),
+                    AttackEffect.applyTileEffect(TILE_EFFECTS.CURSED, (letters) => {
+                        return _.sampleSize(2)
+                    }, {duration : 1})
+                ]
+            },
+            {
+                name : "Bite",
+                effects : [
+                    AttackEffect.damageEffect(6),
+                    AttackEffect.damageEffect(8)
+                ]
+            }
+        ],
+        initialState : 0,
+        stateTransition : (ref) => {
+            if (++ref.state > 1) {
+                ref.state = 0
+            }
+        },
+        rewards: [CombatReward.money(10), CombatReward.relic(null, 0.3, "common")],
+        sprite : "./sprites/enemies/Mimic.png",
+        tooltip : "Veeeeeery hungry"
+    },
+    [ENEMY_ID.DICE] : {
+        name : "Red Eyed Dice",
+        baseMaxHP : 50,
+        attacks : [
+            {
+                name : "Roll!",
+                effects : [
+                    AttackEffect.damageEffect(() => {
+                        let rollOne = Math.floor(Math.random() * 7);
+                        let rollTwo = Math.floor(Math.random() * 7);
+                        return rollOne + rollTwo;
+                    })
+                ]
+            }
+        ],
+        initialState : 0,
+        stateTransition : (ref) => {return ref.state = 0},
+        rewards : [CombatReward.money(10), CombatReward.relic(null, 0.1, "common")],
+        sprite : "./sprites/enemies/Dice.png",
+        tooltip : "Your fate left in the hands of shifty looking dice."
     }
 }
 
@@ -380,9 +532,14 @@ class PigBossEnemy extends Enemy {
 
 class EnemyFactory {
     static NORMAL_ENEMIES = [
-        ENEMY_ID.GOBBO,
-        ENEMY_ID.GHOST,
-        ENEMY_ID.SLIME
+        //ENEMY_ID.GOBBO,
+        //ENEMY_ID.GHOST,
+        //ENEMY_ID.SLIME,
+        ENEMY_ID.DICE,
+        ENEMY_ID.MIMIC,
+        ENEMY_ID.MR_ROACH,
+        ENEMY_ID.SPOODER,
+        ENEMY_ID.NORMAL_BIRD
     ]
     static ELITE_ENEMIES = [
         //ENEMY_ID.SNEK,
